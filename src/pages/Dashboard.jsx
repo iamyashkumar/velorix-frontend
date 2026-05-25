@@ -20,6 +20,7 @@ export default function Dashboard() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
   const [stats, setStats] = useState({ total: 0, up: 0, down: 0, avgResponseTime: 0 });
+  const [latestHealth, setLatestHealth] = useState({});
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -51,6 +52,8 @@ export default function Dashboard() {
       const response = await api.get('/api/endpoints');
       setEndpoints(response.data);
       calculateStats(response.data);
+      // fetch latest health for each endpoint
+      response.data.forEach(ep => fetchLatestHealth(ep.id));
     } catch (error) {
       console.error('Failed to fetch endpoints', error);
       toast.error('Failed to load endpoints');
@@ -59,17 +62,23 @@ export default function Dashboard() {
     }
   };
 
+  const fetchLatestHealth = async (endpointId) => {
+    try {
+      const res = await api.get(`/api/health/logs/${endpointId}?size=1`);
+      if (res.data && res.data.length > 0) {
+        const last = res.data[0];
+        setLatestHealth(prev => ({ ...prev, [endpointId]: last.responseTimeMs }));
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   const calculateStats = (endpointsList) => {
     const total = endpointsList.length;
     const up = endpointsList.filter(ep => ep.active).length;
     const down = total - up;
-    // For avg response time, we'd need to fetch latest health logs – simplified for now
     setStats({ total, up, down, avgResponseTime: 0 });
-    // Optionally fetch average from backend (can be enhanced)
-    if (total > 0) {
-      // You could call an API to get average response time for all endpoints
-      // For now, set to 0 or compute from first endpoint's latest log
-    }
   };
 
   const fetchHealthLogs = async (endpointId) => {
@@ -81,7 +90,6 @@ export default function Dashboard() {
         responseTimeMs: log.responseTimeMs,
       })).reverse();
       setChartData(logs);
-      // Update avg response time for this endpoint
       if (logs.length > 0) {
         const avg = logs.reduce((sum, l) => sum + l.responseTimeMs, 0) / logs.length;
         setStats(prev => ({ ...prev, avgResponseTime: Math.round(avg) }));
@@ -112,7 +120,7 @@ export default function Dashboard() {
     try {
       const response = await api.post('/api/ai/analyze', {});
       setAiSuggestion(response.data);
-      toast.success('AI analysis complete');
+      // no toast on success – only card appears
     } catch (err) {
       console.error(err);
       toast.error(err.response?.data?.error || 'AI analysis failed');
@@ -138,7 +146,7 @@ export default function Dashboard() {
         <div className="fixed inset-0 z-40 bg-black bg-opacity-50 md:hidden" onClick={() => setSidebarOpen(false)} />
       )}
 
-      {/* Sidebar – removed Refresh and Analyze Errors */}
+      {/* Sidebar – Dashboard link present */}
       <aside className={`fixed top-0 left-0 z-50 h-full w-64 flex flex-col bg-white dark:bg-gray-800 shadow-lg transition-transform duration-300 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0 md:static`}>
         <div className="flex justify-between items-center p-4 border-b">
           <h2 className="text-xl font-bold text-gray-800 dark:text-white">Velorix</h2>
@@ -147,8 +155,12 @@ export default function Dashboard() {
           </button>
         </div>
         <nav className="flex-1 p-4 space-y-4">
-          <button onClick={() => { setSelectedEndpoint(null); setChartData([]); setAiSuggestion(null); }} className="block w-full text-left text-gray-700 dark:text-gray-300">Dashboard</button>
-          <button onClick={() => navigate('/logs')} className="block w-full text-left text-gray-700 dark:text-gray-300">Log Viewer</button>
+          <button onClick={() => { setSelectedEndpoint(null); setChartData([]); setAiSuggestion(null); }} className="block w-full text-left text-gray-700 dark:text-gray-300">
+            Dashboard
+          </button>
+          <button onClick={() => navigate('/logs')} className="block w-full text-left text-gray-700 dark:text-gray-300">
+            Log Viewer
+          </button>
           <div className="flex items-center justify-between">
             <span className="text-gray-700 dark:text-gray-300">Dark Mode</span>
             <button onClick={() => setDarkMode(!darkMode)} className="relative inline-flex h-6 w-11 items-center rounded-full transition-colors" style={{ backgroundColor: darkMode ? '#3b82f6' : '#9ca3af' }}>
@@ -164,7 +176,7 @@ export default function Dashboard() {
       {/* Main content */}
       <main className="md:ml-64">
         <div className="px-6 pt-4 pb-6">
-          {/* Add Endpoint Form at the top */}
+          {/* Add Endpoint Form */}
           <div className="mb-6">
             <AddEndpointForm onEndpointAdded={() => setRefreshKey(prev => prev + 1)} />
           </div>
@@ -204,6 +216,9 @@ export default function Dashboard() {
                   <div>
                     <p className="font-medium text-gray-800 dark:text-white">{ep.name}</p>
                     <p className="text-sm text-gray-500 dark:text-gray-400">{ep.url}</p>
+                    <span className="text-xs text-gray-400 dark:text-gray-500">
+                      Latest: {latestHealth[ep.id] ? `${latestHealth[ep.id]}ms` : '—'}
+                    </span>
                   </div>
                   <span className={`px-2 py-1 rounded text-sm ${ep.active ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'}`}>
                     {ep.active ? 'Active' : 'Inactive'}
@@ -213,7 +228,7 @@ export default function Dashboard() {
             </div>
           )}
 
-          {/* Response Time Chart (shown when an endpoint is clicked) */}
+          {/* Response Time Chart */}
           {selectedEndpoint && (
             <div className="mt-8">
               <h3 className="text-lg font-semibold mb-2">Response Time Trend – {selectedEndpoint.name}</h3>
@@ -226,7 +241,7 @@ export default function Dashboard() {
                       <YAxis label={{ value: 'Response Time (ms)', angle: -90, position: 'insideLeft' }} />
                       <Tooltip />
                       <Legend />
-                      <Line type="monotone" dataKey="responseTimeMs" stroke="#8884d8" />
+                      <Line type="monotone" dataKey="responseTimeMs" name="Response Time (ms)" stroke="#8884d8" />
                     </LineChart>
                   </ResponsiveContainer>
                 </div>
