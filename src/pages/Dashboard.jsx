@@ -2,9 +2,11 @@ import { useEffect, useState } from 'react';
 import api from '../services/api';
 import { useNavigate } from 'react-router-dom';
 import { FiMenu, FiX } from 'react-icons/fi';
+import toast from 'react-hot-toast';
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
 } from 'recharts';
+import AddEndpointForm from '../components/AddEndpointForm';
 
 export default function Dashboard() {
   const [endpoints, setEndpoints] = useState([]);
@@ -16,6 +18,7 @@ export default function Dashboard() {
   const [chartData, setChartData] = useState([]);
   const [loadingChart, setLoadingChart] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -30,7 +33,7 @@ export default function Dashboard() {
       setDarkMode(true);
       document.documentElement.classList.add('dark');
     }
-  }, []);
+  }, [refreshKey]);
 
   useEffect(() => {
     if (darkMode) {
@@ -48,6 +51,7 @@ export default function Dashboard() {
       setEndpoints(response.data);
     } catch (error) {
       console.error('Failed to fetch endpoints', error);
+      toast.error('Failed to load endpoints');
     } finally {
       setLoading(false);
     }
@@ -64,6 +68,7 @@ export default function Dashboard() {
       setChartData(logs);
     } catch (err) {
       console.error(err);
+      toast.error('Failed to load health logs');
       setChartData([]);
     } finally {
       setLoadingChart(false);
@@ -78,6 +83,7 @@ export default function Dashboard() {
 
   const handleLogout = () => {
     localStorage.clear();
+    toast.success('Logged out');
     navigate('/login');
   };
 
@@ -86,9 +92,10 @@ export default function Dashboard() {
     try {
       const response = await api.post('/api/ai/analyze', {});
       setAiSuggestion(response.data);
+      toast.success('AI analysis complete');
     } catch (err) {
       console.error(err);
-      alert(err.response?.data?.error || 'AI analysis failed');
+      toast.error(err.response?.data?.error || 'AI analysis failed');
     } finally {
       setLoadingAi(false);
     }
@@ -122,6 +129,7 @@ export default function Dashboard() {
         <nav className="flex-1 p-4 space-y-4">
           <button onClick={() => { setSelectedEndpoint(null); setChartData([]); setAiSuggestion(null); }} className="block w-full text-left text-gray-700 dark:text-gray-300">Dashboard</button>
           <button onClick={() => window.location.reload()} className="block w-full text-left text-gray-700 dark:text-gray-300">Refresh</button>
+          <button onClick={() => navigate('/logs')} className="block w-full text-left text-gray-700 dark:text-gray-300">Log Viewer</button>
           <button onClick={analyzeErrors} className="block w-full text-left text-gray-700 dark:text-gray-300">Analyze Errors</button>
           <div className="flex items-center justify-between">
             <span className="text-gray-700 dark:text-gray-300">Dark Mode</span>
@@ -135,13 +143,16 @@ export default function Dashboard() {
         </div>
       </aside>
 
-      {/* Main content – heading at very top */}
+      {/* Main content */}
       <main className="md:ml-64">
         <div className="px-6 pt-0 pb-6">
+          {/* Add Endpoint Form */}
+          <AddEndpointForm onEndpointAdded={() => setRefreshKey(prev => prev + 1)} />
+
           <h2 className="text-lg font-semibold mb-4 text-gray-800 dark:text-white">Monitored Endpoints</h2>
 
           {endpoints.length === 0 ? (
-            <p className="text-gray-600 dark:text-gray-300">No endpoints added yet. Use Postman to add one.</p>
+            <p className="text-gray-600 dark:text-gray-300">No endpoints added yet. Use the form above to add one.</p>
           ) : (
             <div className="grid gap-4">
               {endpoints.map((ep) => (

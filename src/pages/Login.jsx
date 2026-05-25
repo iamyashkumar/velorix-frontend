@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import api from '../services/api';
 import { useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
 
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -15,9 +15,10 @@ export default function Login() {
       localStorage.setItem('token', response.data.token);
       localStorage.setItem('userId', response.data.userId);
       localStorage.setItem('name', response.data.name);
+      toast.success('Login successful');
       navigate('/dashboard');
     } catch (err) {
-      setError('Invalid credentials');
+      toast.error('Invalid credentials');
     }
   };
 
@@ -25,7 +26,6 @@ export default function Login() {
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
       <div className="bg-white p-8 rounded-lg shadow-md w-96">
         <h2 className="text-2xl font-bold mb-6 text-center">Login to Velorix</h2>
-        {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
         <form onSubmit={handleSubmit}>
           <input
             type="email"
