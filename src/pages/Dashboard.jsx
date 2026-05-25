@@ -19,6 +19,7 @@ export default function Dashboard() {
   const [loadingChart, setLoadingChart] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [stats, setStats] = useState({ total: 0, up: 0, down: 0, avgResponseTime: 0 });
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -49,11 +50,25 @@ export default function Dashboard() {
     try {
       const response = await api.get('/api/endpoints');
       setEndpoints(response.data);
+      calculateStats(response.data);
     } catch (error) {
       console.error('Failed to fetch endpoints', error);
       toast.error('Failed to load endpoints');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const calculateStats = (endpointsList) => {
+    const total = endpointsList.length;
+    const up = endpointsList.filter(ep => ep.active).length;
+    const down = total - up;
+    // For avg response time, we'd need to fetch latest health logs – simplified for now
+    setStats({ total, up, down, avgResponseTime: 0 });
+    // Optionally fetch average from backend (can be enhanced)
+    if (total > 0) {
+      // You could call an API to get average response time for all endpoints
+      // For now, set to 0 or compute from first endpoint's latest log
     }
   };
 
@@ -66,6 +81,11 @@ export default function Dashboard() {
         responseTimeMs: log.responseTimeMs,
       })).reverse();
       setChartData(logs);
+      // Update avg response time for this endpoint
+      if (logs.length > 0) {
+        const avg = logs.reduce((sum, l) => sum + l.responseTimeMs, 0) / logs.length;
+        setStats(prev => ({ ...prev, avgResponseTime: Math.round(avg) }));
+      }
     } catch (err) {
       console.error(err);
       toast.error('Failed to load health logs');
@@ -118,7 +138,7 @@ export default function Dashboard() {
         <div className="fixed inset-0 z-40 bg-black bg-opacity-50 md:hidden" onClick={() => setSidebarOpen(false)} />
       )}
 
-      {/* Sidebar */}
+      {/* Sidebar – removed Refresh and Analyze Errors */}
       <aside className={`fixed top-0 left-0 z-50 h-full w-64 flex flex-col bg-white dark:bg-gray-800 shadow-lg transition-transform duration-300 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0 md:static`}>
         <div className="flex justify-between items-center p-4 border-b">
           <h2 className="text-xl font-bold text-gray-800 dark:text-white">Velorix</h2>
@@ -128,9 +148,7 @@ export default function Dashboard() {
         </div>
         <nav className="flex-1 p-4 space-y-4">
           <button onClick={() => { setSelectedEndpoint(null); setChartData([]); setAiSuggestion(null); }} className="block w-full text-left text-gray-700 dark:text-gray-300">Dashboard</button>
-          <button onClick={() => window.location.reload()} className="block w-full text-left text-gray-700 dark:text-gray-300">Refresh</button>
           <button onClick={() => navigate('/logs')} className="block w-full text-left text-gray-700 dark:text-gray-300">Log Viewer</button>
-          <button onClick={analyzeErrors} className="block w-full text-left text-gray-700 dark:text-gray-300">Analyze Errors</button>
           <div className="flex items-center justify-between">
             <span className="text-gray-700 dark:text-gray-300">Dark Mode</span>
             <button onClick={() => setDarkMode(!darkMode)} className="relative inline-flex h-6 w-11 items-center rounded-full transition-colors" style={{ backgroundColor: darkMode ? '#3b82f6' : '#9ca3af' }}>
@@ -145,18 +163,44 @@ export default function Dashboard() {
 
       {/* Main content */}
       <main className="md:ml-64">
-        <div className="px-6 pt-0 pb-6">
-          {/* Add Endpoint Form */}
-          <AddEndpointForm onEndpointAdded={() => setRefreshKey(prev => prev + 1)} />
+        <div className="px-6 pt-4 pb-6">
+          {/* Add Endpoint Form at the top */}
+          <div className="mb-6">
+            <AddEndpointForm onEndpointAdded={() => setRefreshKey(prev => prev + 1)} />
+          </div>
 
+          {/* Stats Cards */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+            <div className="bg-white dark:bg-gray-800 p-4 rounded shadow text-center">
+              <p className="text-gray-500 dark:text-gray-400 text-sm">Total APIs</p>
+              <p className="text-2xl font-bold text-gray-800 dark:text-white">{stats.total}</p>
+            </div>
+            <div className="bg-white dark:bg-gray-800 p-4 rounded shadow text-center">
+              <p className="text-green-600 dark:text-green-400 text-sm">UP</p>
+              <p className="text-2xl font-bold text-gray-800 dark:text-white">{stats.up}</p>
+            </div>
+            <div className="bg-white dark:bg-gray-800 p-4 rounded shadow text-center">
+              <p className="text-red-600 dark:text-red-400 text-sm">DOWN</p>
+              <p className="text-2xl font-bold text-gray-800 dark:text-white">{stats.down}</p>
+            </div>
+            <div className="bg-white dark:bg-gray-800 p-4 rounded shadow text-center">
+              <p className="text-gray-500 dark:text-gray-400 text-sm">Avg Response (ms)</p>
+              <p className="text-2xl font-bold text-gray-800 dark:text-white">{stats.avgResponseTime}</p>
+            </div>
+          </div>
+
+          {/* Endpoint Cards Section */}
           <h2 className="text-lg font-semibold mb-4 text-gray-800 dark:text-white">Monitored Endpoints</h2>
-
           {endpoints.length === 0 ? (
             <p className="text-gray-600 dark:text-gray-300">No endpoints added yet. Use the form above to add one.</p>
           ) : (
             <div className="grid gap-4">
               {endpoints.map((ep) => (
-                <div key={ep.id} onClick={() => handleEndpointClick(ep)} className="bg-white dark:bg-gray-800 p-4 rounded shadow flex justify-between items-center cursor-pointer hover:shadow-md">
+                <div
+                  key={ep.id}
+                  onClick={() => handleEndpointClick(ep)}
+                  className="bg-white dark:bg-gray-800 p-4 rounded shadow flex justify-between items-center cursor-pointer hover:shadow-md transition"
+                >
                   <div>
                     <p className="font-medium text-gray-800 dark:text-white">{ep.name}</p>
                     <p className="text-sm text-gray-500 dark:text-gray-400">{ep.url}</p>
@@ -169,6 +213,7 @@ export default function Dashboard() {
             </div>
           )}
 
+          {/* Response Time Chart (shown when an endpoint is clicked) */}
           {selectedEndpoint && (
             <div className="mt-8">
               <h3 className="text-lg font-semibold mb-2">Response Time Trend – {selectedEndpoint.name}</h3>
@@ -179,7 +224,8 @@ export default function Dashboard() {
                       <CartesianGrid strokeDasharray="3 3" />
                       <XAxis dataKey="checkedAt" />
                       <YAxis label={{ value: 'Response Time (ms)', angle: -90, position: 'insideLeft' }} />
-                      <Tooltip /><Legend />
+                      <Tooltip />
+                      <Legend />
                       <Line type="monotone" dataKey="responseTimeMs" stroke="#8884d8" />
                     </LineChart>
                   </ResponsiveContainer>
@@ -188,6 +234,7 @@ export default function Dashboard() {
             </div>
           )}
 
+          {/* AI Analysis Button */}
           <div className="mt-8">
             <button onClick={analyzeErrors} disabled={loadingAi} className="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700 disabled:opacity-50">
               {loadingAi ? 'Analyzing...' : '🔍 Analyze Recent Errors with AI'}
