@@ -52,7 +52,6 @@ export default function Dashboard() {
       const response = await api.get('/api/endpoints');
       setEndpoints(response.data);
       calculateStats(response.data);
-      // fetch latest health for each endpoint
       response.data.forEach(ep => fetchLatestHealth(ep.id));
     } catch (error) {
       console.error('Failed to fetch endpoints', error);
@@ -120,7 +119,6 @@ export default function Dashboard() {
     try {
       const response = await api.post('/api/ai/analyze', {});
       setAiSuggestion(response.data);
-      // no toast on success – only card appears
     } catch (err) {
       console.error(err);
       toast.error(err.response?.data?.error || 'AI analysis failed');
@@ -146,7 +144,7 @@ export default function Dashboard() {
         <div className="fixed inset-0 z-40 bg-black bg-opacity-50 md:hidden" onClick={() => setSidebarOpen(false)} />
       )}
 
-      {/* Sidebar – Dashboard link present */}
+      {/* Sidebar */}
       <aside className={`fixed top-0 left-0 z-50 h-full w-64 flex flex-col bg-white dark:bg-gray-800 shadow-lg transition-transform duration-300 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0 md:static`}>
         <div className="flex justify-between items-center p-4 border-b">
           <h2 className="text-xl font-bold text-gray-800 dark:text-white">Velorix</h2>
@@ -173,9 +171,9 @@ export default function Dashboard() {
         </div>
       </aside>
 
-      {/* Main content */}
+      {/* Main content – FIXED mobile padding */}
       <main className="md:ml-64">
-        <div className="px-6 pt-4 pb-6">
+        <div className="pl-12 md:pl-6 px-6 pt-4 pb-6">
           {/* Add Endpoint Form */}
           <div className="mb-6">
             <AddEndpointForm onEndpointAdded={() => setRefreshKey(prev => prev + 1)} />
