@@ -131,7 +131,7 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
-      {/* Mobile hamburger */}
+      {/* Hamburger menu button (visible only on small screens) */}
       <button
         onClick={() => setSidebarOpen(true)}
         className="fixed top-4 left-4 z-50 p-2 rounded-md bg-white dark:bg-gray-800 shadow-md md:hidden"
@@ -139,69 +139,125 @@ export default function Dashboard() {
         <FiMenu size={24} className="text-gray-800 dark:text-white" />
       </button>
 
-      {/* Overlay */}
+      {/* Overlay when sidebar is open on mobile */}
       {sidebarOpen && (
-        <div className="fixed inset-0 z-40 bg-black bg-opacity-50 md:hidden" onClick={() => setSidebarOpen(false)} />
+        <div
+          className="fixed inset-0 z-40 bg-black bg-opacity-50 md:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
       )}
 
-      {/* Sidebar – changed h-full to min-h-screen */}
-      <aside className={`fixed top-0 left-0 z-50 w-64 min-h-screen flex flex-col bg-white dark:bg-gray-800 shadow-lg transition-transform duration-300 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0 md:static`}>
+      {/* Sidebar */}
+      <aside
+        className={`fixed top-0 left-0 z-50 w-64 min-h-screen flex flex-col bg-white dark:bg-gray-800 shadow-lg transition-transform duration-300 ${
+          sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+        } md:translate-x-0 md:static`}
+      >
         <div className="flex justify-between items-center p-4 border-b dark:border-gray-700">
           <h2 className="text-xl font-bold text-gray-800 dark:text-white">Velorix</h2>
-          <button onClick={() => setSidebarOpen(false)} className="md:hidden">
-            <FiX size={24} className="text-gray-800 dark:text-white" />
+          <button
+            onClick={() => setSidebarOpen(false)}
+            className="md:hidden text-gray-800 dark:text-white"
+          >
+            <FiX size={24} />
           </button>
         </div>
         <nav className="flex-1 p-4 space-y-4">
-          <button onClick={() => { setSelectedEndpoint(null); setChartData([]); setAiSuggestion(null); }} className="block w-full text-left text-gray-700 dark:text-gray-300 hover:text-blue-600 transition">
+          <button
+            onClick={() => {
+              setSelectedEndpoint(null);
+              setChartData([]);
+              setAiSuggestion(null);
+            }}
+            className="block w-full text-left text-gray-700 dark:text-gray-300 hover:text-blue-600 transition"
+          >
             Dashboard
           </button>
-          <button onClick={() => navigate('/logs')} className="block w-full text-left text-gray-700 dark:text-gray-300 hover:text-blue-600 transition">
+          <button
+            onClick={() => navigate('/logs')}
+            className="block w-full text-left text-gray-700 dark:text-gray-300 hover:text-blue-600 transition"
+          >
             Log Viewer
           </button>
           <div className="flex items-center justify-between">
             <span className="text-gray-700 dark:text-gray-300">Dark Mode</span>
-            <button onClick={() => setDarkMode(!darkMode)} className="relative inline-flex h-6 w-11 items-center rounded-full transition-colors" style={{ backgroundColor: darkMode ? '#3b82f6' : '#9ca3af' }}>
-              <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${darkMode ? 'translate-x-6' : 'translate-x-1'}`} />
+            <button
+              onClick={() => setDarkMode(!darkMode)}
+              className="relative inline-flex h-6 w-11 items-center rounded-full transition-colors"
+              style={{ backgroundColor: darkMode ? '#3b82f6' : '#9ca3af' }}
+            >
+              <span
+                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                  darkMode ? 'translate-x-6' : 'translate-x-1'
+                }`}
+              />
             </button>
           </div>
         </nav>
-        <div className="p-4 border-t dark:border-gray-700 mt-auto">
-          <button onClick={handleLogout} className="w-full text-left text-red-600 dark:text-red-400 hover:text-red-800 transition">
+        <div className="p-4 border-t dark:border-gray-700">
+          <button
+            onClick={handleLogout}
+            className="w-full text-left text-red-600 dark:text-red-400 hover:text-red-800 transition"
+          >
             Logout
           </button>
         </div>
       </aside>
 
-      {/* Main content – unchanged */}
+      {/* Main content */}
       <main className="md:ml-64">
         <div className="pl-12 md:pl-6 px-6 pt-4 pb-6">
           <div className="max-w-7xl mx-auto">
+            {/* Add Endpoint Form */}
             <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 mb-6">
               <AddEndpointForm onEndpointAdded={() => setRefreshKey(prev => prev + 1)} />
             </div>
+
+            {/* Stats Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
               <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-5 text-center">
-                <p className="text-gray-500 dark:text-gray-400 text-sm uppercase tracking-wide">Total APIs</p>
-                <p className="text-3xl font-bold text-gray-800 dark:text-white mt-2">{stats.total}</p>
+                <p className="text-gray-500 dark:text-gray-400 text-sm uppercase tracking-wide">
+                  Total APIs
+                </p>
+                <p className="text-3xl font-bold text-gray-800 dark:text-white mt-2">
+                  {stats.total}
+                </p>
               </div>
               <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-5 text-center">
-                <p className="text-green-600 dark:text-green-400 text-sm uppercase tracking-wide">UP</p>
-                <p className="text-3xl font-bold text-gray-800 dark:text-white mt-2">{stats.up}</p>
+                <p className="text-green-600 dark:text-green-400 text-sm uppercase tracking-wide">
+                  UP
+                </p>
+                <p className="text-3xl font-bold text-gray-800 dark:text-white mt-2">
+                  {stats.up}
+                </p>
               </div>
               <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-5 text-center">
-                <p className="text-red-600 dark:text-red-400 text-sm uppercase tracking-wide">DOWN</p>
-                <p className="text-3xl font-bold text-gray-800 dark:text-white mt-2">{stats.down}</p>
+                <p className="text-red-600 dark:text-red-400 text-sm uppercase tracking-wide">
+                  DOWN
+                </p>
+                <p className="text-3xl font-bold text-gray-800 dark:text-white mt-2">
+                  {stats.down}
+                </p>
               </div>
               <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-5 text-center">
-                <p className="text-gray-500 dark:text-gray-400 text-sm uppercase tracking-wide">Avg Response (ms)</p>
-                <p className="text-3xl font-bold text-gray-800 dark:text-white mt-2">{stats.avgResponseTime}</p>
+                <p className="text-gray-500 dark:text-gray-400 text-sm uppercase tracking-wide">
+                  Avg Response (ms)
+                </p>
+                <p className="text-3xl font-bold text-gray-800 dark:text-white mt-2">
+                  {stats.avgResponseTime}
+                </p>
               </div>
             </div>
+
+            {/* Monitored Endpoints */}
             <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 mb-8">
-              <h2 className="text-xl font-semibold mb-4 text-gray-800 dark:text-white">Monitored Endpoints</h2>
+              <h2 className="text-xl font-semibold mb-4 text-gray-800 dark:text-white">
+                Monitored Endpoints
+              </h2>
               {endpoints.length === 0 ? (
-                <p className="text-gray-600 dark:text-gray-300">No endpoints added yet. Use the form above to add one.</p>
+                <p className="text-gray-600 dark:text-gray-300">
+                  No endpoints added yet. Use the form above to add one.
+                </p>
               ) : (
                 <div className="space-y-3">
                   {endpoints.map((ep) => (
@@ -217,7 +273,13 @@ export default function Dashboard() {
                           Latest: {latestHealth[ep.id] ? `${latestHealth[ep.id]}ms` : '—'}
                         </p>
                       </div>
-                      <span className={`px-3 py-1 rounded-full text-sm font-medium ${ep.active ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'}`}>
+                      <span
+                        className={`px-3 py-1 rounded-full text-sm font-medium ${
+                          ep.active
+                            ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                            : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+                        }`}
+                      >
                         {ep.active ? 'Active' : 'Inactive'}
                       </span>
                     </div>
@@ -225,6 +287,8 @@ export default function Dashboard() {
                 </div>
               )}
             </div>
+
+            {/* Response Time Chart (if an endpoint is selected) */}
             {selectedEndpoint && (
               <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 mb-8">
                 <h3 className="text-lg font-semibold mb-4 text-gray-800 dark:text-white">
@@ -233,31 +297,69 @@ export default function Dashboard() {
                 {loadingChart ? (
                   <p className="text-gray-500 dark:text-gray-400">Loading chart...</p>
                 ) : chartData.length === 0 ? (
-                  <p className="text-gray-500 dark:text-gray-400">No health logs yet. Wait for the first check.</p>
+                  <p className="text-gray-500 dark:text-gray-400">
+                    No health logs yet. Wait for the first check.
+                  </p>
                 ) : (
                   <ResponsiveContainer width="100%" height={300}>
                     <LineChart data={chartData}>
                       <CartesianGrid strokeDasharray="3 3" />
                       <XAxis dataKey="checkedAt" />
-                      <YAxis label={{ value: 'Response Time (ms)', angle: -90, position: 'insideLeft' }} />
+                      <YAxis
+                        label={{
+                          value: 'Response Time (ms)',
+                          angle: -90,
+                          position: 'insideLeft',
+                        }}
+                      />
                       <Tooltip />
                       <Legend />
-                      <Line type="monotone" dataKey="responseTimeMs" name="Response Time (ms)" stroke="#8884d8" />
+                      <Line
+                        type="monotone"
+                        dataKey="responseTimeMs"
+                        name="Response Time (ms)"
+                        stroke="#8884d8"
+                      />
                     </LineChart>
                   </ResponsiveContainer>
                 )}
               </div>
             )}
+
+            {/* AI Analysis Button & Result */}
             <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-              <button onClick={analyzeErrors} disabled={loadingAi} className="bg-purple-600 text-white px-5 py-2 rounded-lg hover:bg-purple-700 disabled:opacity-50 transition">
+              <button
+                onClick={analyzeErrors}
+                disabled={loadingAi}
+                className="bg-purple-600 text-white px-5 py-2 rounded-lg hover:bg-purple-700 disabled:opacity-50 transition"
+              >
                 {loadingAi ? 'Analyzing...' : '🔍 Analyze Recent Errors with AI'}
               </button>
               {aiSuggestion && (
                 <div className="mt-6 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600">
-                  <h3 className="font-bold text-lg text-gray-800 dark:text-white mb-2">🤖 AI Diagnosis</h3>
-                  <p className="text-gray-700 dark:text-gray-300"><strong>Possible Cause:</strong> {aiSuggestion.possibleCause}</p>
-                  <p className="mt-2 text-gray-700 dark:text-gray-300"><strong>Recommended Fix:</strong> {aiSuggestion.recommendedFix}</p>
-                  <p className="mt-2"><strong>Severity:</strong> <span className={`ml-2 px-2 py-1 rounded-full text-sm font-medium ${aiSuggestion.severity === 'HIGH' ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200' : aiSuggestion.severity === 'MEDIUM' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200' : 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'}`}>{aiSuggestion.severity}</span></p>
+                  <h3 className="font-bold text-lg text-gray-800 dark:text-white mb-2">
+                    🤖 AI Diagnosis
+                  </h3>
+                  <p className="text-gray-700 dark:text-gray-300">
+                    <strong>Possible Cause:</strong> {aiSuggestion.possibleCause}
+                  </p>
+                  <p className="mt-2 text-gray-700 dark:text-gray-300">
+                    <strong>Recommended Fix:</strong> {aiSuggestion.recommendedFix}
+                  </p>
+                  <p className="mt-2">
+                    <strong>Severity:</strong>{' '}
+                    <span
+                      className={`ml-2 px-2 py-1 rounded-full text-sm font-medium ${
+                        aiSuggestion.severity === 'HIGH'
+                          ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+                          : aiSuggestion.severity === 'MEDIUM'
+                          ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
+                          : 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                      }`}
+                    >
+                      {aiSuggestion.severity}
+                    </span>
+                  </p>
                 </div>
               )}
             </div>
