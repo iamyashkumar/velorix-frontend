@@ -67,6 +67,14 @@ export default function Dashboard() {
       if (res.data && res.data.length > 0) {
         const last = res.data[0];
         setLatestHealth(prev => ({ ...prev, [endpointId]: last.responseTimeMs }));
+        // Update avgResponseTime as each endpoint's latest health comes in
+        setStats(prev => {
+          const allTimes = Object.values({ ...prev._healthMap, [endpointId]: last.responseTimeMs });
+          const avg = allTimes.length > 0
+            ? Math.round(allTimes.reduce((a, b) => a + b, 0) / allTimes.length)
+            : 0;
+          return { ...prev, avgResponseTime: avg, _healthMap: { ...prev._healthMap, [endpointId]: last.responseTimeMs } };
+        });
       }
     } catch (err) {
       console.error(err);
@@ -77,7 +85,7 @@ export default function Dashboard() {
     const total = endpointsList.length;
     const up = endpointsList.filter(ep => ep.active).length;
     const down = total - up;
-    setStats({ total, up, down, avgResponseTime: 0 });
+    setStats({ total, up, down, avgResponseTime: 0, _healthMap: {} });
   };
 
   const fetchHealthLogs = async (endpointId) => {
