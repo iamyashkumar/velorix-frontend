@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 
 export default function Home() {
   const [darkMode, setDarkMode] = useState(false);
+  const [isThemeReady, setIsThemeReady] = useState(false);
 
   // Initialize Theme from localStorage
   useEffect(() => {
@@ -15,6 +16,7 @@ export default function Home() {
     } else {
       document.documentElement.classList.remove('dark');
     }
+    setIsThemeReady(true);
   }, []);
 
   // Handle Dark Mode Toggle
@@ -30,7 +32,7 @@ export default function Home() {
     }
   };
 
-  // Animation variants for staggered features loading
+  // Animation variants
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -44,13 +46,21 @@ export default function Home() {
     visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } }
   };
 
+  // Show nothing (or a loading spinner) until theme is ready
+  if (!isThemeReady) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-white dark:bg-gray-900">
+        <div className="text-gray-600 dark:text-gray-400">Loading...</div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-[#fafafa] text-gray-900 dark:bg-[#0b0f19] dark:text-gray-100 transition-colors duration-300 relative overflow-hidden">
-
-      {/* Premium Background Decorative Ambient Blur (FANG Aesthetic) */}
+      {/* Background blur */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-[500px] bg-gradient-to-r from-blue-500/10 via-indigo-500/5 to-purple-500/10 blur-3xl pointer-events-none z-0 select-none" />
 
-      {/* Top Navbar Header */}
+      {/* Header */}
       <header className="sticky top-0 z-50 backdrop-blur-md bg-white/70 dark:bg-[#0b0f19]/70 border-b border-gray-200/50 dark:border-gray-800/50 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto h-16 flex items-center justify-between">
           <div className="flex items-center space-x-2">
@@ -63,7 +73,6 @@ export default function Home() {
           </div>
 
           <div className="flex items-center space-x-4">
-            {/* Dark Mode Icon Button Toggle */}
             <button
               onClick={toggleDarkMode}
               className="p-2.5 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800/80 text-gray-700 dark:text-gray-300 transition-all shadow-sm"
@@ -74,12 +83,14 @@ export default function Home() {
             <Link
               to="/login"
               className="hidden sm:inline-flex items-center text-sm font-medium hover:text-blue-600 dark:hover:text-blue-400 transition"
+              aria-label="Sign In to your account"
             >
               Sign In
             </Link>
             <Link
               to="/register"
               className="inline-flex items-center justify-center px-4 py-2 text-sm font-semibold rounded-xl text-white bg-blue-600 hover:bg-blue-700 shadow-md shadow-blue-500/10 transition"
+              aria-label="Create a new account"
             >
               Get Started
             </Link>
@@ -130,12 +141,14 @@ export default function Home() {
             <Link
               to="/register"
               className="inline-flex items-center px-6 py-3.5 border border-transparent text-base font-semibold rounded-xl shadow-xl shadow-blue-500/10 text-white bg-blue-600 hover:bg-blue-700 focus:outline-none transition-all transform hover:-translate-y-0.5"
+              aria-label="Create a free account"
             >
               <FiUserPlus className="mr-2" size={18} /> Deploy Free Cluster
             </Link>
             <Link
               to="/login"
               className="inline-flex items-center px-6 py-3.5 border border-gray-200 dark:border-gray-800 text-base font-semibold rounded-xl shadow-sm text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-900/60 backdrop-blur hover:bg-gray-50 dark:hover:bg-gray-800 focus:outline-none transition-all transform hover:-translate-y-0.5"
+              aria-label="Log in to your dashboard"
             >
               <FiLogIn className="mr-2" size={18} /> Console Log In
             </Link>
@@ -154,7 +167,6 @@ export default function Home() {
           </p>
         </div>
 
-        {/* Features Staggered Grid */}
         <motion.div
           variants={containerVariants}
           initial="hidden"
@@ -162,12 +174,8 @@ export default function Home() {
           viewport={{ once: true, margin: "-100px" }}
           className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4"
         >
-          {/* Card 1 */}
-          <motion.div
-            variants={itemVariants}
-            whileHover={{ y: -5 }}
-            className="bg-white dark:bg-gray-900/40 backdrop-blur-sm border border-gray-100 dark:border-gray-800/80 rounded-2xl p-6 shadow-sm transition-all"
-          >
+          {/* Feature Cards – unchanged */}
+          <motion.div variants={itemVariants} whileHover={{ y: -5 }} className="bg-white dark:bg-gray-900/40 backdrop-blur-sm border border-gray-100 dark:border-gray-800/80 rounded-2xl p-6 shadow-sm transition-all">
             <div className="w-12 h-12 flex items-center justify-center rounded-xl bg-blue-50 dark:bg-blue-950/50 border border-blue-100/50 dark:border-blue-900/20 text-blue-600 dark:text-blue-400">
               <FiActivity size={24} />
             </div>
@@ -177,12 +185,7 @@ export default function Home() {
             </p>
           </motion.div>
 
-          {/* Card 2 */}
-          <motion.div
-            variants={itemVariants}
-            whileHover={{ y: -5 }}
-            className="bg-white dark:bg-gray-900/40 backdrop-blur-sm border border-gray-100 dark:border-gray-800/80 rounded-2xl p-6 shadow-sm transition-all"
-          >
+          <motion.div variants={itemVariants} whileHover={{ y: -5 }} className="bg-white dark:bg-gray-900/40 backdrop-blur-sm border border-gray-100 dark:border-gray-800/80 rounded-2xl p-6 shadow-sm transition-all">
             <div className="w-12 h-12 flex items-center justify-center rounded-xl bg-green-50 dark:bg-green-950/50 border border-green-100/50 dark:border-green-900/20 text-green-600 dark:text-green-400">
               <FiBarChart2 size={24} />
             </div>
@@ -192,12 +195,7 @@ export default function Home() {
             </p>
           </motion.div>
 
-          {/* Card 3 */}
-          <motion.div
-            variants={itemVariants}
-            whileHover={{ y: -5 }}
-            className="bg-white dark:bg-gray-900/40 backdrop-blur-sm border border-gray-100 dark:border-gray-800/80 rounded-2xl p-6 shadow-sm transition-all"
-          >
+          <motion.div variants={itemVariants} whileHover={{ y: -5 }} className="bg-white dark:bg-gray-900/40 backdrop-blur-sm border border-gray-100 dark:border-gray-800/80 rounded-2xl p-6 shadow-sm transition-all">
             <div className="w-12 h-12 flex items-center justify-center rounded-xl bg-red-50 dark:bg-red-950/50 border border-red-100/50 dark:border-red-900/20 text-red-600 dark:text-red-400">
               <FiBell size={24} />
             </div>
@@ -207,12 +205,7 @@ export default function Home() {
             </p>
           </motion.div>
 
-          {/* Card 4 */}
-          <motion.div
-            variants={itemVariants}
-            whileHover={{ y: -5 }}
-            className="bg-white dark:bg-gray-900/40 backdrop-blur-sm border border-gray-100 dark:border-gray-800/80 rounded-2xl p-6 shadow-sm transition-all"
-          >
+          <motion.div variants={itemVariants} whileHover={{ y: -5 }} className="bg-white dark:bg-gray-900/40 backdrop-blur-sm border border-gray-100 dark:border-gray-800/80 rounded-2xl p-6 shadow-sm transition-all">
             <div className="w-12 h-12 flex items-center justify-center rounded-xl bg-purple-50 dark:bg-purple-950/50 border border-purple-100/50 dark:border-purple-900/20 text-purple-600 dark:text-purple-400">
               <FiCpu size={24} />
             </div>
@@ -224,7 +217,7 @@ export default function Home() {
         </motion.div>
       </section>
 
-      {/* Minimalist Tech-Footer */}
+      {/* Footer */}
       <footer className="bg-white dark:bg-[#0b0f19] border-t border-gray-200 dark:border-gray-900 relative z-10">
         <div className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between text-sm text-gray-500 dark:text-gray-400">
           <div>
