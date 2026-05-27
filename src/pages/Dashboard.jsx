@@ -144,8 +144,8 @@ export default function Dashboard() {
         <div className="fixed inset-0 z-40 bg-black bg-opacity-50 md:hidden" onClick={() => setSidebarOpen(false)} />
       )}
 
-      {/* Sidebar */}
-      <aside className={`fixed top-0 left-0 z-50 h-full w-64 flex flex-col bg-white dark:bg-gray-800 shadow-lg transition-transform duration-300 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0 md:static`}>
+      {/* Sidebar – changed h-full to min-h-screen */}
+      <aside className={`fixed top-0 left-0 z-50 w-64 min-h-screen flex flex-col bg-white dark:bg-gray-800 shadow-lg transition-transform duration-300 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0 md:static`}>
         <div className="flex justify-between items-center p-4 border-b dark:border-gray-700">
           <h2 className="text-xl font-bold text-gray-800 dark:text-white">Velorix</h2>
           <button onClick={() => setSidebarOpen(false)} className="md:hidden">
@@ -173,7 +173,7 @@ export default function Dashboard() {
         </div>
       </aside>
 
-      {/* Main content */}
+      {/* Main content – unchanged */}
       <main className="md:ml-64">
         <div className="pl-12 md:pl-6 px-6 pt-4 pb-6">
           <div className="max-w-7xl mx-auto">
