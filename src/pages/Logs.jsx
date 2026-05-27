@@ -64,26 +64,31 @@ export default function Logs() {
   if (loading) return <div className="text-center mt-10">Loading...</div>;
 
   return (
-    /* Laptop screen ke liye pure page ko flex container banaya */
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 md:flex">
-      {/* Hamburger button - Mobile ke liye unchanged */}
-      <button
-        onClick={() => setSidebarOpen(true)}
-        className="fixed top-4 left-4 z-50 p-2 rounded-md bg-white dark:bg-gray-800 shadow-md md:hidden"
-        aria-label="Menu"
-      >
-        <FiMenu size={24} className="text-gray-800 dark:text-white" />
-      </button>
+
+      {/* Mobile Top Navbar - Dashboard ki tarah alignment aur header separation apply kiya */}
+      <div className="w-full flex items-center justify-between p-4 bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700 md:hidden sticky top-0 z-40">
+        <div className="flex items-center space-x-3">
+          <button
+            onClick={() => setSidebarOpen(true)}
+            className="p-1.5 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 transition"
+            aria-label="Menu"
+          >
+            <FiMenu size={24} className="text-gray-800 dark:text-white" />
+          </button>
+          <span className="text-lg font-bold text-gray-800 dark:text-white">Velorix</span>
+        </div>
+      </div>
 
       {/* Overlay when sidebar is open on mobile */}
       {sidebarOpen && (
         <div
-          className="fixed inset-0 z-40 bg-black bg-opacity-50 md:hidden"
+          className="fixed inset-0 z-50 bg-black bg-opacity-50 md:hidden"
           onClick={() => setSidebarOpen(false)}
         />
       )}
 
-      {/* Sidebar - Laptop ke liye isse dashboard jesa sticky aur full height banaya */}
+      {/* Sidebar */}
       <aside
         className={`fixed top-0 left-0 z-50 h-full w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 shadow-lg transition-transform duration-300 ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
@@ -142,10 +147,10 @@ export default function Logs() {
         </div>
       </aside>
 
-      {/* Main content - Flex-1 lagaya taaki bacha hua space laptop par perfectly occupy ho */}
+      {/* Main content */}
       <main className="flex-1 overflow-x-hidden">
-        <div className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
-          {/* Header text to maintain dashboard look */}
+        <div className="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
+          {/* Header text */}
           <div className="mb-8">
             <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Log Viewer</h1>
             <p className="text-gray-600 dark:text-gray-400">Track and filter system health logs in real-time.</p>
