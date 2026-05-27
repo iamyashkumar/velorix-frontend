@@ -130,8 +130,10 @@ export default function Dashboard() {
   if (loading) return <div className="text-center mt-10">Loading...</div>;
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      {/* Mobile hamburger */}
+    /* Laptop screen ke liye pure page ko flex container bana diya hai */
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 md:flex">
+
+      {/* Mobile hamburger - Isme koi badlav nahi kiya */}
       <button
         onClick={() => setSidebarOpen(true)}
         className="fixed top-4 left-4 z-50 p-2 rounded-md bg-white dark:bg-gray-800 shadow-md md:hidden"
@@ -143,11 +145,11 @@ export default function Dashboard() {
         <div className="fixed inset-0 z-40 bg-black bg-opacity-50 md:hidden" onClick={() => setSidebarOpen(false)} />
       )}
 
-      {/* Sidebar – DeepSeek style */}
+      {/* Sidebar – Laptop ke liye h-screen aur flex-col apply kiya hai takki stretch na ho */}
       <aside
         className={`fixed top-0 left-0 z-50 h-full w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 shadow-lg transition-transform duration-300 ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
-        } md:translate-x-0 md:static`}
+        } md:translate-x-0 md:sticky md:h-screen md:flex md:flex-col`}
       >
         <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
           <h2 className="text-xl font-bold text-gray-800 dark:text-white">Velorix</h2>
@@ -155,7 +157,7 @@ export default function Dashboard() {
             <FiX size={24} />
           </button>
         </div>
-        <nav className="flex-1 p-4 space-y-2">
+        <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
           <button
             onClick={() => { setSelectedEndpoint(null); setChartData([]); setAiSuggestion(null); }}
             className="flex items-center w-full px-3 py-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition"
@@ -195,8 +197,8 @@ export default function Dashboard() {
         </div>
       </aside>
 
-      {/* Main content */}
-      <main className="md:ml-64">
+      {/* Main content – Laptop screen par flow seamlessly manage karne ke liye flex-1 aur overflow handling add ki hai */}
+      <main className="flex-1 overflow-x-hidden">
         <div className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
           {/* Header */}
           <div className="mb-8">
