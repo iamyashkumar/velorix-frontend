@@ -144,8 +144,8 @@ export default function Dashboard() {
         <div className="fixed inset-0 z-40 bg-black bg-opacity-50 md:hidden" onClick={() => setSidebarOpen(false)} />
       )}
 
-      {/* Sidebar */}
-      <aside className={`fixed top-0 left-0 z-50 h-full w-64 flex flex-col bg-white dark:bg-gray-800 shadow-lg transition-transform duration-300 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0 md:static`}>
+      {/* Sidebar - now using min-h-screen and flex flex-col */}
+      <aside className={`fixed top-0 left-0 z-50 w-64 min-h-screen flex flex-col bg-white dark:bg-gray-800 shadow-lg transition-transform duration-300 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0 md:static`}>
         <div className="flex justify-between items-center p-4 border-b dark:border-gray-700">
           <h2 className="text-xl font-bold text-gray-800 dark:text-white">Velorix</h2>
           <button onClick={() => setSidebarOpen(false)} className="md:hidden">
@@ -153,21 +153,35 @@ export default function Dashboard() {
           </button>
         </div>
         <nav className="flex-1 p-4 space-y-4">
-          <button onClick={() => { setSelectedEndpoint(null); setChartData([]); setAiSuggestion(null); }} className="block w-full text-left text-gray-700 dark:text-gray-300 hover:text-blue-600 transition">
+          <button
+            onClick={() => { setSelectedEndpoint(null); setChartData([]); setAiSuggestion(null); }}
+            className="block w-full text-left text-gray-700 dark:text-gray-300 hover:text-blue-600 transition"
+          >
             Dashboard
           </button>
-          <button onClick={() => navigate('/logs')} className="block w-full text-left text-gray-700 dark:text-gray-300 hover:text-blue-600 transition">
+          <button
+            onClick={() => navigate('/logs')}
+            className="block w-full text-left text-gray-700 dark:text-gray-300 hover:text-blue-600 transition"
+          >
             Log Viewer
           </button>
           <div className="flex items-center justify-between">
             <span className="text-gray-700 dark:text-gray-300">Dark Mode</span>
-            <button onClick={() => setDarkMode(!darkMode)} className="relative inline-flex h-6 w-11 items-center rounded-full transition-colors" style={{ backgroundColor: darkMode ? '#3b82f6' : '#9ca3af' }}>
+            <button
+              onClick={() => setDarkMode(!darkMode)}
+              className="relative inline-flex h-6 w-11 items-center rounded-full transition-colors"
+              style={{ backgroundColor: darkMode ? '#3b82f6' : '#9ca3af' }}
+            >
               <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${darkMode ? 'translate-x-6' : 'translate-x-1'}`} />
             </button>
           </div>
         </nav>
-        <div className="p-4 border-t dark:border-gray-700 mt-auto">
-          <button onClick={handleLogout} className="w-full text-left text-red-600 dark:text-red-400 hover:text-red-800 transition">
+        {/* Logout button at bottom */}
+        <div className="p-4 border-t dark:border-gray-700">
+          <button
+            onClick={handleLogout}
+            className="w-full text-left text-red-600 dark:text-red-400 hover:text-red-800 transition"
+          >
             Logout
           </button>
         </div>
