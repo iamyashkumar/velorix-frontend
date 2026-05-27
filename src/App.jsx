@@ -4,17 +4,21 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import Logs from './pages/Logs';
+import Home from './pages/Home';
 
 function App() {
+  // Optional: if user is already logged in, redirect from root to dashboard
+  const token = localStorage.getItem('token');
+
   return (
     <>
       <Toaster position="top-right" />
       <Routes>
+        <Route path="/" element={token ? <Navigate to="/dashboard" /> : <Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/logs" element={<Logs />} />
-        <Route path="/" element={<Navigate to="/dashboard" />} />
       </Routes>
     </>
   );
