@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import api from '../services/api';
 import { useNavigate } from 'react-router-dom';
-import { FiMenu, FiX } from 'react-icons/fi';
+import { FiMenu, FiX, FiActivity, FiList, FiMoon, FiSun, FiLogOut } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 
 export default function Logs() {
@@ -64,8 +64,9 @@ export default function Logs() {
   if (loading) return <div className="text-center mt-10">Loading...</div>;
 
   return (
-    <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
-      {/* Hamburger button - only visible on mobile (<768px) */}
+    /* Laptop screen ke liye pure page ko flex container banaya */
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 md:flex">
+      {/* Hamburger button - Mobile ke liye unchanged */}
       <button
         onClick={() => setSidebarOpen(true)}
         className="fixed top-4 left-4 z-50 p-2 rounded-md bg-white dark:bg-gray-800 shadow-md md:hidden"
@@ -82,13 +83,13 @@ export default function Logs() {
         />
       )}
 
-      {/* Sidebar - same as dashboard */}
+      {/* Sidebar - Laptop ke liye isse dashboard jesa sticky aur full height banaya */}
       <aside
-        className={`fixed top-0 left-0 z-50 h-full w-64 flex flex-col bg-white dark:bg-gray-800 shadow-lg transition-transform duration-300 ${
+        className={`fixed top-0 left-0 z-50 h-full w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 shadow-lg transition-transform duration-300 ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
-        } md:translate-x-0 md:static`}
+        } md:translate-x-0 md:sticky md:h-screen md:flex md:flex-col`}
       >
-        <div className="flex justify-between items-center p-4 border-b dark:border-gray-700">
+        <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
           <h2 className="text-xl font-bold text-gray-800 dark:text-white">Velorix</h2>
           <button
             onClick={() => setSidebarOpen(false)}
@@ -97,21 +98,26 @@ export default function Logs() {
             <FiX size={24} />
           </button>
         </div>
-        <nav className="flex-1 p-4 space-y-4">
+        <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
           <button
             onClick={() => navigate('/dashboard')}
-            className="block w-full text-left text-gray-700 dark:text-gray-300 hover:text-blue-600 transition"
+            className="flex items-center w-full px-3 py-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition"
           >
-            Dashboard
+            <FiActivity className="mr-3" size={20} />
+            <span>Dashboard</span>
           </button>
           <button
             onClick={() => navigate('/logs')}
-            className="block w-full text-left text-gray-700 dark:text-gray-300 hover:text-blue-600 transition"
+            className="flex items-center w-full px-3 py-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition"
           >
-            Log Viewer
+            <FiList className="mr-3" size={20} />
+            <span>Log Viewer</span>
           </button>
-          <div className="flex items-center justify-between">
-            <span className="text-gray-700 dark:text-gray-300">Dark Mode</span>
+          <div className="flex items-center justify-between px-3 py-2">
+            <div className="flex items-center text-gray-700 dark:text-gray-300">
+              {darkMode ? <FiMoon className="mr-3" size={20} /> : <FiSun className="mr-3" size={20} />}
+              <span>Dark Mode</span>
+            </div>
             <button
               onClick={() => setDarkMode(!darkMode)}
               className="relative inline-flex h-6 w-11 items-center rounded-full transition-colors"
@@ -125,105 +131,109 @@ export default function Logs() {
             </button>
           </div>
         </nav>
-        <div className="p-4 border-t dark:border-gray-700">
+        <div className="p-4 border-t border-gray-200 dark:border-gray-700">
           <button
             onClick={handleLogout}
-            className="w-full text-left text-red-600 dark:text-red-400 hover:text-red-800 transition"
+            className="flex items-center w-full px-3 py-2 rounded-lg text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition"
           >
-            Logout
+            <FiLogOut className="mr-3" size={20} />
+            <span>Logout</span>
           </button>
         </div>
       </aside>
 
-      {/* Main content */}
-      <main className="md:ml-64">
-        <div className="pl-12 md:pl-6 px-6 pt-4 pb-6">
-          <div className="max-w-7xl mx-auto">
-            {/* Filter Card */}
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 mb-6">
-              <h2 className="text-xl font-semibold mb-4 text-gray-800 dark:text-white">Log Viewer</h2>
-              <div className="flex flex-col md:flex-row gap-4 mb-4">
-                <select
-                  value={level}
-                  onChange={(e) => { setLevel(e.target.value); setPage(0); }}
-                  className="p-2 border rounded dark:bg-gray-700 dark:text-white dark:border-gray-600"
-                >
-                  <option value="">All Levels</option>
-                  <option value="INFO">INFO</option>
-                  <option value="WARN">WARN</option>
-                  <option value="ERROR">ERROR</option>
-                </select>
-                <input
-                  type="text"
-                  placeholder="Search by message"
-                  value={keyword}
-                  onChange={(e) => { setKeyword(e.target.value); setPage(0); }}
-                  className="flex-1 p-2 border rounded dark:bg-gray-700 dark:text-white dark:border-gray-600"
-                />
-                <button
-                  onClick={fetchLogs}
-                  className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
-                >
-                  Search
-                </button>
-              </div>
-            </div>
+      {/* Main content - Flex-1 lagaya taaki bacha hua space laptop par perfectly occupy ho */}
+      <main className="flex-1 overflow-x-hidden">
+        <div className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+          {/* Header text to maintain dashboard look */}
+          <div className="mb-8">
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Log Viewer</h1>
+            <p className="text-gray-600 dark:text-gray-400">Track and filter system health logs in real-time.</p>
+          </div>
 
-            {/* Logs List */}
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 mb-6">
-              {logs.length === 0 ? (
-                <p className="text-gray-600 dark:text-gray-300">No logs found.</p>
-              ) : (
-                <div className="space-y-3">
-                  {logs.map((log) => (
-                    <div
-                      key={log.id}
-                      className="p-4 border border-gray-200 dark:border-gray-700 rounded-lg"
-                    >
-                      <div className="flex justify-between items-start">
-                        <span
-                          className={`px-2 py-1 rounded-full text-xs font-semibold ${
-                            log.level === 'ERROR'
-                              ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
-                              : log.level === 'WARN'
-                              ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
-                              : 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-                          }`}
-                        >
-                          {log.level}
-                        </span>
-                        <span className="text-xs text-gray-500 dark:text-gray-400">
-                          {new Date(log.timestamp).toLocaleString()}
-                        </span>
-                      </div>
-                      <p className="mt-2 text-gray-800 dark:text-white">{log.message}</p>
-                      <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Source: {log.source || 'N/A'}</p>
+          {/* Filter Card */}
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-100 dark:border-gray-700 mb-8">
+            <div className="flex flex-col md:flex-row gap-4">
+              <select
+                value={level}
+                onChange={(e) => { setLevel(e.target.value); setPage(0); }}
+                className="p-2 border rounded-lg dark:bg-gray-700 dark:text-white dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="">All Levels</option>
+                <option value="INFO">INFO</option>
+                <option value="WARN">WARN</option>
+                <option value="ERROR">ERROR</option>
+              </select>
+              <input
+                type="text"
+                placeholder="Search by message..."
+                value={keyword}
+                onChange={(e) => { setKeyword(e.target.value); setPage(0); }}
+                className="flex-1 p-2 border rounded-lg dark:bg-gray-700 dark:text-white dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+              <button
+                onClick={fetchLogs}
+                className="bg-blue-600 text-white px-5 py-2 rounded-lg hover:bg-blue-700 transition font-medium"
+              >
+                Search
+              </button>
+            </div>
+          </div>
+
+          {/* Logs List */}
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden mb-8 p-6">
+            {logs.length === 0 ? (
+              <p className="text-gray-500 dark:text-gray-400 text-center py-4">No logs found.</p>
+            ) : (
+              <div className="space-y-4">
+                {logs.map((log) => (
+                  <div
+                    key={log.id}
+                    className="p-4 border border-gray-100 dark:border-gray-700 rounded-xl bg-gray-50/50 dark:bg-gray-800/50"
+                  >
+                    <div className="flex justify-between items-start">
+                      <span
+                        className={`px-2.5 py-0.5 rounded-full text-xs font-semibold ${
+                          log.level === 'ERROR'
+                            ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+                            : log.level === 'WARN'
+                            ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
+                            : 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                        }`}
+                      >
+                        {log.level}
+                      </span>
+                      <span className="text-xs text-gray-400 dark:text-gray-500">
+                        {new Date(log.timestamp).toLocaleString()}
+                      </span>
                     </div>
-                  ))}
-                </div>
-              )}
-            </div>
+                    <p className="mt-2 text-gray-800 dark:text-gray-200 font-mono text-sm">{log.message}</p>
+                    <p className="text-xs text-gray-400 dark:text-gray-500 mt-2">Source: {log.source || 'N/A'}</p>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
 
-            {/* Pagination */}
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4 flex justify-between items-center">
-              <button
-                disabled={page === 0}
-                onClick={() => setPage(p => p - 1)}
-                className="px-4 py-2 bg-gray-200 dark:bg-gray-700 rounded disabled:opacity-50 hover:bg-gray-300 dark:hover:bg-gray-600 transition"
-              >
-                Previous
-              </button>
-              <span className="text-gray-700 dark:text-gray-300">
-                Page {page + 1} of {totalPages}
-              </span>
-              <button
-                disabled={page + 1 >= totalPages}
-                onClick={() => setPage(p => p + 1)}
-                className="px-4 py-2 bg-gray-200 dark:bg-gray-700 rounded disabled:opacity-50 hover:bg-gray-300 dark:hover:bg-gray-600 transition"
-              >
-                Next
-              </button>
-            </div>
+          {/* Pagination */}
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-4 flex justify-between items-center">
+            <button
+              disabled={page === 0}
+              onClick={() => setPage(p => p - 1)}
+              className="px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-lg disabled:opacity-40 hover:bg-gray-200 dark:hover:bg-gray-600 transition text-sm font-medium"
+            >
+              Previous
+            </button>
+            <span className="text-sm text-gray-600 dark:text-gray-400 font-medium">
+              Page {page + 1} of {totalPages}
+            </span>
+            <button
+              disabled={page + 1 >= totalPages}
+              onClick={() => setPage(p => p + 1)}
+              className="px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-lg disabled:opacity-40 hover:bg-gray-200 dark:hover:bg-gray-600 transition text-sm font-medium"
+            >
+              Next
+            </button>
           </div>
         </div>
       </main>
