@@ -132,7 +132,7 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 md:flex">
 
-      {/* Mobile Top Navbar - Isme toggle button aur text ko flex box dekar proper gap manage kiya hai */}
+      {/* Mobile Top Navbar */}
       <div className="w-full flex items-center justify-between p-4 bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700 md:hidden sticky top-0 z-40">
         <div className="flex items-center space-x-3">
           <button
@@ -143,54 +143,62 @@ export default function Dashboard() {
           </button>
           <span className="text-lg font-bold text-gray-800 dark:text-white">Velorix</span>
         </div>
+        {/* Mobile Dark Mode Toggle Button Icon Only */}
+        <button
+          onClick={() => setDarkMode(!darkMode)}
+          className="p-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition"
+          aria-label="Toggle Dark Mode"
+        >
+          {darkMode ? <FiSun size={22} className="text-yellow-400" /> : <FiMoon size={22} />}
+        </button>
       </div>
 
       {sidebarOpen && (
         <div className="fixed inset-0 z-50 bg-black bg-opacity-50 md:hidden" onClick={() => setSidebarOpen(false)} />
       )}
 
-      {/* Sidebar */}
+      {/* Sidebar - flex-col h-full apply kiya hai for mobile view bottom layout */}
       <aside
-        className={`fixed top-0 left-0 z-50 h-full w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 shadow-lg transition-transform duration-300 ${
+        className={`fixed top-0 left-0 z-50 h-full w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 shadow-lg flex flex-col transition-transform duration-300 ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
-        } md:translate-x-0 md:sticky md:h-screen md:flex md:flex-col`}
+        } md:translate-x-0 md:sticky md:h-screen`}
       >
         <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
-          <h2 className="text-xl font-bold text-gray-800 dark:text-white">Velorix</h2>
+          <div className="flex items-center space-x-3">
+            <h2 className="text-xl font-bold text-gray-800 dark:text-white">Velorix</h2>
+            {/* Desktop Mode Main Header Icon Toggle */}
+            <button
+              onClick={() => setDarkMode(!darkMode)}
+              className="hidden md:block p-1.5 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition"
+            >
+              {darkMode ? <FiSun size={18} className="text-yellow-400" /> : <FiMoon size={18} />}
+            </button>
+          </div>
           <button onClick={() => setSidebarOpen(false)} className="md:hidden text-gray-800 dark:text-white">
             <FiX size={24} />
           </button>
         </div>
+
+        {/* Nav Links Container */}
         <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
           <button
-            onClick={() => { setSelectedEndpoint(null); setChartData([]); setAiSuggestion(null); }}
+            onClick={() => { setSelectedEndpoint(null); setChartData([]); setAiSuggestion(null); if(window.innerWidth < 768) setSidebarOpen(false); }}
             className="flex items-center w-full px-3 py-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition"
           >
             <FiActivity className="mr-3" size={20} />
             <span>Dashboard</span>
           </button>
           <button
-            onClick={() => navigate('/logs')}
+            onClick={() => { navigate('/logs'); if(window.innerWidth < 768) setSidebarOpen(false); }}
             className="flex items-center w-full px-3 py-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition"
           >
             <FiList className="mr-3" size={20} />
             <span>Log Viewer</span>
           </button>
-          <div className="flex items-center justify-between px-3 py-2">
-            <div className="flex items-center text-gray-700 dark:text-gray-300">
-              {darkMode ? <FiMoon className="mr-3" size={20} /> : <FiSun className="mr-3" size={20} />}
-              <span>Dark Mode</span>
-            </div>
-            <button
-              onClick={() => setDarkMode(!darkMode)}
-              className="relative inline-flex h-6 w-11 items-center rounded-full transition-colors"
-              style={{ backgroundColor: darkMode ? '#3b82f6' : '#9ca3af' }}
-            >
-              <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${darkMode ? 'translate-x-6' : 'translate-x-1'}`} />
-            </button>
-          </div>
         </nav>
-        <div className="p-4 border-t border-gray-200 dark:border-gray-700">
+
+        {/* Bottom Fixed Logout Container */}
+        <div className="p-4 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 mt-auto">
           <button
             onClick={handleLogout}
             className="flex items-center w-full px-3 py-2 rounded-lg text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition"
