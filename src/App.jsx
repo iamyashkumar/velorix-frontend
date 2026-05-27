@@ -1,4 +1,4 @@
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -7,14 +7,11 @@ import Logs from './pages/Logs';
 import Home from './pages/Home';
 
 function App() {
-  // Optional: if user is already logged in, redirect from root to dashboard
-  const token = localStorage.getItem('token');
-
   return (
     <>
       <Toaster position="top-right" />
       <Routes>
-        <Route path="/" element={token ? <Navigate to="/dashboard" /> : <Home />} />
+        <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/dashboard" element={<Dashboard />} />
