@@ -171,95 +171,98 @@ export default function Dashboard() {
         </div>
       </aside>
 
-      {/* Main content – FIXED mobile padding */}
+      {/* Main content – centered container for laptop/desktop */}
       <main className="md:ml-64">
         <div className="pl-12 md:pl-6 px-6 pt-4 pb-6">
-          {/* Add Endpoint Form */}
-          <div className="mb-6">
-            <AddEndpointForm onEndpointAdded={() => setRefreshKey(prev => prev + 1)} />
-          </div>
+          {/* Centered max-width container */}
+          <div className="max-w-7xl mx-auto">
+            {/* Add Endpoint Form */}
+            <div className="mb-6">
+              <AddEndpointForm onEndpointAdded={() => setRefreshKey(prev => prev + 1)} />
+            </div>
 
-          {/* Stats Cards */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-            <div className="bg-white dark:bg-gray-800 p-4 rounded shadow text-center">
-              <p className="text-gray-500 dark:text-gray-400 text-sm">Total APIs</p>
-              <p className="text-2xl font-bold text-gray-800 dark:text-white">{stats.total}</p>
+            {/* Stats Cards */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+              <div className="bg-white dark:bg-gray-800 p-4 rounded shadow text-center">
+                <p className="text-gray-500 dark:text-gray-400 text-sm">Total APIs</p>
+                <p className="text-2xl font-bold text-gray-800 dark:text-white">{stats.total}</p>
+              </div>
+              <div className="bg-white dark:bg-gray-800 p-4 rounded shadow text-center">
+                <p className="text-green-600 dark:text-green-400 text-sm">UP</p>
+                <p className="text-2xl font-bold text-gray-800 dark:text-white">{stats.up}</p>
+              </div>
+              <div className="bg-white dark:bg-gray-800 p-4 rounded shadow text-center">
+                <p className="text-red-600 dark:text-red-400 text-sm">DOWN</p>
+                <p className="text-2xl font-bold text-gray-800 dark:text-white">{stats.down}</p>
+              </div>
+              <div className="bg-white dark:bg-gray-800 p-4 rounded shadow text-center">
+                <p className="text-gray-500 dark:text-gray-400 text-sm">Avg Response (ms)</p>
+                <p className="text-2xl font-bold text-gray-800 dark:text-white">{stats.avgResponseTime}</p>
+              </div>
             </div>
-            <div className="bg-white dark:bg-gray-800 p-4 rounded shadow text-center">
-              <p className="text-green-600 dark:text-green-400 text-sm">UP</p>
-              <p className="text-2xl font-bold text-gray-800 dark:text-white">{stats.up}</p>
-            </div>
-            <div className="bg-white dark:bg-gray-800 p-4 rounded shadow text-center">
-              <p className="text-red-600 dark:text-red-400 text-sm">DOWN</p>
-              <p className="text-2xl font-bold text-gray-800 dark:text-white">{stats.down}</p>
-            </div>
-            <div className="bg-white dark:bg-gray-800 p-4 rounded shadow text-center">
-              <p className="text-gray-500 dark:text-gray-400 text-sm">Avg Response (ms)</p>
-              <p className="text-2xl font-bold text-gray-800 dark:text-white">{stats.avgResponseTime}</p>
-            </div>
-          </div>
 
-          {/* Endpoint Cards Section */}
-          <h2 className="text-lg font-semibold mb-4 text-gray-800 dark:text-white">Monitored Endpoints</h2>
-          {endpoints.length === 0 ? (
-            <p className="text-gray-600 dark:text-gray-300">No endpoints added yet. Use the form above to add one.</p>
-          ) : (
-            <div className="grid gap-4">
-              {endpoints.map((ep) => (
-                <div
-                  key={ep.id}
-                  onClick={() => handleEndpointClick(ep)}
-                  className="bg-white dark:bg-gray-800 p-4 rounded shadow flex justify-between items-center cursor-pointer hover:shadow-md transition"
-                >
-                  <div>
-                    <p className="font-medium text-gray-800 dark:text-white">{ep.name}</p>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">{ep.url}</p>
-                    <span className="text-xs text-gray-400 dark:text-gray-500">
-                      Latest: {latestHealth[ep.id] ? `${latestHealth[ep.id]}ms` : '—'}
+            {/* Endpoint Cards Section */}
+            <h2 className="text-lg font-semibold mb-4 text-gray-800 dark:text-white">Monitored Endpoints</h2>
+            {endpoints.length === 0 ? (
+              <p className="text-gray-600 dark:text-gray-300">No endpoints added yet. Use the form above to add one.</p>
+            ) : (
+              <div className="grid gap-4">
+                {endpoints.map((ep) => (
+                  <div
+                    key={ep.id}
+                    onClick={() => handleEndpointClick(ep)}
+                    className="bg-white dark:bg-gray-800 p-4 rounded shadow flex justify-between items-center cursor-pointer hover:shadow-md transition"
+                  >
+                    <div>
+                      <p className="font-medium text-gray-800 dark:text-white">{ep.name}</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">{ep.url}</p>
+                      <span className="text-xs text-gray-400 dark:text-gray-500">
+                        Latest: {latestHealth[ep.id] ? `${latestHealth[ep.id]}ms` : '—'}
+                      </span>
+                    </div>
+                    <span className={`px-2 py-1 rounded text-sm ${ep.active ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'}`}>
+                      {ep.active ? 'Active' : 'Inactive'}
                     </span>
                   </div>
-                  <span className={`px-2 py-1 rounded text-sm ${ep.active ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'}`}>
-                    {ep.active ? 'Active' : 'Inactive'}
-                  </span>
-                </div>
-              ))}
-            </div>
-          )}
+                ))}
+              </div>
+            )}
 
-          {/* Response Time Chart */}
-          {selectedEndpoint && (
+            {/* Response Time Chart */}
+            {selectedEndpoint && (
+              <div className="mt-8">
+                <h3 className="text-lg font-semibold mb-2">Response Time Trend – {selectedEndpoint.name}</h3>
+                {loadingChart ? <p>Loading chart...</p> : chartData.length === 0 ? <p>No health logs yet.</p> : (
+                  <div className="bg-white dark:bg-gray-800 p-4 rounded shadow">
+                    <ResponsiveContainer width="100%" height={300}>
+                      <LineChart data={chartData}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="checkedAt" />
+                        <YAxis label={{ value: 'Response Time (ms)', angle: -90, position: 'insideLeft' }} />
+                        <Tooltip />
+                        <Legend />
+                        <Line type="monotone" dataKey="responseTimeMs" name="Response Time (ms)" stroke="#8884d8" />
+                      </LineChart>
+                    </ResponsiveContainer>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* AI Analysis Button */}
             <div className="mt-8">
-              <h3 className="text-lg font-semibold mb-2">Response Time Trend – {selectedEndpoint.name}</h3>
-              {loadingChart ? <p>Loading chart...</p> : chartData.length === 0 ? <p>No health logs yet.</p> : (
-                <div className="bg-white dark:bg-gray-800 p-4 rounded shadow">
-                  <ResponsiveContainer width="100%" height={300}>
-                    <LineChart data={chartData}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="checkedAt" />
-                      <YAxis label={{ value: 'Response Time (ms)', angle: -90, position: 'insideLeft' }} />
-                      <Tooltip />
-                      <Legend />
-                      <Line type="monotone" dataKey="responseTimeMs" name="Response Time (ms)" stroke="#8884d8" />
-                    </LineChart>
-                  </ResponsiveContainer>
+              <button onClick={analyzeErrors} disabled={loadingAi} className="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700 disabled:opacity-50">
+                {loadingAi ? 'Analyzing...' : '🔍 Analyze Recent Errors with AI'}
+              </button>
+              {aiSuggestion && (
+                <div className="mt-4 p-4 bg-white dark:bg-gray-800 rounded shadow">
+                  <h3 className="font-bold text-lg">🤖 AI Diagnosis</h3>
+                  <p><strong>Possible Cause:</strong> {aiSuggestion.possibleCause}</p>
+                  <p><strong>Recommended Fix:</strong> {aiSuggestion.recommendedFix}</p>
+                  <p><strong>Severity:</strong> <span className={`ml-2 px-2 py-1 rounded text-sm ${aiSuggestion.severity === 'HIGH' ? 'bg-red-100 text-red-800' : aiSuggestion.severity === 'MEDIUM' ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800'}`}>{aiSuggestion.severity}</span></p>
                 </div>
               )}
             </div>
-          )}
-
-          {/* AI Analysis Button */}
-          <div className="mt-8">
-            <button onClick={analyzeErrors} disabled={loadingAi} className="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700 disabled:opacity-50">
-              {loadingAi ? 'Analyzing...' : '🔍 Analyze Recent Errors with AI'}
-            </button>
-            {aiSuggestion && (
-              <div className="mt-4 p-4 bg-white dark:bg-gray-800 rounded shadow">
-                <h3 className="font-bold text-lg">🤖 AI Diagnosis</h3>
-                <p><strong>Possible Cause:</strong> {aiSuggestion.possibleCause}</p>
-                <p><strong>Recommended Fix:</strong> {aiSuggestion.recommendedFix}</p>
-                <p><strong>Severity:</strong> <span className={`ml-2 px-2 py-1 rounded text-sm ${aiSuggestion.severity === 'HIGH' ? 'bg-red-100 text-red-800' : aiSuggestion.severity === 'MEDIUM' ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800'}`}>{aiSuggestion.severity}</span></p>
-              </div>
-            )}
           </div>
         </div>
       </main>
