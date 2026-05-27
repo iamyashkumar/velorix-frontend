@@ -144,8 +144,8 @@ export default function Dashboard() {
         <div className="fixed inset-0 z-40 bg-black bg-opacity-50 md:hidden" onClick={() => setSidebarOpen(false)} />
       )}
 
-      {/* Sidebar - now using min-h-screen and flex flex-col */}
-      <aside className={`fixed top-0 left-0 z-50 w-64 min-h-screen flex flex-col bg-white dark:bg-gray-800 shadow-lg transition-transform duration-300 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0 md:static`}>
+      {/* Sidebar */}
+      <aside className={`fixed top-0 left-0 z-50 h-full w-64 flex flex-col bg-white dark:bg-gray-800 shadow-lg transition-transform duration-300 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0 md:static`}>
         <div className="flex justify-between items-center p-4 border-b dark:border-gray-700">
           <h2 className="text-xl font-bold text-gray-800 dark:text-white">Velorix</h2>
           <button onClick={() => setSidebarOpen(false)} className="md:hidden">
@@ -153,35 +153,21 @@ export default function Dashboard() {
           </button>
         </div>
         <nav className="flex-1 p-4 space-y-4">
-          <button
-            onClick={() => { setSelectedEndpoint(null); setChartData([]); setAiSuggestion(null); }}
-            className="block w-full text-left text-gray-700 dark:text-gray-300 hover:text-blue-600 transition"
-          >
+          <button onClick={() => { setSelectedEndpoint(null); setChartData([]); setAiSuggestion(null); }} className="block w-full text-left text-gray-700 dark:text-gray-300 hover:text-blue-600 transition">
             Dashboard
           </button>
-          <button
-            onClick={() => navigate('/logs')}
-            className="block w-full text-left text-gray-700 dark:text-gray-300 hover:text-blue-600 transition"
-          >
+          <button onClick={() => navigate('/logs')} className="block w-full text-left text-gray-700 dark:text-gray-300 hover:text-blue-600 transition">
             Log Viewer
           </button>
           <div className="flex items-center justify-between">
             <span className="text-gray-700 dark:text-gray-300">Dark Mode</span>
-            <button
-              onClick={() => setDarkMode(!darkMode)}
-              className="relative inline-flex h-6 w-11 items-center rounded-full transition-colors"
-              style={{ backgroundColor: darkMode ? '#3b82f6' : '#9ca3af' }}
-            >
+            <button onClick={() => setDarkMode(!darkMode)} className="relative inline-flex h-6 w-11 items-center rounded-full transition-colors" style={{ backgroundColor: darkMode ? '#3b82f6' : '#9ca3af' }}>
               <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${darkMode ? 'translate-x-6' : 'translate-x-1'}`} />
             </button>
           </div>
         </nav>
-        {/* Logout button at bottom */}
-        <div className="p-4 border-t dark:border-gray-700">
-          <button
-            onClick={handleLogout}
-            className="w-full text-left text-red-600 dark:text-red-400 hover:text-red-800 transition"
-          >
+        <div className="p-4 border-t dark:border-gray-700 mt-auto">
+          <button onClick={handleLogout} className="w-full text-left text-red-600 dark:text-red-400 hover:text-red-800 transition">
             Logout
           </button>
         </div>
@@ -191,12 +177,9 @@ export default function Dashboard() {
       <main className="md:ml-64">
         <div className="pl-12 md:pl-6 px-6 pt-4 pb-6">
           <div className="max-w-7xl mx-auto">
-            {/* Add Endpoint Form */}
             <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 mb-6">
               <AddEndpointForm onEndpointAdded={() => setRefreshKey(prev => prev + 1)} />
             </div>
-
-            {/* Stats Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
               <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-5 text-center">
                 <p className="text-gray-500 dark:text-gray-400 text-sm uppercase tracking-wide">Total APIs</p>
@@ -215,8 +198,6 @@ export default function Dashboard() {
                 <p className="text-3xl font-bold text-gray-800 dark:text-white mt-2">{stats.avgResponseTime}</p>
               </div>
             </div>
-
-            {/* Endpoint Cards Section */}
             <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 mb-8">
               <h2 className="text-xl font-semibold mb-4 text-gray-800 dark:text-white">Monitored Endpoints</h2>
               {endpoints.length === 0 ? (
@@ -244,8 +225,6 @@ export default function Dashboard() {
                 </div>
               )}
             </div>
-
-            {/* Response Time Chart */}
             {selectedEndpoint && (
               <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 mb-8">
                 <h3 className="text-lg font-semibold mb-4 text-gray-800 dark:text-white">
@@ -269,14 +248,8 @@ export default function Dashboard() {
                 )}
               </div>
             )}
-
-            {/* AI Analysis Button & Result */}
             <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-              <button
-                onClick={analyzeErrors}
-                disabled={loadingAi}
-                className="bg-purple-600 text-white px-5 py-2 rounded-lg hover:bg-purple-700 disabled:opacity-50 transition"
-              >
+              <button onClick={analyzeErrors} disabled={loadingAi} className="bg-purple-600 text-white px-5 py-2 rounded-lg hover:bg-purple-700 disabled:opacity-50 transition">
                 {loadingAi ? 'Analyzing...' : '🔍 Analyze Recent Errors with AI'}
               </button>
               {aiSuggestion && (
