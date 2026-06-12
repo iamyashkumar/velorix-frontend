@@ -1,12 +1,13 @@
 import { useEffect, useState, useRef } from 'react';
 import api from '../services/api';
 import { useNavigate } from 'react-router-dom';
-import { FiMenu, FiX, FiActivity, FiList, FiMoon, FiSun, FiLogOut, FiTrendingUp } from 'react-icons/fi';
+import { FiMenu, FiMoon, FiSun } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
 } from 'recharts';
 import AddEndpointForm from '../components/AddEndpointForm';
+import Sidebar from '../components/Sidebar';
 import useDarkMode from '../hooks/useDarkMode';
 
 export default function Dashboard() {
@@ -55,7 +56,6 @@ export default function Dashboard() {
         const last = res.data[0];
         setLatestHealth(prev => ({ ...prev, [endpointId]: last.responseTimeMs }));
 
-        // Store in ref instead of state — avoids re-render loops and keeps private data out of state
         healthMapRef.current[endpointId] = last.responseTimeMs;
         const allTimes = Object.values(healthMapRef.current);
         const avg = allTimes.length > 0
@@ -105,28 +105,22 @@ export default function Dashboard() {
     if (window.innerWidth < 768) setSidebarOpen(false);
   };
 
-  const handleLogout = () => {
-    localStorage.clear();
-    toast.success('Logged out');
-    navigate('/login');
+  const analyzeErrors = async () => {
+    setLoadingAi(true);
+    try {
+      const response = await api.post('/api/ai/analyze', {});
+      setAiSuggestion(response.data);
+    } catch (err) {
+      if (err.response?.status === 404) {
+        toast.success('No errors found in the last 24 hours 🎉');
+      } else {
+        console.error(err);
+        toast.error(err.response?.data?.error || 'AI analysis failed');
+      }
+    } finally {
+      setLoadingAi(false);
+    }
   };
-
- const analyzeErrors = async () => {
-     setLoadingAi(true);
-     try {
-       const response = await api.post('/api/ai/analyze', {});
-       setAiSuggestion(response.data);
-     } catch (err) {
-       if (err.response?.status === 404) {
-         toast.success('No errors found in the last 24 hours 🎉');
-       } else {
-         console.error(err);
-         toast.error(err.response?.data?.error || 'AI analysis failed');
-       }
-     } finally {
-       setLoadingAi(false);
-     }
-   };
 
   if (loading) return <div className="text-center mt-10">Loading...</div>;
 
@@ -144,7 +138,6 @@ export default function Dashboard() {
           </button>
           <span className="text-lg font-bold text-gray-800 dark:text-white">Velorix</span>
         </div>
-        {/* Mobile Dark Mode Toggle Button Icon Only */}
         <button
           onClick={() => setDarkMode(!darkMode)}
           className="p-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition"
@@ -158,57 +151,12 @@ export default function Dashboard() {
         <div className="fixed inset-0 z-50 bg-black bg-opacity-50 md:hidden" onClick={() => setSidebarOpen(false)} />
       )}
 
-      {/* Sidebar - flex-col h-full apply kiya hai for mobile view bottom layout */}
-      <aside
-        className={`fixed top-0 left-0 z-50 h-full w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 shadow-lg flex flex-col transition-transform duration-300 ${
-          sidebarOpen ? 'translate-x-0' : '-translate-x-full'
-        } md:translate-x-0 md:sticky md:h-screen`}
-      >
-        <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
-          <div className="flex items-center space-x-3">
-            <h2 className="text-xl font-bold text-gray-800 dark:text-white">Velorix</h2>
-            {/* Desktop Mode Main Header Icon Toggle */}
-            <button
-              onClick={() => setDarkMode(!darkMode)}
-              className="hidden md:block p-1.5 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition"
-            >
-              {darkMode ? <FiSun size={18} className="text-yellow-400" /> : <FiMoon size={18} />}
-            </button>
-          </div>
-          <button onClick={() => setSidebarOpen(false)} className="md:hidden text-gray-800 dark:text-white">
-            <FiX size={24} />
-          </button>
-        </div>
-
-        {/* Nav Links Container */}
-        <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
-          <button
-            onClick={() => { setSelectedEndpoint(null); setChartData([]); setAiSuggestion(null); if(window.innerWidth < 768) setSidebarOpen(false); }}
-            className="flex items-center w-full px-3 py-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition"
-          >
-            <FiActivity className="mr-3" size={20} />
-            <span>Dashboard</span>
-          </button>
-          <button
-            onClick={() => { navigate('/logs'); if(window.innerWidth < 768) setSidebarOpen(false); }}
-            className="flex items-center w-full px-3 py-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition"
-          >
-            <FiList className="mr-3" size={20} />
-            <span>Log Viewer</span>
-          </button>
-        </nav>
-
-        {/* Bottom Fixed Logout Container */}
-        <div className="p-4 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 mt-auto">
-          <button
-            onClick={handleLogout}
-            className="flex items-center w-full px-3 py-2 rounded-lg text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition"
-          >
-            <FiLogOut className="mr-3" size={20} />
-            <span>Logout</span>
-          </button>
-        </div>
-      </aside>
+      <Sidebar
+        sidebarOpen={sidebarOpen}
+        setSidebarOpen={setSidebarOpen}
+        darkMode={darkMode}
+        setDarkMode={setDarkMode}
+      />
 
       {/* Main content */}
       <main className="flex-1 overflow-x-hidden">
@@ -229,7 +177,7 @@ export default function Dashboard() {
             <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-100 dark:border-gray-700">
               <div className="flex items-center">
                 <div className="p-2 bg-blue-100 dark:bg-blue-900 rounded-lg">
-                  <FiActivity className="h-6 w-6 text-blue-600 dark:text-blue-300" />
+                  <span className="text-2xl">📊</span>
                 </div>
                 <div className="ml-4">
                   <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Total APIs</p>
@@ -240,7 +188,7 @@ export default function Dashboard() {
             <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-100 dark:border-gray-700">
               <div className="flex items-center">
                 <div className="p-2 bg-green-100 dark:bg-green-900 rounded-lg">
-                  <FiTrendingUp className="h-6 w-6 text-green-600 dark:text-green-300" />
+                  <span className="text-2xl">📈</span>
                 </div>
                 <div className="ml-4">
                   <p className="text-sm font-medium text-gray-500 dark:text-gray-400">UP</p>
@@ -251,7 +199,7 @@ export default function Dashboard() {
             <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-100 dark:border-gray-700">
               <div className="flex items-center">
                 <div className="p-2 bg-red-100 dark:bg-red-900 rounded-lg">
-                  <FiTrendingUp className="h-6 w-6 text-red-600 dark:text-red-300 transform rotate-180" />
+                  <span className="text-2xl">📉</span>
                 </div>
                 <div className="ml-4">
                   <p className="text-sm font-medium text-gray-500 dark:text-gray-400">DOWN</p>
@@ -262,7 +210,7 @@ export default function Dashboard() {
             <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-100 dark:border-gray-700">
               <div className="flex items-center">
                 <div className="p-2 bg-purple-100 dark:bg-purple-900 rounded-lg">
-                  <FiTrendingUp className="h-6 w-6 text-purple-600 dark:text-purple-300" />
+                  <span className="text-2xl">⚡</span>
                 </div>
                 <div className="ml-4">
                   <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Avg Response</p>
