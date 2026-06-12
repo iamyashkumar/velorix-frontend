@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import api from '../services/api';
 import { useNavigate } from 'react-router-dom';
 import { FiMenu, FiX, FiActivity, FiList, FiMoon, FiSun, FiLogOut, FiTrendingUp } from 'react-icons/fi';
@@ -21,6 +21,7 @@ export default function Dashboard() {
   const [refreshKey, setRefreshKey] = useState(0);
   const [stats, setStats] = useState({ total: 0, up: 0, down: 0, avgResponseTime: 0 });
   const [latestHealth, setLatestHealth] = useState({});
+  const healthMapRef = useRef({});
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -67,14 +68,15 @@ export default function Dashboard() {
       if (res.data && res.data.length > 0) {
         const last = res.data[0];
         setLatestHealth(prev => ({ ...prev, [endpointId]: last.responseTimeMs }));
-        // Update avgResponseTime as each endpoint's latest health comes in
-        setStats(prev => {
-          const allTimes = Object.values({ ...prev._healthMap, [endpointId]: last.responseTimeMs });
-          const avg = allTimes.length > 0
-            ? Math.round(allTimes.reduce((a, b) => a + b, 0) / allTimes.length)
-            : 0;
-          return { ...prev, avgResponseTime: avg, _healthMap: { ...prev._healthMap, [endpointId]: last.responseTimeMs } };
-        });
+
+        // Store in ref instead of state — avoids re-render loops and keeps private data out of state
+        healthMapRef.current[endpointId] = last.responseTimeMs;
+        const allTimes = Object.values(healthMapRef.current);
+        const avg = allTimes.length > 0
+          ? Math.round(allTimes.reduce((a, b) => a + b, 0) / allTimes.length)
+          : 0;
+
+        setStats(prev => ({ ...prev, avgResponseTime: avg }));
       }
     } catch (err) {
       console.error(err);
@@ -85,7 +87,8 @@ export default function Dashboard() {
     const total = endpointsList.length;
     const up = endpointsList.filter(ep => ep.active).length;
     const down = total - up;
-    setStats({ total, up, down, avgResponseTime: 0, _healthMap: {} });
+    healthMapRef.current = {};
+    setStats({ total, up, down, avgResponseTime: 0 });
   };
 
   const fetchHealthLogs = async (endpointId) => {
