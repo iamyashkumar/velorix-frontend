@@ -111,18 +111,22 @@ export default function Dashboard() {
     navigate('/login');
   };
 
-  const analyzeErrors = async () => {
-    setLoadingAi(true);
-    try {
-      const response = await api.post('/api/ai/analyze', {});
-      setAiSuggestion(response.data);
-    } catch (err) {
-      console.error(err);
-      toast.error(err.response?.data?.error || 'AI analysis failed');
-    } finally {
-      setLoadingAi(false);
-    }
-  };
+ const analyzeErrors = async () => {
+     setLoadingAi(true);
+     try {
+       const response = await api.post('/api/ai/analyze', {});
+       setAiSuggestion(response.data);
+     } catch (err) {
+       if (err.response?.status === 404) {
+         toast.success('No errors found in the last 24 hours 🎉');
+       } else {
+         console.error(err);
+         toast.error(err.response?.data?.error || 'AI analysis failed');
+       }
+     } finally {
+       setLoadingAi(false);
+     }
+   };
 
   if (loading) return <div className="text-center mt-10">Loading...</div>;
 
