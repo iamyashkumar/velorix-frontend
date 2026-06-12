@@ -2,35 +2,15 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { FiActivity, FiBarChart2, FiBell, FiCpu, FiLogIn, FiUserPlus, FiMoon, FiSun } from 'react-icons/fi';
 import { motion } from 'framer-motion';
+import useDarkMode from '../hooks/useDarkMode';
 
 export default function Home() {
-  const [darkMode, setDarkMode] = useState(false);
+  const [darkMode, setDarkMode] = useDarkMode();
   const [isThemeReady, setIsThemeReady] = useState(false);
 
-  // Initialize Theme from localStorage
   useEffect(() => {
-    const savedMode = localStorage.getItem('darkMode');
-    if (savedMode === 'true') {
-      setDarkMode(true);
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
     setIsThemeReady(true);
   }, []);
-
-  // Handle Dark Mode Toggle
-  const toggleDarkMode = () => {
-    if (darkMode) {
-      document.documentElement.classList.remove('dark');
-      localStorage.setItem('darkMode', 'false');
-      setDarkMode(false);
-    } else {
-      document.documentElement.classList.add('dark');
-      localStorage.setItem('darkMode', 'true');
-      setDarkMode(true);
-    }
-  };
 
   // Animation variants
   const containerVariants = {
@@ -74,7 +54,7 @@ export default function Home() {
 
           <div className="flex items-center space-x-4">
             <button
-              onClick={toggleDarkMode}
+              onClick={() => setDarkMode(!darkMode)}
               className="p-2.5 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800/80 text-gray-700 dark:text-gray-300 transition-all shadow-sm"
               aria-label="Toggle Theme"
             >
@@ -174,7 +154,7 @@ export default function Home() {
           viewport={{ once: true, margin: "-100px" }}
           className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4"
         >
-          {/* Feature Cards – unchanged */}
+          {/* Feature Cards */}
           <motion.div variants={itemVariants} whileHover={{ y: -5 }} className="bg-white dark:bg-gray-900/40 backdrop-blur-sm border border-gray-100 dark:border-gray-800/80 rounded-2xl p-6 shadow-sm transition-all">
             <div className="w-12 h-12 flex items-center justify-center rounded-xl bg-blue-50 dark:bg-blue-950/50 border border-blue-100/50 dark:border-blue-900/20 text-blue-600 dark:text-blue-400">
               <FiActivity size={24} />
@@ -224,9 +204,30 @@ export default function Home() {
             &copy; {new Date().getFullYear()} Velorix Inc. All telemetry parameters operational.
           </div>
           <div className="flex space-x-6 mt-4 sm:mt-0 font-medium">
-            <a href="#" className="hover:text-gray-900 dark:hover:text-white transition">Privacy Policy</a>
-            <a href="#" className="hover:text-gray-900 dark:hover:text-white transition">Terms of Service</a>
-            <a href="#" className="hover:text-gray-900 dark:hover:text-white transition">Security Info</a>
+            <a
+              href="https://velorix.example.com/privacy"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-gray-900 dark:hover:text-white transition"
+            >
+              Privacy Policy
+            </a>
+            <a
+              href="https://velorix.example.com/terms"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-gray-900 dark:hover:text-white transition"
+            >
+              Terms of Service
+            </a>
+            <a
+              href="https://velorix.example.com/security"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-gray-900 dark:hover:text-white transition"
+            >
+              Security Info
+            </a>
           </div>
         </div>
       </footer>
