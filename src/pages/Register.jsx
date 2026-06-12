@@ -1,21 +1,16 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import api from '../services/api';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { motion } from 'framer-motion';
+import useDarkMode from '../hooks/useDarkMode';
 
 export default function Register() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
-
-  useEffect(() => {
-    const savedMode = localStorage.getItem('darkMode');
-    if (savedMode === 'true') {
-      document.documentElement.classList.add('dark');
-    }
-  }, []);
+  useDarkMode();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -163,9 +158,9 @@ export default function Register() {
           className="mt-6 text-center text-sm text-gray-600 dark:text-gray-400"
         >
           Already have an account?{' '}
-          <a href="/login" className="text-blue-600 dark:text-blue-400 hover:underline font-medium">
+          <Link to="/login" className="text-blue-600 dark:text-blue-400 hover:underline font-medium">
             Login
-          </a>
+          </Link>
         </motion.p>
       </motion.div>
     </div>

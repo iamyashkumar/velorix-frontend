@@ -7,11 +7,12 @@ import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
 } from 'recharts';
 import AddEndpointForm from '../components/AddEndpointForm';
+import useDarkMode from '../hooks/useDarkMode';
 
 export default function Dashboard() {
   const [endpoints, setEndpoints] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [darkMode, setDarkMode] = useState(false);
+  const [darkMode, setDarkMode] = useDarkMode();
   const [aiSuggestion, setAiSuggestion] = useState(null);
   const [loadingAi, setLoadingAi] = useState(false);
   const [selectedEndpoint, setSelectedEndpoint] = useState(null);
@@ -31,22 +32,7 @@ export default function Dashboard() {
       return;
     }
     fetchEndpoints();
-    const savedMode = localStorage.getItem('darkMode');
-    if (savedMode === 'true') {
-      setDarkMode(true);
-      document.documentElement.classList.add('dark');
-    }
   }, [refreshKey]);
-
-  useEffect(() => {
-    if (darkMode) {
-      document.documentElement.classList.add('dark');
-      localStorage.setItem('darkMode', 'true');
-    } else {
-      document.documentElement.classList.remove('dark');
-      localStorage.setItem('darkMode', 'false');
-    }
-  }, [darkMode]);
 
   const fetchEndpoints = async () => {
     try {
