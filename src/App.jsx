@@ -1,4 +1,4 @@
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -25,6 +25,7 @@ function App() {
             <Logs />
           </ProtectedRoute>
         } />
+        <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     </>
   );
