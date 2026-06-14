@@ -17,6 +17,7 @@ export default function Logs() {
   const [totalPages, setTotalPages] = useState(0);
   const navigate = useNavigate();
 
+  // Fetch logs on mount, level change, or page change
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (!token) {
@@ -24,7 +25,7 @@ export default function Logs() {
       return;
     }
     fetchLogs();
-  }, [level, keyword, page]);
+  }, [level, page]); // Only level and page trigger auto-fetch
 
   const fetchLogs = async () => {
     setLoading(true);
@@ -40,6 +41,12 @@ export default function Logs() {
     } finally {
       setLoading(false);
     }
+  };
+
+  // Handle Search button click
+  const handleSearch = () => {
+    setPage(0); // Reset to first page on new search
+    fetchLogs();
   };
 
   if (loading) return <div className="text-center mt-10">Loading...</div>;
@@ -108,12 +115,15 @@ export default function Logs() {
                 type="text"
                 placeholder="Search by message..."
                 value={keyword}
-                onChange={(e) => { setKeyword(e.target.value); setPage(0); }}
+                onChange={(e) => setKeyword(e.target.value)}
+                onKeyPress={(e) => {
+                  if (e.key === 'Enter') handleSearch();
+                }}
                 className="flex-1 p-2 border rounded-lg dark:bg-gray-700 dark:text-white dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
               <button
-                onClick={fetchLogs}
-                className="bg-blue-600 text-white px-5 py-2 rounded-lg hover:bg-blue-700 transition font-medium"
+                onClick={handleSearch}
+                className="bg-blue-600 text-white px-5 py-2 rounded-lg hover:bg-blue-700 transition font-medium whitespace-nowrap"
               >
                 Search
               </button>
