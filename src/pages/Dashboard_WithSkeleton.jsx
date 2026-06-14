@@ -9,6 +9,7 @@ import {
 import AddEndpointForm from '../components/AddEndpointForm';
 import Sidebar from '../components/Sidebar';
 import useDarkMode from '../hooks/useDarkMode';
+import { StatCardSkeleton, LogEntrySkeleton, ChartSkeleton, EndpointListSkeleton } from '../components/LoadingSkeleton';
 
 export default function Dashboard() {
   const [endpoints, setEndpoints] = useState([]);
@@ -122,8 +123,6 @@ export default function Dashboard() {
     }
   };
 
-  if (loading) return <div className="text-center mt-10">Loading...</div>;
-
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 md:flex">
 
@@ -174,50 +173,61 @@ export default function Dashboard() {
 
           {/* Stats Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-100 dark:border-gray-700">
-              <div className="flex items-center">
-                <div className="p-2 bg-blue-100 dark:bg-blue-900 rounded-lg">
-                  <span className="text-2xl">📊</span>
+            {loading ? (
+              <>
+                <StatCardSkeleton />
+                <StatCardSkeleton />
+                <StatCardSkeleton />
+                <StatCardSkeleton />
+              </>
+            ) : (
+              <>
+                <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-100 dark:border-gray-700">
+                  <div className="flex items-center">
+                    <div className="p-2 bg-blue-100 dark:bg-blue-900 rounded-lg">
+                      <span className="text-2xl">📊</span>
+                    </div>
+                    <div className="ml-4">
+                      <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Total APIs</p>
+                      <p className="text-2xl font-semibold text-gray-900 dark:text-white">{stats.total}</p>
+                    </div>
+                  </div>
                 </div>
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Total APIs</p>
-                  <p className="text-2xl font-semibold text-gray-900 dark:text-white">{stats.total}</p>
+                <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-100 dark:border-gray-700">
+                  <div className="flex items-center">
+                    <div className="p-2 bg-green-100 dark:bg-green-900 rounded-lg">
+                      <span className="text-2xl">📈</span>
+                    </div>
+                    <div className="ml-4">
+                      <p className="text-sm font-medium text-gray-500 dark:text-gray-400">UP</p>
+                      <p className="text-2xl font-semibold text-gray-900 dark:text-white">{stats.up}</p>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </div>
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-100 dark:border-gray-700">
-              <div className="flex items-center">
-                <div className="p-2 bg-green-100 dark:bg-green-900 rounded-lg">
-                  <span className="text-2xl">📈</span>
+                <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-100 dark:border-gray-700">
+                  <div className="flex items-center">
+                    <div className="p-2 bg-red-100 dark:bg-red-900 rounded-lg">
+                      <span className="text-2xl">📉</span>
+                    </div>
+                    <div className="ml-4">
+                      <p className="text-sm font-medium text-gray-500 dark:text-gray-400">DOWN</p>
+                      <p className="text-2xl font-semibold text-gray-900 dark:text-white">{stats.down}</p>
+                    </div>
+                  </div>
                 </div>
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-500 dark:text-gray-400">UP</p>
-                  <p className="text-2xl font-semibold text-gray-900 dark:text-white">{stats.up}</p>
+                <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-100 dark:border-gray-700">
+                  <div className="flex items-center">
+                    <div className="p-2 bg-purple-100 dark:bg-purple-900 rounded-lg">
+                      <span className="text-2xl">⚡</span>
+                    </div>
+                    <div className="ml-4">
+                      <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Avg Response</p>
+                      <p className="text-2xl font-semibold text-gray-900 dark:text-white">{stats.avgResponseTime} ms</p>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </div>
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-100 dark:border-gray-700">
-              <div className="flex items-center">
-                <div className="p-2 bg-red-100 dark:bg-red-900 rounded-lg">
-                  <span className="text-2xl">📉</span>
-                </div>
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-500 dark:text-gray-400">DOWN</p>
-                  <p className="text-2xl font-semibold text-gray-900 dark:text-white">{stats.down}</p>
-                </div>
-              </div>
-            </div>
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-100 dark:border-gray-700">
-              <div className="flex items-center">
-                <div className="p-2 bg-purple-100 dark:bg-purple-900 rounded-lg">
-                  <span className="text-2xl">⚡</span>
-                </div>
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Avg Response</p>
-                  <p className="text-2xl font-semibold text-gray-900 dark:text-white">{stats.avgResponseTime} ms</p>
-                </div>
-              </div>
-            </div>
+              </>
+            )}
           </div>
 
           {/* Endpoints Section */}
@@ -225,9 +235,11 @@ export default function Dashboard() {
             <div className="px-6 py-4 border-b border-gray-100 dark:border-gray-700">
               <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Monitored Endpoints</h2>
             </div>
-            <div className="divide-y divide-gray-100 dark:divide-gray-700">
-              {endpoints.length === 0 ? (
-                <div className="p-6 text-center text-gray-500 dark:text-gray-400">
+            <div className="divide-y divide-gray-100 dark:divide-gray-700 p-6">
+              {loading ? (
+                <EndpointListSkeleton />
+              ) : endpoints.length === 0 ? (
+                <div className="text-center text-gray-500 dark:text-gray-400">
                   No endpoints added yet. Use the form above to add one.
                 </div>
               ) : (
@@ -235,7 +247,7 @@ export default function Dashboard() {
                   <div
                     key={ep.id}
                     onClick={() => handleEndpointClick(ep)}
-                    className="flex justify-between items-center p-4 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition"
+                    className="flex justify-between items-center py-3 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition -mx-6 px-6"
                   >
                     <div>
                       <p className="font-medium text-gray-900 dark:text-white">{ep.name}</p>
@@ -264,7 +276,7 @@ export default function Dashboard() {
                 Response Time Trend – {selectedEndpoint.name}
               </h3>
               {loadingChart ? (
-                <div className="text-center py-8 text-gray-500">Loading chart...</div>
+                <ChartSkeleton />
               ) : chartData.length === 0 ? (
                 <div className="text-center py-8 text-gray-500">No health logs yet. Wait for the first check.</div>
               ) : (

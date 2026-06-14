@@ -5,6 +5,7 @@ import { FiMenu, FiMoon, FiSun } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 import Sidebar from '../components/Sidebar';
 import useDarkMode from '../hooks/useDarkMode';
+import { LogEntrySkeleton } from '../components/LoadingSkeleton';
 
 export default function Logs() {
   const [logs, setLogs] = useState([]);
@@ -17,7 +18,6 @@ export default function Logs() {
   const [totalPages, setTotalPages] = useState(0);
   const navigate = useNavigate();
 
-  // Fetch logs on mount, level change, or page change
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (!token) {
@@ -25,7 +25,7 @@ export default function Logs() {
       return;
     }
     fetchLogs();
-  }, [level, page]); // Only level and page trigger auto-fetch
+  }, [level, page]);
 
   const fetchLogs = async () => {
     setLoading(true);
@@ -43,13 +43,10 @@ export default function Logs() {
     }
   };
 
-  // Handle Search button click
   const handleSearch = () => {
-    setPage(0); // Reset to first page on new search
+    setPage(0);
     fetchLogs();
   };
-
-  if (loading) return <div className="text-center mt-10">Loading...</div>;
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 md:flex">
@@ -132,7 +129,13 @@ export default function Logs() {
 
           {/* Logs List */}
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden mb-8 p-6">
-            {logs.length === 0 ? (
+            {loading ? (
+              <div className="space-y-4">
+                {[...Array(5)].map((_, i) => (
+                  <LogEntrySkeleton key={i} />
+                ))}
+              </div>
+            ) : logs.length === 0 ? (
               <p className="text-gray-500 dark:text-gray-400 text-center py-4">No logs found.</p>
             ) : (
               <div className="space-y-4">
