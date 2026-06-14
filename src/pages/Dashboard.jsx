@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
 import api from '../services/api';
 import { useNavigate } from 'react-router-dom';
-import { FiMenu, FiMoon, FiSun } from 'react-icons/fi';
+import { FiMenu, FiMoon, FiSun, FiTrash2 } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
@@ -104,6 +104,22 @@ export default function Dashboard() {
     setSelectedEndpoint(endpoint);
     fetchHealthLogs(endpoint.id);
     if (window.innerWidth < 768) setSidebarOpen(false);
+  };
+
+  const handleDeleteEndpoint = async (id, name) => {
+    if (window.confirm(`Are you sure you want to delete "${name}"? This action cannot be undone.`)) {
+      try {
+        await api.delete(`/api/endpoints/${id}`);
+        toast.success('Endpoint deleted successfully');
+        if (selectedEndpoint?.id === id) {
+          setSelectedEndpoint(null);
+        }
+        setRefreshKey(prev => prev + 1);
+      } catch (err) {
+        console.error(err);
+        toast.error(err.response?.data?.error || 'Failed to delete endpoint');
+      }
+    }
   };
 
   const analyzeErrors = async () => {
@@ -246,23 +262,34 @@ export default function Dashboard() {
                 endpoints.map((ep) => (
                   <div
                     key={ep.id}
-                    onClick={() => handleEndpointClick(ep)}
-                    className="flex justify-between items-center py-3 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition -mx-6 px-6"
+                    className="flex justify-between items-center py-4 border-b border-gray-100 dark:border-gray-700 last:border-b-0"
                   >
-                    <div>
+                    <div
+                      onClick={() => handleEndpointClick(ep)}
+                      className="flex-1 cursor-pointer hover:opacity-75 transition"
+                    >
                       <p className="font-medium text-gray-900 dark:text-white">{ep.name}</p>
                       <p className="text-sm text-gray-500 dark:text-gray-400">{ep.url}</p>
                       <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
                         Latest: {latestHealth[ep.id] ? `${latestHealth[ep.id]}ms` : '—'}
                       </p>
                     </div>
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                      ep.active
-                        ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-                        : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
-                    }`}>
-                      {ep.active ? 'Active' : 'Inactive'}
-                    </span>
+                    <div className="flex items-center gap-3 ml-4">
+                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                        ep.active
+                          ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                          : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+                      }`}>
+                        {ep.active ? 'Active' : 'Inactive'}
+                      </span>
+                      <button
+                        onClick={() => handleDeleteEndpoint(ep.id, ep.name)}
+                        className="p-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition"
+                        title="Delete endpoint"
+                      >
+                        <FiTrash2 size={18} />
+                      </button>
+                    </div>
                   </div>
                 ))
               )}
