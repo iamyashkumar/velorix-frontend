@@ -233,7 +233,7 @@ export default function Dashboard() {
             className="w-full px-4 py-3 backdrop-blur-lg bg-white/10 hover:bg-white/20 border border-white/20 rounded-lg transition-all duration-300 flex items-center gap-3"
           >
             <span>{darkMode ? '☀️' : '🌙'}</span>
-            <span>{darkMode ? 'Light Mode' : 'Dark Mode'}</span>
+            <span>{darkMode ? 'Light' : 'Dark'}</span>
           </button>
           <button
             onClick={handleLogout}
@@ -289,14 +289,38 @@ export default function Dashboard() {
           {/* Stats Cards */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
             {[
-              { label: 'Total APIs', value: stats.total, icon: '📊', gradient: 'from-blue-500 to-cyan-500' },
-              { label: 'UP', value: stats.up, icon: '✅', gradient: 'from-green-500 to-emerald-500' },
-              { label: 'DOWN', value: stats.down, icon: '❌', gradient: 'from-red-500 to-pink-500' },
-              { label: 'Avg Response', value: `${stats.avgResponseTime}ms`, icon: '⚡', gradient: 'from-purple-500 to-pink-500' }
+              {
+                label: 'Total APIs',
+                value: stats.total,
+                icon: '🌐',
+                gradient: 'from-blue-500 to-cyan-500',
+                bgColor: 'bg-blue-500/20 border-blue-500/30'
+              },
+              {
+                label: 'UP',
+                value: stats.up,
+                icon: '🟩',
+                gradient: 'from-green-500 to-emerald-500',
+                bgColor: 'bg-green-500/20 border-green-500/30'
+              },
+              {
+                label: 'DOWN',
+                value: stats.down,
+                icon: '🟥',
+                gradient: 'from-red-500 to-pink-500',
+                bgColor: 'bg-red-500/20 border-red-500/30'
+              },
+              {
+                label: 'Avg Response',
+                value: `${stats.avgResponseTime}ms`,
+                icon: '⏱️',
+                gradient: 'from-yellow-500 to-orange-500',
+                bgColor: 'bg-yellow-500/20 border-yellow-500/30'
+              }
             ].map((stat, i) => (
               <div
                 key={i}
-                className="backdrop-blur-xl bg-gradient-to-br from-white/10 to-white/5 border border-white/20 rounded-2xl p-6 hover:border-white/30 hover:bg-white/15 transition-all duration-300 group"
+                className={`backdrop-blur-xl bg-gradient-to-br from-white/10 to-white/5 border border-white/20 rounded-2xl p-6 hover:border-white/30 hover:bg-white/15 transition-all duration-300 group ${stat.bgColor}`}
               >
                 <div className="flex justify-between items-start">
                   <div>
@@ -305,7 +329,9 @@ export default function Dashboard() {
                       {stat.value}
                     </p>
                   </div>
-                  <span className="text-4xl group-hover:scale-110 transition-transform duration-300">{stat.icon}</span>
+                  <div className="text-5xl group-hover:scale-110 transition-transform duration-300 filter drop-shadow-lg">
+                    {stat.icon}
+                  </div>
                 </div>
               </div>
             ))}
