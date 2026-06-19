@@ -1,50 +1,64 @@
 import { useEffect, useState, useRef } from 'react';
-import api from '../services/api';
 import { useNavigate } from 'react-router-dom';
-import { FiMenu, FiMoon, FiSun, FiTrash2 } from 'react-icons/fi';
+import axios from 'axios';
 import toast from 'react-hot-toast';
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
 } from 'recharts';
-import AddEndpointForm from '../components/AddEndpointForm';
-import Sidebar from '../components/Sidebar';
-import useDarkMode from '../hooks/useDarkMode';
-import { StatCardSkeleton, LogEntrySkeleton, ChartSkeleton, EndpointListSkeleton } from '../components/LoadingSkeleton';
+
+const API_BASE = 'https://velorix-backend-vg5i.onrender.com';
 
 export default function Dashboard() {
   const [endpoints, setEndpoints] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [darkMode, setDarkMode] = useDarkMode();
-  const [aiSuggestion, setAiSuggestion] = useState(null);
-  const [loadingAi, setLoadingAi] = useState(false);
+  const [darkMode, setDarkMode] = useState(true);
   const [selectedEndpoint, setSelectedEndpoint] = useState(null);
   const [chartData, setChartData] = useState([]);
   const [loadingChart, setLoadingChart] = useState(false);
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [refreshKey, setRefreshKey] = useState(0);
   const [stats, setStats] = useState({ total: 0, up: 0, down: 0, avgResponseTime: 0 });
   const [latestHealth, setLatestHealth] = useState({});
+  const [newUrl, setNewUrl] = useState('');
+  const [addingEndpoint, setAddingEndpoint] = useState(false);
   const healthMapRef = useRef({});
   const navigate = useNavigate();
 
+  const getAuthHeader = () => {
+    const token = localStorage.getItem('authToken') || localStorage.getItem('token');
+    return {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    };
+  };
+
   useEffect(() => {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('authToken') || localStorage.getItem('token');
     if (!token) {
       navigate('/login');
       return;
     }
     fetchEndpoints();
-  }, [refreshKey]);
+  }, [navigate]);
 
   const fetchEndpoints = async () => {
     try {
-      const response = await api.get('/api/endpoints');
-      setEndpoints(response.data);
-      calculateStats(response.data);
-      response.data.forEach(ep => fetchLatestHealth(ep.id));
+      setLoading(true);
+      const response = await axios.get(`${API_BASE}/api/endpoints`, getAuthHeader());
+      const endpointsList = Array.isArray(response.data) ? response.data : [];
+      setEndpoints(endpointsList);
+      calculateStats(endpointsList);
+      endpointsList.forEach(ep => fetchLatestHealth(ep._id || ep.id));
     } catch (error) {
-      console.error('Failed to fetch endpoints', error);
+      console.error('Failed to fetch endpoints:', error);
+      if (error.response?.status === 401) {
+        localStorage.removeItem('authToken');
+        localStorage.removeItem('token');
+        navigate('/login');
+        return;
+      }
       toast.error('Failed to load endpoints');
+      setEndpoints([]);
     } finally {
       setLoading(false);
     }
@@ -52,27 +66,29 @@ export default function Dashboard() {
 
   const fetchLatestHealth = async (endpointId) => {
     try {
-      const res = await api.get(`/api/health/logs/${endpointId}?size=1`);
-      if (res.data && res.data.length > 0) {
-        const last = res.data[0];
-        setLatestHealth(prev => ({ ...prev, [endpointId]: last.responseTimeMs }));
-
-        healthMapRef.current[endpointId] = last.responseTimeMs;
+      const response = await axios.get(
+        `${API_BASE}/api/health/logs/${endpointId}?size=1`,
+        getAuthHeader()
+      );
+      if (response.data && response.data.length > 0) {
+        const last = response.data[0];
+        const responseTime = last.responseTimeMs || 0;
+        setLatestHealth(prev => ({ ...prev, [endpointId]: responseTime }));
+        healthMapRef.current[endpointId] = responseTime;
         const allTimes = Object.values(healthMapRef.current);
         const avg = allTimes.length > 0
           ? Math.round(allTimes.reduce((a, b) => a + b, 0) / allTimes.length)
           : 0;
-
         setStats(prev => ({ ...prev, avgResponseTime: avg }));
       }
     } catch (err) {
-      console.error(err);
+      console.error('Error fetching health:', err);
     }
   };
 
   const calculateStats = (endpointsList) => {
     const total = endpointsList.length;
-    const up = endpointsList.filter(ep => ep.active).length;
+    const up = endpointsList.filter(ep => ep.active || ep.status === 'UP').length;
     const down = total - up;
     healthMapRef.current = {};
     setStats({ total, up, down, avgResponseTime: 0 });
@@ -81,18 +97,23 @@ export default function Dashboard() {
   const fetchHealthLogs = async (endpointId) => {
     setLoadingChart(true);
     try {
-      const response = await api.get(`/api/health/logs/${endpointId}?size=50`);
-      const logs = response.data.map((log) => ({
-        checkedAt: new Date(log.checkedAt).toLocaleTimeString(),
-        responseTimeMs: log.responseTimeMs,
-      })).reverse();
+      const response = await axios.get(
+        `${API_BASE}/api/health/logs/${endpointId}?size=50`,
+        getAuthHeader()
+      );
+      const logs = Array.isArray(response.data)
+        ? response.data.map((log) => ({
+            checkedAt: new Date(log.checkedAt).toLocaleTimeString(),
+            responseTimeMs: log.responseTimeMs || 0,
+          })).reverse()
+        : [];
       setChartData(logs);
       if (logs.length > 0) {
         const avg = logs.reduce((sum, l) => sum + l.responseTimeMs, 0) / logs.length;
         setStats(prev => ({ ...prev, avgResponseTime: Math.round(avg) }));
       }
     } catch (err) {
-      console.error(err);
+      console.error('Error loading health logs:', err);
       toast.error('Failed to load health logs');
       setChartData([]);
     } finally {
@@ -102,249 +123,262 @@ export default function Dashboard() {
 
   const handleEndpointClick = (endpoint) => {
     setSelectedEndpoint(endpoint);
-    fetchHealthLogs(endpoint.id);
-    if (window.innerWidth < 768) setSidebarOpen(false);
+    const endpointId = endpoint._id || endpoint.id;
+    fetchHealthLogs(endpointId);
   };
 
-  const handleDeleteEndpoint = async (id, name) => {
-    if (window.confirm(`Are you sure you want to delete "${name}"? This action cannot be undone.`)) {
-      try {
-        await api.delete(`/api/endpoints/${id}`);
-        toast.success('Endpoint deleted successfully');
-        if (selectedEndpoint?.id === id) {
-          setSelectedEndpoint(null);
-        }
-        setRefreshKey(prev => prev + 1);
-      } catch (err) {
-        console.error(err);
-        toast.error(err.response?.data?.error || 'Failed to delete endpoint');
-      }
+  const addEndpoint = async () => {
+    if (!newUrl.trim()) {
+      toast.error('Please enter a URL');
+      return;
     }
-  };
 
-  const analyzeErrors = async () => {
-    setLoadingAi(true);
+    setAddingEndpoint(true);
     try {
-      const response = await api.post('/api/ai/analyze', {});
-      setAiSuggestion(response.data);
-    } catch (err) {
-      if (err.response?.status === 404) {
-        toast.success('No errors found in the last 24 hours 🎉');
-      } else {
-        console.error(err);
-        toast.error(err.response?.data?.error || 'AI analysis failed');
-      }
+      const response = await axios.post(
+        `${API_BASE}/api/endpoints`,
+        {
+          name: new URL(newUrl).hostname,
+          url: newUrl
+        },
+        getAuthHeader()
+      );
+      toast.success('Endpoint added!');
+      setNewUrl('');
+      fetchEndpoints();
+    } catch (error) {
+      console.error('Error adding endpoint:', error);
+      toast.error(error.response?.data?.message || 'Failed to add endpoint');
     } finally {
-      setLoadingAi(false);
+      setAddingEndpoint(false);
     }
   };
+
+  const deleteEndpoint = async (id) => {
+    try {
+      await axios.delete(`${API_BASE}/api/endpoints/${id}`, getAuthHeader());
+      toast.success('Endpoint deleted!');
+      setEndpoints(endpoints.filter(e => (e._id || e.id) !== id));
+    } catch (error) {
+      console.error('Error deleting endpoint:', error);
+      toast.error('Failed to delete endpoint');
+    }
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('token');
+    toast.success('Logged out');
+    navigate('/login');
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-cyan-500 mx-auto mb-4"></div>
+          <p className="text-gray-300 text-lg">Loading Dashboard...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 md:flex">
-
-      {/* Mobile Top Navbar */}
-      <div className="w-full flex items-center justify-between p-4 bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700 md:hidden sticky top-0 z-40">
-        <div className="flex items-center space-x-3">
-          <button
-            onClick={() => setSidebarOpen(true)}
-            className="p-1.5 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 transition"
-          >
-            <FiMenu size={24} className="text-gray-800 dark:text-white" />
-          </button>
-          <span className="text-lg font-bold text-gray-800 dark:text-white">Velorix</span>
-        </div>
-        <button
-          onClick={() => setDarkMode(!darkMode)}
-          className="p-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition"
-          aria-label="Toggle Dark Mode"
-        >
-          {darkMode ? <FiSun size={22} className="text-yellow-400" /> : <FiMoon size={22} />}
-        </button>
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white">
+      {/* Background Effects */}
+      <div className="fixed top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
+        <div className="absolute top-20 left-10 w-72 h-72 bg-cyan-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse"></div>
+        <div className="absolute top-40 right-10 w-72 h-72 bg-blue-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse animation-delay-2000"></div>
+        <div className="absolute bottom-20 left-1/2 w-72 h-72 bg-purple-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse animation-delay-4000"></div>
       </div>
 
-      {sidebarOpen && (
-        <div className="fixed inset-0 z-50 bg-black bg-opacity-50 md:hidden" onClick={() => setSidebarOpen(false)} />
-      )}
-
-      <Sidebar
-        sidebarOpen={sidebarOpen}
-        setSidebarOpen={setSidebarOpen}
-        darkMode={darkMode}
-        setDarkMode={setDarkMode}
-      />
-
-      {/* Main content */}
-      <main className="flex-1 overflow-x-hidden">
-        <div className="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
-          {/* Header */}
-          <div className="mb-8">
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Dashboard</h1>
-            <p className="text-gray-600 dark:text-gray-400">Monitor your APIs and debug errors with AI.</p>
+      {/* Header */}
+      <header className="relative backdrop-blur-xl bg-white/5 border-b border-white/10 sticky top-0 z-40">
+        <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+          <div>
+            <h1 className="text-4xl font-bold bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 bg-clip-text text-transparent">
+              Velorix
+            </h1>
+            <p className="text-gray-400 text-sm mt-1">Real-time API Monitoring</p>
           </div>
-
-          {/* Add Endpoint Form */}
-          <div className="mb-8">
-            <AddEndpointForm onEndpointAdded={() => setRefreshKey(prev => prev + 1)} />
+          <div className="flex gap-3">
+            <button
+              onClick={() => navigate('/analytics')}
+              className="px-4 py-2 backdrop-blur-lg bg-white/10 hover:bg-white/20 border border-white/20 rounded-lg transition-all duration-300 text-gray-300 hover:text-white"
+            >
+              📊 Analytics
+            </button>
+            <button
+              onClick={() => navigate('/logs')}
+              className="px-4 py-2 backdrop-blur-lg bg-white/10 hover:bg-white/20 border border-white/20 rounded-lg transition-all duration-300 text-gray-300 hover:text-white"
+            >
+              📋 Logs
+            </button>
+            <button
+              onClick={() => setDarkMode(!darkMode)}
+              className="px-4 py-2 backdrop-blur-lg bg-white/10 hover:bg-white/20 border border-white/20 rounded-lg transition-all duration-300"
+            >
+              {darkMode ? '☀️' : '🌙'}
+            </button>
+            <button
+              onClick={handleLogout}
+              className="px-4 py-2 backdrop-blur-lg bg-red-500/20 hover:bg-red-500/30 border border-red-500/30 rounded-lg transition-all duration-300 text-red-300 hover:text-red-200"
+            >
+              Logout
+            </button>
           </div>
+        </div>
+      </header>
 
-          {/* Stats Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            {loading ? (
-              <>
-                <StatCardSkeleton />
-                <StatCardSkeleton />
-                <StatCardSkeleton />
-                <StatCardSkeleton />
-              </>
-            ) : (
-              <>
-                <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-100 dark:border-gray-700">
-                  <div className="flex items-center">
-                    <div className="p-2 bg-blue-100 dark:bg-blue-900 rounded-lg">
-                      <span className="text-2xl">📊</span>
-                    </div>
-                    <div className="ml-4">
-                      <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Total APIs</p>
-                      <p className="text-2xl font-semibold text-gray-900 dark:text-white">{stats.total}</p>
-                    </div>
-                  </div>
-                </div>
-                <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-100 dark:border-gray-700">
-                  <div className="flex items-center">
-                    <div className="p-2 bg-green-100 dark:bg-green-900 rounded-lg">
-                      <span className="text-2xl">📈</span>
-                    </div>
-                    <div className="ml-4">
-                      <p className="text-sm font-medium text-gray-500 dark:text-gray-400">UP</p>
-                      <p className="text-2xl font-semibold text-gray-900 dark:text-white">{stats.up}</p>
-                    </div>
-                  </div>
-                </div>
-                <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-100 dark:border-gray-700">
-                  <div className="flex items-center">
-                    <div className="p-2 bg-red-100 dark:bg-red-900 rounded-lg">
-                      <span className="text-2xl">📉</span>
-                    </div>
-                    <div className="ml-4">
-                      <p className="text-sm font-medium text-gray-500 dark:text-gray-400">DOWN</p>
-                      <p className="text-2xl font-semibold text-gray-900 dark:text-white">{stats.down}</p>
-                    </div>
-                  </div>
-                </div>
-                <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-100 dark:border-gray-700">
-                  <div className="flex items-center">
-                    <div className="p-2 bg-purple-100 dark:bg-purple-900 rounded-lg">
-                      <span className="text-2xl">⚡</span>
-                    </div>
-                    <div className="ml-4">
-                      <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Avg Response</p>
-                      <p className="text-2xl font-semibold text-gray-900 dark:text-white">{stats.avgResponseTime} ms</p>
-                    </div>
-                  </div>
-                </div>
-              </>
-            )}
+      {/* Main Content */}
+      <div className="relative max-w-7xl mx-auto px-6 py-8">
+
+        {/* Add Endpoint */}
+        <div className="backdrop-blur-xl bg-white/5 border border-white/10 rounded-2xl p-8 mb-8 hover:bg-white/10 transition-all duration-300">
+          <h2 className="text-2xl font-bold mb-4 text-cyan-400">➕ Add New Endpoint</h2>
+          <div className="flex gap-3">
+            <input
+              type="url"
+              placeholder="https://example.com"
+              value={newUrl}
+              onChange={(e) => setNewUrl(e.target.value)}
+              onKeyPress={(e) => e.key === 'Enter' && addEndpoint()}
+              className="flex-1 px-4 py-3 backdrop-blur-lg bg-white/10 border border-white/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:bg-white/20 text-white placeholder-gray-500 transition-all duration-300"
+              disabled={addingEndpoint}
+            />
+            <button
+              onClick={addEndpoint}
+              disabled={addingEndpoint}
+              className="px-8 py-3 backdrop-blur-lg bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 rounded-lg font-semibold disabled:opacity-50 transition-all duration-300 shadow-lg hover:shadow-cyan-500/50"
+            >
+              {addingEndpoint ? 'Adding...' : 'Add'}
+            </button>
           </div>
+        </div>
 
-          {/* Endpoints Section */}
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden mb-8">
-            <div className="px-6 py-4 border-b border-gray-100 dark:border-gray-700">
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Monitored Endpoints</h2>
+        {/* Stats Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+          {[
+            { label: 'Total APIs', value: stats.total, icon: '📊', gradient: 'from-blue-500 to-cyan-500' },
+            { label: 'UP', value: stats.up, icon: '✅', gradient: 'from-green-500 to-emerald-500' },
+            { label: 'DOWN', value: stats.down, icon: '❌', gradient: 'from-red-500 to-pink-500' },
+            { label: 'Avg Response', value: `${stats.avgResponseTime}ms`, icon: '⚡', gradient: 'from-purple-500 to-pink-500' }
+          ].map((stat, i) => (
+            <div
+              key={i}
+              className="backdrop-blur-xl bg-gradient-to-br from-white/10 to-white/5 border border-white/20 rounded-2xl p-6 hover:border-white/30 hover:bg-white/15 transition-all duration-300 group"
+            >
+              <div className="flex justify-between items-start">
+                <div>
+                  <p className="text-gray-400 text-sm font-medium">{stat.label}</p>
+                  <p className={`text-4xl font-bold mt-3 bg-gradient-to-r ${stat.gradient} bg-clip-text text-transparent`}>
+                    {stat.value}
+                  </p>
+                </div>
+                <span className="text-4xl group-hover:scale-110 transition-transform duration-300">{stat.icon}</span>
+              </div>
             </div>
-            <div className="divide-y divide-gray-100 dark:divide-gray-700 p-6">
-              {loading ? (
-                <EndpointListSkeleton />
-              ) : endpoints.length === 0 ? (
-                <div className="text-center text-gray-500 dark:text-gray-400">
-                  No endpoints added yet. Use the form above to add one.
-                </div>
-              ) : (
-                endpoints.map((ep) => (
-                  <div
-                    key={ep.id}
-                    className="flex justify-between items-center py-4 border-b border-gray-100 dark:border-gray-700 last:border-b-0"
-                  >
-                    <div
-                      onClick={() => handleEndpointClick(ep)}
-                      className="flex-1 cursor-pointer hover:opacity-75 transition"
-                    >
-                      <p className="font-medium text-gray-900 dark:text-white">{ep.name}</p>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">{ep.url}</p>
-                      <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
-                        Latest: {latestHealth[ep.id] ? `${latestHealth[ep.id]}ms` : '—'}
+          ))}
+        </div>
+
+        {/* Endpoints List */}
+        <div className="backdrop-blur-xl bg-white/5 border border-white/10 rounded-2xl p-8 mb-8 hover:bg-white/10 transition-all duration-300">
+          <h2 className="text-2xl font-bold mb-6 text-cyan-400">📍 Monitored Endpoints ({endpoints.length})</h2>
+
+          {endpoints.length === 0 ? (
+            <p className="text-gray-400 text-center py-8">No endpoints yet. Add one above!</p>
+          ) : (
+            <div className="space-y-3">
+              {endpoints.map((ep) => (
+                <div
+                  key={ep._id || ep.id}
+                  className="backdrop-blur-lg bg-white/5 border border-white/10 rounded-xl p-5 cursor-pointer hover:bg-white/15 hover:border-white/20 transition-all duration-300 group"
+                  onClick={() => handleEndpointClick(ep)}
+                >
+                  <div className="flex justify-between items-center">
+                    <div className="flex-1">
+                      <p className="font-semibold text-lg group-hover:text-cyan-400 transition-colors">{ep.name || ep.url}</p>
+                      <p className="text-gray-400 text-sm mt-1">{ep.url}</p>
+                      <p className={`text-xs mt-2 font-semibold ${(ep.active || ep.status === 'UP') ? 'text-green-400' : 'text-red-400'}`}>
+                        Latest: {latestHealth[ep._id || ep.id] ? `${latestHealth[ep._id || ep.id]}ms` : '—'}
                       </p>
                     </div>
-                    <div className="flex items-center gap-3 ml-4">
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                        ep.active
-                          ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-                          : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+                    <div className="flex gap-3 items-center">
+                      <span className={`px-4 py-2 rounded-full text-xs font-semibold backdrop-blur-lg ${
+                        (ep.active || ep.status === 'UP')
+                          ? 'bg-green-500/20 border border-green-500/30 text-green-300'
+                          : 'bg-red-500/20 border border-red-500/30 text-red-300'
                       }`}>
-                        {ep.active ? 'Active' : 'Inactive'}
+                        {(ep.active || ep.status === 'UP') ? '🟢 UP' : '🔴 DOWN'}
                       </span>
                       <button
-                        onClick={() => handleDeleteEndpoint(ep.id, ep.name)}
-                        className="p-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition"
-                        title="Delete endpoint"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          deleteEndpoint(ep._id || ep.id);
+                        }}
+                        className="px-3 py-2 backdrop-blur-lg bg-red-500/20 hover:bg-red-500/30 border border-red-500/30 text-red-300 text-xs rounded-lg transition-all duration-300"
                       >
-                        <FiTrash2 size={18} />
+                        Delete
                       </button>
                     </div>
                   </div>
-                ))
-              )}
-            </div>
-          </div>
-
-          {/* Response Time Chart */}
-          {selectedEndpoint && (
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 mb-8">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-                Response Time Trend – {selectedEndpoint.name}
-              </h3>
-              {loadingChart ? (
-                <ChartSkeleton />
-              ) : chartData.length === 0 ? (
-                <div className="text-center py-8 text-gray-500">No health logs yet. Wait for the first check.</div>
-              ) : (
-                <ResponsiveContainer width="100%" height={300}>
-                  <LineChart data={chartData}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                    <XAxis dataKey="checkedAt" stroke="#9ca3af" />
-                    <YAxis label={{ value: 'Response Time (ms)', angle: -90, position: 'insideLeft', style: { fill: '#9ca3af' } }} />
-                    <Tooltip />
-                    <Legend />
-                    <Line type="monotone" dataKey="responseTimeMs" name="Response Time (ms)" stroke="#8884d8" strokeWidth={2} />
-                  </LineChart>
-                </ResponsiveContainer>
-              )}
+                </div>
+              ))}
             </div>
           )}
+        </div>
 
-          {/* AI Analysis */}
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
-            <button
-              onClick={analyzeErrors}
-              disabled={loadingAi}
-              className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 disabled:opacity-50 transition"
-            >
-              {loadingAi ? 'Analyzing...' : '🔍 Analyze Recent Errors with AI'}
-            </button>
-            {aiSuggestion && (
-              <div className="mt-6 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                <h3 className="font-semibold text-lg text-gray-900 dark:text-white mb-2">🤖 AI Diagnosis</h3>
-                <p className="text-gray-700 dark:text-gray-300"><strong>Possible Cause:</strong> {aiSuggestion.possibleCause}</p>
-                <p className="mt-2 text-gray-700 dark:text-gray-300"><strong>Recommended Fix:</strong> {aiSuggestion.recommendedFix}</p>
-                <p className="mt-2"><strong>Severity:</strong> <span className={`ml-2 px-2 py-0.5 rounded-full text-xs font-medium ${
-                  aiSuggestion.severity === 'HIGH' ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200' :
-                  aiSuggestion.severity === 'MEDIUM' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200' :
-                  'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-                }`}>{aiSuggestion.severity}</span></p>
-              </div>
+        {/* Chart */}
+        {selectedEndpoint && (
+          <div className="backdrop-blur-xl bg-white/5 border border-white/10 rounded-2xl p-8 hover:bg-white/10 transition-all duration-300">
+            <h3 className="text-2xl font-bold mb-6 text-cyan-400">
+              📈 Response Time Trend – {selectedEndpoint.name || selectedEndpoint.url}
+            </h3>
+            {loadingChart ? (
+              <p className="text-center py-8 text-gray-400">Loading...</p>
+            ) : chartData.length === 0 ? (
+              <p className="text-center py-8 text-gray-400">No data yet</p>
+            ) : (
+              <ResponsiveContainer width="100%" height={350}>
+                <LineChart data={chartData}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#ffffff20" />
+                  <XAxis dataKey="checkedAt" stroke="#9ca3af" />
+                  <YAxis stroke="#9ca3af" />
+                  <Tooltip contentStyle={{ backgroundColor: '#1f2937', border: '1px solid #ffffff20', borderRadius: '8px' }} />
+                  <Legend />
+                  <Line
+                    type="monotone"
+                    dataKey="responseTimeMs"
+                    name="Response (ms)"
+                    stroke="#06b6d4"
+                    strokeWidth={3}
+                    dot={{ fill: '#06b6d4', r: 5 }}
+                    activeDot={{ r: 7 }}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
             )}
           </div>
-        </div>
-      </main>
+        )}
+      </div>
+
+      {/* Tailwind CSS for animation delay */}
+      <style>{`
+        @keyframes pulse-custom {
+          0%, 100% {
+            opacity: 0.2;
+          }
+          50% {
+            opacity: 0.3;
+          }
+        }
+        .animation-delay-2000 {
+          animation-delay: 2s;
+        }
+        .animation-delay-4000 {
+          animation-delay: 4s;
+        }
+      `}</style>
     </div>
   );
 }
