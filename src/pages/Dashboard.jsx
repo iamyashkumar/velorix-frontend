@@ -17,6 +17,7 @@ export default function Dashboard() {
   const [loadingChart, setLoadingChart] = useState(false);
   const [stats, setStats] = useState({ total: 0, up: 0, down: 0, avgResponseTime: 0 });
   const [latestHealth, setLatestHealth] = useState({});
+  const [newName, setNewName] = useState('');
   const [newUrl, setNewUrl] = useState('');
   const [addingEndpoint, setAddingEndpoint] = useState(false);
   const healthMapRef = useRef({});
@@ -128,8 +129,8 @@ export default function Dashboard() {
   };
 
   const addEndpoint = async () => {
-    if (!newUrl.trim()) {
-      toast.error('Please enter a URL');
+    if (!newName.trim() || !newUrl.trim()) {
+      toast.error('Please enter both name and URL');
       return;
     }
 
@@ -138,12 +139,13 @@ export default function Dashboard() {
       const response = await axios.post(
         `${API_BASE}/api/endpoints`,
         {
-          name: new URL(newUrl).hostname,
+          name: newName,
           url: newUrl
         },
         getAuthHeader()
       );
       toast.success('Endpoint added!');
+      setNewName('');
       setNewUrl('');
       fetchEndpoints();
     } catch (error) {
@@ -184,201 +186,212 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white flex">
       {/* Background Effects */}
       <div className="fixed top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
         <div className="absolute top-20 left-10 w-72 h-72 bg-cyan-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse"></div>
-        <div className="absolute top-40 right-10 w-72 h-72 bg-blue-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse animation-delay-2000"></div>
-        <div className="absolute bottom-20 left-1/2 w-72 h-72 bg-purple-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse animation-delay-4000"></div>
+        <div className="absolute top-40 right-10 w-72 h-72 bg-blue-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse" style={{ animationDelay: '2s' }}></div>
+        <div className="absolute bottom-20 left-1/2 w-72 h-72 bg-purple-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse" style={{ animationDelay: '4s' }}></div>
       </div>
 
-      {/* Header */}
-      <header className="relative backdrop-blur-xl bg-white/5 border-b border-white/10 sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
-          <div>
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 bg-clip-text text-transparent">
-              Velorix
-            </h1>
-            <p className="text-gray-400 text-sm mt-1">Real-time API Monitoring</p>
-          </div>
-          <div className="flex gap-3">
-            <button
-              onClick={() => navigate('/analytics')}
-              className="px-4 py-2 backdrop-blur-lg bg-white/10 hover:bg-white/20 border border-white/20 rounded-lg transition-all duration-300 text-gray-300 hover:text-white"
-            >
-              📊 Analytics
-            </button>
-            <button
-              onClick={() => navigate('/logs')}
-              className="px-4 py-2 backdrop-blur-lg bg-white/10 hover:bg-white/20 border border-white/20 rounded-lg transition-all duration-300 text-gray-300 hover:text-white"
-            >
-              📋 Logs
-            </button>
-            <button
-              onClick={() => setDarkMode(!darkMode)}
-              className="px-4 py-2 backdrop-blur-lg bg-white/10 hover:bg-white/20 border border-white/20 rounded-lg transition-all duration-300"
-            >
-              {darkMode ? '☀️' : '🌙'}
-            </button>
-            <button
-              onClick={handleLogout}
-              className="px-4 py-2 backdrop-blur-lg bg-red-500/20 hover:bg-red-500/30 border border-red-500/30 rounded-lg transition-all duration-300 text-red-300 hover:text-red-200"
-            >
-              Logout
-            </button>
-          </div>
+      {/* Sidebar */}
+      <aside className="relative w-64 backdrop-blur-xl bg-white/5 border-r border-white/10 p-6 flex flex-col">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">
+            Velorix
+          </h1>
+          <p className="text-gray-400 text-sm mt-1">API Monitor</p>
         </div>
-      </header>
+
+        <nav className="flex-1 space-y-3">
+          <button
+            onClick={() => navigate('/dashboard')}
+            className="w-full px-4 py-3 backdrop-blur-lg bg-white/10 hover:bg-white/20 border border-white/20 rounded-lg transition-all duration-300 text-left flex items-center gap-3"
+          >
+            <span>📊</span>
+            <span>Dashboard</span>
+          </button>
+          <button
+            onClick={() => navigate('/analytics')}
+            className="w-full px-4 py-3 backdrop-blur-lg bg-white/10 hover:bg-white/20 border border-white/20 rounded-lg transition-all duration-300 text-left flex items-center gap-3"
+          >
+            <span>📈</span>
+            <span>Analytics</span>
+          </button>
+          <button
+            onClick={() => navigate('/logs')}
+            className="w-full px-4 py-3 backdrop-blur-lg bg-white/10 hover:bg-white/20 border border-white/20 rounded-lg transition-all duration-300 text-left flex items-center gap-3"
+          >
+            <span>📋</span>
+            <span>Logs</span>
+          </button>
+        </nav>
+
+        <div className="space-y-3 pt-6 border-t border-white/10">
+          <button
+            onClick={() => setDarkMode(!darkMode)}
+            className="w-full px-4 py-3 backdrop-blur-lg bg-white/10 hover:bg-white/20 border border-white/20 rounded-lg transition-all duration-300 flex items-center gap-3"
+          >
+            <span>{darkMode ? '☀️' : '🌙'}</span>
+            <span>{darkMode ? 'Light Mode' : 'Dark Mode'}</span>
+          </button>
+          <button
+            onClick={handleLogout}
+            className="w-full px-4 py-3 backdrop-blur-lg bg-red-500/20 hover:bg-red-500/30 border border-red-500/30 text-red-300 rounded-lg transition-all duration-300 flex items-center gap-3"
+          >
+            <span>🚪</span>
+            <span>Logout</span>
+          </button>
+        </div>
+      </aside>
 
       {/* Main Content */}
-      <div className="relative max-w-7xl mx-auto px-6 py-8">
+      <main className="relative flex-1 p-8 overflow-auto">
+        <div className="max-w-6xl mx-auto">
 
-        {/* Add Endpoint */}
-        <div className="backdrop-blur-xl bg-white/5 border border-white/10 rounded-2xl p-8 mb-8 hover:bg-white/10 transition-all duration-300">
-          <h2 className="text-2xl font-bold mb-4 text-cyan-400">➕ Add New Endpoint</h2>
-          <div className="flex gap-3">
-            <input
-              type="url"
-              placeholder="https://example.com"
-              value={newUrl}
-              onChange={(e) => setNewUrl(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && addEndpoint()}
-              className="flex-1 px-4 py-3 backdrop-blur-lg bg-white/10 border border-white/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:bg-white/20 text-white placeholder-gray-500 transition-all duration-300"
-              disabled={addingEndpoint}
-            />
-            <button
-              onClick={addEndpoint}
-              disabled={addingEndpoint}
-              className="px-8 py-3 backdrop-blur-lg bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 rounded-lg font-semibold disabled:opacity-50 transition-all duration-300 shadow-lg hover:shadow-cyan-500/50"
-            >
-              {addingEndpoint ? 'Adding...' : 'Add'}
-            </button>
+          {/* Header */}
+          <div className="mb-8">
+            <h2 className="text-3xl font-bold text-cyan-400">Dashboard</h2>
+            <p className="text-gray-400 mt-1">Monitor and manage your API endpoints</p>
           </div>
-        </div>
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          {[
-            { label: 'Total APIs', value: stats.total, icon: '📊', gradient: 'from-blue-500 to-cyan-500' },
-            { label: 'UP', value: stats.up, icon: '✅', gradient: 'from-green-500 to-emerald-500' },
-            { label: 'DOWN', value: stats.down, icon: '❌', gradient: 'from-red-500 to-pink-500' },
-            { label: 'Avg Response', value: `${stats.avgResponseTime}ms`, icon: '⚡', gradient: 'from-purple-500 to-pink-500' }
-          ].map((stat, i) => (
-            <div
-              key={i}
-              className="backdrop-blur-xl bg-gradient-to-br from-white/10 to-white/5 border border-white/20 rounded-2xl p-6 hover:border-white/30 hover:bg-white/15 transition-all duration-300 group"
-            >
-              <div className="flex justify-between items-start">
-                <div>
-                  <p className="text-gray-400 text-sm font-medium">{stat.label}</p>
-                  <p className={`text-4xl font-bold mt-3 bg-gradient-to-r ${stat.gradient} bg-clip-text text-transparent`}>
-                    {stat.value}
-                  </p>
-                </div>
-                <span className="text-4xl group-hover:scale-110 transition-transform duration-300">{stat.icon}</span>
-              </div>
+          {/* Add Endpoint */}
+          <div className="backdrop-blur-xl bg-white/5 border border-white/10 rounded-2xl p-8 mb-8 hover:bg-white/10 transition-all duration-300">
+            <h3 className="text-2xl font-bold mb-6 text-cyan-400">➕ Add New Endpoint</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <input
+                type="text"
+                placeholder="Endpoint Name (e.g., Google API)"
+                value={newName}
+                onChange={(e) => setNewName(e.target.value)}
+                className="px-4 py-3 backdrop-blur-lg bg-white/10 border border-white/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:bg-white/20 text-white placeholder-gray-500 transition-all duration-300"
+                disabled={addingEndpoint}
+              />
+              <input
+                type="url"
+                placeholder="https://example.com"
+                value={newUrl}
+                onChange={(e) => setNewUrl(e.target.value)}
+                onKeyPress={(e) => e.key === 'Enter' && addEndpoint()}
+                className="px-4 py-3 backdrop-blur-lg bg-white/10 border border-white/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:bg-white/20 text-white placeholder-gray-500 transition-all duration-300"
+                disabled={addingEndpoint}
+              />
+              <button
+                onClick={addEndpoint}
+                disabled={addingEndpoint}
+                className="px-8 py-3 backdrop-blur-lg bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 rounded-lg font-semibold disabled:opacity-50 transition-all duration-300 shadow-lg hover:shadow-cyan-500/50"
+              >
+                {addingEndpoint ? 'Adding...' : 'Add'}
+              </button>
             </div>
-          ))}
-        </div>
+          </div>
 
-        {/* Endpoints List */}
-        <div className="backdrop-blur-xl bg-white/5 border border-white/10 rounded-2xl p-8 mb-8 hover:bg-white/10 transition-all duration-300">
-          <h2 className="text-2xl font-bold mb-6 text-cyan-400">📍 Monitored Endpoints ({endpoints.length})</h2>
+          {/* Stats Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            {[
+              { label: 'Total APIs', value: stats.total, icon: '📊', gradient: 'from-blue-500 to-cyan-500' },
+              { label: 'UP', value: stats.up, icon: '✅', gradient: 'from-green-500 to-emerald-500' },
+              { label: 'DOWN', value: stats.down, icon: '❌', gradient: 'from-red-500 to-pink-500' },
+              { label: 'Avg Response', value: `${stats.avgResponseTime}ms`, icon: '⚡', gradient: 'from-purple-500 to-pink-500' }
+            ].map((stat, i) => (
+              <div
+                key={i}
+                className="backdrop-blur-xl bg-gradient-to-br from-white/10 to-white/5 border border-white/20 rounded-2xl p-6 hover:border-white/30 hover:bg-white/15 transition-all duration-300 group"
+              >
+                <div className="flex justify-between items-start">
+                  <div>
+                    <p className="text-gray-400 text-sm font-medium">{stat.label}</p>
+                    <p className={`text-4xl font-bold mt-3 bg-gradient-to-r ${stat.gradient} bg-clip-text text-transparent`}>
+                      {stat.value}
+                    </p>
+                  </div>
+                  <span className="text-4xl group-hover:scale-110 transition-transform duration-300">{stat.icon}</span>
+                </div>
+              </div>
+            ))}
+          </div>
 
-          {endpoints.length === 0 ? (
-            <p className="text-gray-400 text-center py-8">No endpoints yet. Add one above!</p>
-          ) : (
-            <div className="space-y-3">
-              {endpoints.map((ep) => (
-                <div
-                  key={ep._id || ep.id}
-                  className="backdrop-blur-lg bg-white/5 border border-white/10 rounded-xl p-5 cursor-pointer hover:bg-white/15 hover:border-white/20 transition-all duration-300 group"
-                  onClick={() => handleEndpointClick(ep)}
-                >
-                  <div className="flex justify-between items-center">
-                    <div className="flex-1">
-                      <p className="font-semibold text-lg group-hover:text-cyan-400 transition-colors">{ep.name || ep.url}</p>
-                      <p className="text-gray-400 text-sm mt-1">{ep.url}</p>
-                      <p className={`text-xs mt-2 font-semibold ${(ep.active || ep.status === 'UP') ? 'text-green-400' : 'text-red-400'}`}>
-                        Latest: {latestHealth[ep._id || ep.id] ? `${latestHealth[ep._id || ep.id]}ms` : '—'}
-                      </p>
-                    </div>
-                    <div className="flex gap-3 items-center">
-                      <span className={`px-4 py-2 rounded-full text-xs font-semibold backdrop-blur-lg ${
-                        (ep.active || ep.status === 'UP')
-                          ? 'bg-green-500/20 border border-green-500/30 text-green-300'
-                          : 'bg-red-500/20 border border-red-500/30 text-red-300'
-                      }`}>
-                        {(ep.active || ep.status === 'UP') ? '🟢 UP' : '🔴 DOWN'}
-                      </span>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          deleteEndpoint(ep._id || ep.id);
-                        }}
-                        className="px-3 py-2 backdrop-blur-lg bg-red-500/20 hover:bg-red-500/30 border border-red-500/30 text-red-300 text-xs rounded-lg transition-all duration-300"
-                      >
-                        Delete
-                      </button>
+          {/* Endpoints List */}
+          <div className="backdrop-blur-xl bg-white/5 border border-white/10 rounded-2xl p-8 mb-8 hover:bg-white/10 transition-all duration-300">
+            <h3 className="text-2xl font-bold mb-6 text-cyan-400">📍 Monitored Endpoints ({endpoints.length})</h3>
+
+            {endpoints.length === 0 ? (
+              <p className="text-gray-400 text-center py-8">No endpoints yet. Add one above!</p>
+            ) : (
+              <div className="space-y-3">
+                {endpoints.map((ep) => (
+                  <div
+                    key={ep._id || ep.id}
+                    className="backdrop-blur-lg bg-white/5 border border-white/10 rounded-xl p-5 cursor-pointer hover:bg-white/15 hover:border-white/20 transition-all duration-300 group"
+                    onClick={() => handleEndpointClick(ep)}
+                  >
+                    <div className="flex justify-between items-center">
+                      <div className="flex-1">
+                        <p className="font-semibold text-lg group-hover:text-cyan-400 transition-colors">{ep.name || ep.url}</p>
+                        <p className="text-gray-400 text-sm mt-1">{ep.url}</p>
+                        <p className={`text-xs mt-2 font-semibold ${(ep.active || ep.status === 'UP') ? 'text-green-400' : 'text-red-400'}`}>
+                          Latest: {latestHealth[ep._id || ep.id] ? `${latestHealth[ep._id || ep.id]}ms` : '—'}
+                        </p>
+                      </div>
+                      <div className="flex gap-3 items-center">
+                        <span className={`px-4 py-2 rounded-full text-xs font-semibold backdrop-blur-lg ${
+                          (ep.active || ep.status === 'UP')
+                            ? 'bg-green-500/20 border border-green-500/30 text-green-300'
+                            : 'bg-red-500/20 border border-red-500/30 text-red-300'
+                        }`}>
+                          {(ep.active || ep.status === 'UP') ? '🟢 UP' : '🔴 DOWN'}
+                        </span>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            deleteEndpoint(ep._id || ep.id);
+                          }}
+                          className="px-3 py-2 backdrop-blur-lg bg-red-500/20 hover:bg-red-500/30 border border-red-500/30 text-red-300 text-xs rounded-lg transition-all duration-300"
+                        >
+                          Delete
+                        </button>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Chart */}
+          {selectedEndpoint && (
+            <div className="backdrop-blur-xl bg-white/5 border border-white/10 rounded-2xl p-8 hover:bg-white/10 transition-all duration-300">
+              <h3 className="text-2xl font-bold mb-6 text-cyan-400">
+                📈 Response Time Trend – {selectedEndpoint.name || selectedEndpoint.url}
+              </h3>
+              {loadingChart ? (
+                <p className="text-center py-8 text-gray-400">Loading...</p>
+              ) : chartData.length === 0 ? (
+                <p className="text-center py-8 text-gray-400">No data yet</p>
+              ) : (
+                <ResponsiveContainer width="100%" height={350}>
+                  <LineChart data={chartData}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#ffffff20" />
+                    <XAxis dataKey="checkedAt" stroke="#9ca3af" />
+                    <YAxis stroke="#9ca3af" />
+                    <Tooltip contentStyle={{ backgroundColor: '#1f2937', border: '1px solid #ffffff20', borderRadius: '8px' }} />
+                    <Legend />
+                    <Line
+                      type="monotone"
+                      dataKey="responseTimeMs"
+                      name="Response (ms)"
+                      stroke="#06b6d4"
+                      strokeWidth={3}
+                      dot={{ fill: '#06b6d4', r: 5 }}
+                      activeDot={{ r: 7 }}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              )}
             </div>
           )}
         </div>
-
-        {/* Chart */}
-        {selectedEndpoint && (
-          <div className="backdrop-blur-xl bg-white/5 border border-white/10 rounded-2xl p-8 hover:bg-white/10 transition-all duration-300">
-            <h3 className="text-2xl font-bold mb-6 text-cyan-400">
-              📈 Response Time Trend – {selectedEndpoint.name || selectedEndpoint.url}
-            </h3>
-            {loadingChart ? (
-              <p className="text-center py-8 text-gray-400">Loading...</p>
-            ) : chartData.length === 0 ? (
-              <p className="text-center py-8 text-gray-400">No data yet</p>
-            ) : (
-              <ResponsiveContainer width="100%" height={350}>
-                <LineChart data={chartData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#ffffff20" />
-                  <XAxis dataKey="checkedAt" stroke="#9ca3af" />
-                  <YAxis stroke="#9ca3af" />
-                  <Tooltip contentStyle={{ backgroundColor: '#1f2937', border: '1px solid #ffffff20', borderRadius: '8px' }} />
-                  <Legend />
-                  <Line
-                    type="monotone"
-                    dataKey="responseTimeMs"
-                    name="Response (ms)"
-                    stroke="#06b6d4"
-                    strokeWidth={3}
-                    dot={{ fill: '#06b6d4', r: 5 }}
-                    activeDot={{ r: 7 }}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
-            )}
-          </div>
-        )}
-      </div>
-
-      {/* Tailwind CSS for animation delay */}
-      <style>{`
-        @keyframes pulse-custom {
-          0%, 100% {
-            opacity: 0.2;
-          }
-          50% {
-            opacity: 0.3;
-          }
-        }
-        .animation-delay-2000 {
-          animation-delay: 2s;
-        }
-        .animation-delay-4000 {
-          animation-delay: 4s;
-        }
-      `}</style>
+      </main>
     </div>
   );
 }
