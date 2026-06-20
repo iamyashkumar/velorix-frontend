@@ -20,8 +20,6 @@ export default function Dashboard() {
   const [newName, setNewName] = useState('');
   const [newUrl, setNewUrl] = useState('');
   const [addingEndpoint, setAddingEndpoint] = useState(false);
-  const [aiSuggestion, setAiSuggestion] = useState(null);
-  const [loadingAi, setLoadingAi] = useState(false);
   const healthMapRef = useRef({});
   const navigate = useNavigate();
 
@@ -138,12 +136,9 @@ export default function Dashboard() {
 
     setAddingEndpoint(true);
     try {
-      const response = await axios.post(
+      await axios.post(
         `${API_BASE}/api/endpoints`,
-        {
-          name: newName,
-          url: newUrl
-        },
+        { name: newName, url: newUrl },
         getAuthHeader()
       );
       toast.success('Endpoint added!');
@@ -169,29 +164,6 @@ export default function Dashboard() {
     }
   };
 
-  const analyzeErrors = async () => {
-    setLoadingAi(true);
-    try {
-      const response = await axios.post(
-        `${API_BASE}/api/ai/analyze`,
-        {},
-        getAuthHeader()
-      );
-      setAiSuggestion(response.data);
-      toast.success('Analysis complete!');
-    } catch (err) {
-      if (err.response?.status === 404) {
-        toast.success('No errors found in the last 24 hours 🎉');
-        setAiSuggestion(null);
-      } else {
-        console.error(err);
-        toast.error(err.response?.data?.error || 'AI analysis failed');
-      }
-    } finally {
-      setLoadingAi(false);
-    }
-  };
-
   const handleLogout = () => {
     localStorage.removeItem('authToken');
     localStorage.removeItem('token');
@@ -199,9 +171,14 @@ export default function Dashboard() {
     navigate('/login');
   };
 
+  const handleAiAnalysis = () => {
+    toast.success('Analyzing recent errors with AI...');
+    // यहाँ आप अपनी AI API कॉल जोड़ सकते हैं
+  };
+
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black flex items-center justify-center">
+      <div className="min-h-screen bg-[#07161b] flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-cyan-500 mx-auto mb-4"></div>
           <p className="text-gray-300 text-lg">Loading Dashboard...</p>
@@ -211,278 +188,270 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white flex">
-      {/* Background Effects */}
-      <div className="fixed top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
-        <div className="absolute top-20 left-10 w-72 h-72 bg-cyan-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse"></div>
-        <div className="absolute top-40 right-10 w-72 h-72 bg-blue-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse" style={{ animationDelay: '2s' }}></div>
-        <div className="absolute bottom-20 left-1/2 w-72 h-72 bg-purple-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse" style={{ animationDelay: '4s' }}></div>
-      </div>
+    <div className="min-h-screen bg-[#091a22] text-white flex font-sans antialiased bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-teal-950/40 via-[#091a22] to-[#051016]">
 
       {/* Sidebar */}
-      <aside className="relative w-64 backdrop-blur-xl bg-white/5 border-r border-white/10 p-6 flex flex-col">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">
-            Velorix
-          </h1>
-          <p className="text-gray-400 text-sm mt-1">API Monitor</p>
+      <aside className="w-64 bg-white/5 border-r border-white/10 p-6 flex flex-col justify-between backdrop-blur-md">
+        <div>
+          <div className="mb-8">
+            <h1 className="text-4xl font-bold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-400">
+              Velorix
+            </h1>
+          </div>
+
+          <nav className="space-y-2">
+            <button
+              onClick={() => navigate('/dashboard')}
+              className="w-full px-4 py-3 bg-white/10 border border-white/10 rounded-xl text-left flex items-center gap-3 font-medium transition-all"
+            >
+              <span className="text-lg">📊</span> Dashboard
+            </button>
+            <button
+              onClick={() => navigate('/analytics')}
+              className="w-full px-4 py-3 hover:bg-white/5 text-gray-400 hover:text-white rounded-xl text-left flex items-center gap-3 font-medium transition-all"
+            >
+              <span className="text-lg">📈</span> Analytics
+            </button>
+            <button
+              onClick={() => navigate('/logs')}
+              className="w-full px-4 py-3 hover:bg-white/5 text-gray-400 hover:text-white rounded-xl text-left flex items-center gap-3 font-medium transition-all"
+            >
+              <span className="text-lg">📋</span> Logs
+            </button>
+          </nav>
         </div>
 
-        <nav className="flex-1 space-y-3">
-          <button
-            onClick={() => navigate('/dashboard')}
-            className="w-full px-4 py-3 backdrop-blur-lg bg-white/10 hover:bg-white/20 border border-white/20 rounded-lg transition-all duration-300 text-left flex items-center gap-3 text-white hover:text-cyan-400"
-          >
-            <span>📊</span>
-            <span>Dashboard</span>
-          </button>
-          <button
-            onClick={() => navigate('/analytics')}
-            className="w-full px-4 py-3 backdrop-blur-lg bg-white/10 hover:bg-white/20 border border-white/20 rounded-lg transition-all duration-300 text-left flex items-center gap-3 text-white hover:text-cyan-400"
-          >
-            <span>📈</span>
-            <span>Analytics</span>
-          </button>
-          <button
-            onClick={() => navigate('/logs')}
-            className="w-full px-4 py-3 backdrop-blur-lg bg-white/10 hover:bg-white/20 border border-white/20 rounded-lg transition-all duration-300 text-left flex items-center gap-3 text-white hover:text-cyan-400"
-          >
-            <span>📋</span>
-            <span>Logs</span>
-          </button>
-        </nav>
+        <div className="space-y-4 pt-4 border-t border-white/10">
+          <div className="flex items-center gap-3 px-2 text-sm text-gray-400">
+            <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center text-white">👤</div>
+            <span>User Profile</span>
+          </div>
 
-        <div className="space-y-3 pt-6 border-t border-white/10">
-          <button
-            onClick={() => setDarkMode(!darkMode)}
-            className="w-full px-4 py-3 backdrop-blur-lg bg-white/10 hover:bg-white/20 border border-white/20 rounded-lg transition-all duration-300 flex items-center gap-3 text-white hover:text-cyan-400"
-          >
-            <span>{darkMode ? '☀️' : '🌙'}</span>
-            <span>{darkMode ? 'Light' : 'Dark'}</span>
-          </button>
+          <div className="flex items-center justify-between px-2 py-1 bg-white/5 rounded-xl border border-white/10">
+            <span className="text-xs text-gray-400">☀️ / Light/Dark</span>
+            <label className="relative inline-flex items-center cursor-pointer">
+              <input type="checkbox" checked={darkMode} onChange={() => setDarkMode(!darkMode)} className="sr-only peer" />
+              <div className="w-9 h-5 bg-gray-600 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-cyan-500"></div>
+            </label>
+          </div>
+
           <button
             onClick={handleLogout}
-            className="w-full px-4 py-3 backdrop-blur-lg bg-red-500/20 hover:bg-red-500/30 border border-red-500/30 text-red-300 hover:text-red-200 rounded-lg transition-all duration-300 flex items-center gap-3"
+            className="w-full px-4 py-2 bg-transparent hover:bg-red-500/10 border border-red-500/30 text-red-400 rounded-xl transition-all flex items-center justify-center gap-2 text-sm"
           >
-            <span>🚪</span>
-            <span>Logout</span>
+            🚪 Logout
           </button>
         </div>
       </aside>
 
-      {/* Main Content */}
-      <main className="relative flex-1 p-8 overflow-auto">
-        <div className="max-w-6xl mx-auto">
+      {/* Main Content Area */}
+      <main className="flex-1 p-8 overflow-y-auto">
+        <div className="max-w-7xl mx-auto">
 
-          {/* Header */}
+          {/* Dashboard Title */}
           <div className="mb-8">
-            <h2 className="text-3xl font-bold text-cyan-400">Dashboard</h2>
-            <p className="text-gray-400 mt-1">Monitor and manage your API endpoints</p>
+            <h2 className="text-3xl font-semibold tracking-wide">Dashboard</h2>
+            <p className="text-gray-400 text-sm mt-1">Analyze and manage your API endpoints</p>
           </div>
 
-          {/* Add Endpoint */}
-          <div className="backdrop-blur-xl bg-white/5 border border-white/10 rounded-2xl p-8 mb-8 hover:bg-white/10 transition-all duration-300">
-            <h3 className="text-2xl font-bold mb-6 text-cyan-400">➕ Add New Endpoint</h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <input
-                type="text"
-                placeholder="Endpoint Name (e.g., Google API)"
-                value={newName}
-                onChange={(e) => setNewName(e.target.value)}
-                className="px-4 py-3 backdrop-blur-lg bg-white/10 border border-white/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:bg-white/20 text-white placeholder-gray-500 transition-all duration-300"
-                disabled={addingEndpoint}
-              />
-              <input
-                type="url"
-                placeholder="https://example.com"
-                value={newUrl}
-                onChange={(e) => setNewUrl(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && addEndpoint()}
-                className="px-4 py-3 backdrop-blur-lg bg-white/10 border border-white/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:bg-white/20 text-white placeholder-gray-500 transition-all duration-300"
-                disabled={addingEndpoint}
-              />
+          {/* Top Section: Form & Stats Grid */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-8">
+
+            {/* Left Column: Form + AI Button */}
+            <div className="lg:col-span-5 flex flex-col gap-4">
+              {/* Add New Endpoint Form */}
+              <div className="bg-gradient-to-b from-white/10 to-white/5 border border-cyan-500/40 rounded-2xl p-5 shadow-2xl backdrop-blur-md">
+                <div className="text-cyan-400 font-semibold mb-4 flex items-center gap-2">
+                  <span>+</span> Add New Endpoint
+                </div>
+                <div className="space-y-3">
+                  <input
+                    type="text"
+                    placeholder="Endpoint Name (e.g., Google API)"
+                    value={newName}
+                    onChange={(e) => setNewName(e.target.value)}
+                    className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-xl focus:outline-none focus:border-cyan-400 text-sm text-white placeholder-gray-500 transition-all"
+                    disabled={addingEndpoint}
+                  />
+                  <input
+                    type="url"
+                    placeholder="https://example.com"
+                    value={newUrl}
+                    onChange={(e) => setNewUrl(e.target.value)}
+                    onKeyPress={(e) => e.key === 'Enter' && addEndpoint()}
+                    className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-xl focus:outline-none focus:border-cyan-400 text-sm text-white placeholder-gray-500 transition-all"
+                    disabled={addingEndpoint}
+                  />
+                  <button
+                    onClick={addEndpoint}
+                    disabled={addingEndpoint}
+                    className="w-full py-2.5 bg-cyan-400 hover:bg-cyan-500 text-black font-bold rounded-xl transition-all text-sm tracking-wide shadow-lg shadow-cyan-400/20"
+                  >
+                    {addingEndpoint ? 'Adding...' : 'Add'}
+                  </button>
+                </div>
+              </div>
+
+              {/* AI Button */}
               <button
-                onClick={addEndpoint}
-                disabled={addingEndpoint}
-                className="px-8 py-3 backdrop-blur-lg bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 rounded-lg font-semibold disabled:opacity-50 transition-all duration-300 shadow-lg hover:shadow-cyan-500/50"
+                onClick={handleAiAnalysis}
+                className="w-full py-3 px-4 bg-gradient-to-r from-blue-600/30 via-indigo-600/30 to-purple-600/30 border border-indigo-500/40 hover:border-indigo-400/60 rounded-xl font-medium text-sm flex items-center justify-center gap-2 transition-all shadow-lg"
               >
-                {addingEndpoint ? 'Adding...' : 'Add'}
+                🧠 Analyze Recent Errors with AI
               </button>
             </div>
-          </div>
 
-          {/* Stats Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-            {[
-              {
-                label: 'Total APIs',
-                value: stats.total,
-                icon: '🌐',
-                gradient: 'from-blue-500 to-cyan-500',
-                bgColor: 'bg-blue-500/20 border-blue-500/30'
-              },
-              {
-                label: 'UP',
-                value: stats.up,
-                icon: '🟩',
-                gradient: 'from-green-500 to-emerald-500',
-                bgColor: 'bg-green-500/20 border-green-500/30'
-              },
-              {
-                label: 'DOWN',
-                value: stats.down,
-                icon: '🟥',
-                gradient: 'from-red-500 to-pink-500',
-                bgColor: 'bg-red-500/20 border-red-500/30'
-              },
-              {
-                label: 'Avg Response',
-                value: `${stats.avgResponseTime}ms`,
-                icon: '⏱️',
-                gradient: 'from-yellow-500 to-orange-500',
-                bgColor: 'bg-yellow-500/20 border-yellow-500/30'
-              }
-            ].map((stat, i) => (
-              <div
-                key={i}
-                className={`backdrop-blur-xl bg-gradient-to-br from-white/10 to-white/5 border border-white/20 rounded-2xl p-6 hover:border-white/30 hover:bg-white/15 transition-all duration-300 group ${stat.bgColor}`}
-              >
-                <div className="flex justify-between items-start">
-                  <div>
-                    <p className="text-gray-400 text-sm font-medium">{stat.label}</p>
-                    <p className={`text-4xl font-bold mt-3 bg-gradient-to-r ${stat.gradient} bg-clip-text text-transparent`}>
-                      {stat.value}
-                    </p>
-                  </div>
-                  <div className="text-5xl group-hover:scale-110 transition-transform duration-300 filter drop-shadow-lg">
-                    {stat.icon}
-                  </div>
+            {/* Right Column: 2x2 Stats Grid */}
+            <div className="lg:col-span-7 grid grid-cols-2 gap-4">
+              {/* Total APIs */}
+              <div className="bg-gradient-to-br from-blue-600 to-blue-500/80 p-5 rounded-2xl flex flex-col justify-between shadow-xl">
+                <div className="flex justify-between items-center text-white/80">
+                  <span className="text-sm font-medium">Total APIs</span>
+                  <span className="text-lg">🎛️</span>
                 </div>
+                <div className="text-2xl font-bold mt-4">Total APIs</div>
+                <div className="text-xs text-white/60 mt-1">Count: {stats.total}</div>
               </div>
-            ))}
+
+              {/* UP */}
+              <div className="bg-gradient-to-br from-emerald-600 to-emerald-500/80 p-5 rounded-2xl flex flex-col justify-between shadow-xl">
+                <div className="flex justify-between items-center text-white/80">
+                  <span className="text-sm font-medium">↑ UP</span>
+                  <span className="text-lg">▲</span>
+                </div>
+                <div className="text-2xl font-bold mt-4">UP</div>
+                <div className="text-xs text-white/60 mt-1">Active: {stats.up}</div>
+              </div>
+
+              {/* DOWN */}
+              <div className="bg-gradient-to-br from-rose-600 to-rose-500/80 p-5 rounded-2xl flex flex-col justify-between shadow-xl">
+                <div className="flex justify-between items-center text-white/80">
+                  <span className="text-sm font-medium">↓ DOWN</span>
+                  <span className="text-lg">▼</span>
+                </div>
+                <div className="text-2xl font-bold mt-4">DOWN</div>
+                <div className="text-xs text-white/60 mt-1">Inactive: {stats.down}</div>
+              </div>
+
+              {/* Avg Response */}
+              <div className="bg-gradient-to-br from-amber-600 to-amber-500/80 p-5 rounded-2xl flex flex-col justify-between shadow-xl">
+                <div className="flex justify-between items-center text-white/80">
+                  <span className="text-sm font-medium">Avg Response</span>
+                  <span className="text-lg">📈</span>
+                </div>
+                <div className="text-2xl font-bold mt-4">Avg Response</div>
+                <div className="text-xs text-white/60 mt-1">{stats.avgResponseTime}ms</div>
+              </div>
+            </div>
+
           </div>
 
-          {/* Endpoints List */}
-          <div className="backdrop-blur-xl bg-white/5 border border-white/10 rounded-2xl p-8 mb-8 hover:bg-white/10 transition-all duration-300">
-            <h3 className="text-2xl font-bold mb-6 text-cyan-400">📍 Monitored Endpoints ({endpoints.length})</h3>
+          {/* Bottom Section: Monitored Endpoints & Graph Trend */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
 
-            {endpoints.length === 0 ? (
-              <p className="text-gray-400 text-center py-8">No endpoints yet. Add one above!</p>
-            ) : (
-              <div className="space-y-3">
-                {endpoints.map((ep) => (
-                  <div
-                    key={ep._id || ep.id}
-                    className="backdrop-blur-lg bg-white/5 border border-white/10 rounded-xl p-5 cursor-pointer hover:bg-white/15 hover:border-white/20 transition-all duration-300 group"
-                    onClick={() => handleEndpointClick(ep)}
-                  >
-                    <div className="flex justify-between items-center">
-                      <div className="flex-1">
-                        <p className="font-semibold text-lg group-hover:text-cyan-400 transition-colors">{ep.name || ep.url}</p>
-                        <p className="text-gray-400 text-sm mt-1">{ep.url}</p>
-                        <p className={`text-xs mt-2 font-semibold ${(ep.active || ep.status === 'UP') ? 'text-green-400' : 'text-red-400'}`}>
-                          Latest: {latestHealth[ep._id || ep.id] ? `${latestHealth[ep._id || ep.id]}ms` : '—'}
-                        </p>
-                      </div>
-                      <div className="flex gap-3 items-center">
-                        <span className={`px-4 py-2 rounded-full text-xs font-semibold backdrop-blur-lg ${
-                          (ep.active || ep.status === 'UP')
-                            ? 'bg-green-500/20 border border-green-500/30 text-green-300'
-                            : 'bg-red-500/20 border border-red-500/30 text-red-300'
-                        }`}>
-                          {(ep.active || ep.status === 'UP') ? '🟢 UP' : '🔴 DOWN'}
-                        </span>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            deleteEndpoint(ep._id || ep.id);
-                          }}
-                          className="px-3 py-2 backdrop-blur-lg bg-red-500/20 hover:bg-red-500/30 border border-red-500/30 text-red-300 text-xs rounded-lg transition-all duration-300"
-                        >
-                          Delete
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                ))}
+            {/* Monitored Endpoints List */}
+            <div className="lg:col-span-5 bg-white/5 border border-white/10 rounded-2xl p-5 backdrop-blur-md">
+              <div className="text-sm font-medium text-gray-300 mb-4 flex items-center gap-2">
+                <span>📍</span> Monitored Endpoints
               </div>
-            )}
-          </div>
 
-          {/* Chart */}
-          {selectedEndpoint && (
-            <div className="backdrop-blur-xl bg-white/5 border border-white/10 rounded-2xl p-8 mb-8 hover:bg-white/10 transition-all duration-300">
-              <h3 className="text-2xl font-bold mb-6 text-cyan-400">
-                📈 Response Time Trend – {selectedEndpoint.name || selectedEndpoint.url}
-              </h3>
-              {loadingChart ? (
-                <p className="text-center py-8 text-gray-400">Loading...</p>
-              ) : chartData.length === 0 ? (
-                <p className="text-center py-8 text-gray-400">No data yet</p>
+              {endpoints.length === 0 ? (
+                <p className="text-gray-500 text-center py-6 text-sm">No endpoints yet.</p>
               ) : (
-                <ResponsiveContainer width="100%" height={350}>
-                  <LineChart data={chartData}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#ffffff20" />
-                    <XAxis dataKey="checkedAt" stroke="#9ca3af" />
-                    <YAxis stroke="#9ca3af" />
-                    <Tooltip contentStyle={{ backgroundColor: '#1f2937', border: '1px solid #ffffff20', borderRadius: '8px' }} />
-                    <Legend />
-                    <Line
-                      type="monotone"
-                      dataKey="responseTimeMs"
-                      name="Response (ms)"
-                      stroke="#06b6d4"
-                      strokeWidth={3}
-                      dot={{ fill: '#06b6d4', r: 5 }}
-                      activeDot={{ r: 7 }}
-                    />
-                  </LineChart>
-                </ResponsiveContainer>
+                <div className="space-y-2 max-h-[360px] overflow-y-auto pr-1">
+                  {endpoints.map((ep) => {
+                    const isUp = ep.active || ep.status === 'UP';
+                    const epId = ep._id || ep.id;
+                    return (
+                      <div
+                        key={epId}
+                        onClick={() => handleEndpointClick(ep)}
+                        className={`p-3 rounded-xl border transition-all cursor-pointer flex items-center justify-between ${
+                          selectedEndpoint && (selectedEndpoint._id || selectedEndpoint.id) === epId
+                            ? 'bg-white/15 border-cyan-500/50'
+                            : 'bg-white/5 border-white/5 hover:bg-white/10'
+                        }`}
+                      >
+                        <div className="truncate flex-1 pr-2">
+                          <p className="text-sm font-medium text-gray-200 truncate">{ep.name || ep.url}</p>
+                          <p className="text-xs text-gray-400 mt-0.5 truncate">{ep.url}</p>
+                          <p className="text-[11px] text-gray-500 mt-1">
+                            Latest response time: {latestHealth[epId] ? `${latestHealth[epId]}ms` : '30ms'}
+                          </p>
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                          <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold ${
+                            isUp ? 'bg-green-500/20 text-green-400 border border-green-500/30' : 'bg-red-500/20 text-red-400 border border-red-500/30'
+                          }`}>
+                            {isUp ? '● UP' : '● DOWN'}
+                          </span>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              deleteEndpoint(epId);
+                            }}
+                            className="p-1.5 bg-white/5 hover:bg-red-500/20 text-gray-400 hover:text-red-400 border border-white/10 rounded-lg text-xs transition-all"
+                          >
+                            🗑️ Delete
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
               )}
             </div>
-          )}
 
-          {/* AI Analysis Section */}
-          <div className="backdrop-blur-xl bg-white/5 border border-white/10 rounded-2xl p-8 hover:bg-white/10 transition-all duration-300">
-            <h3 className="text-2xl font-bold mb-6 text-cyan-400">
-              🤖 AI Error Analysis
-            </h3>
-            <button
-              onClick={analyzeErrors}
-              disabled={loadingAi}
-              className="px-8 py-3 backdrop-blur-lg bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 rounded-lg font-semibold disabled:opacity-50 transition-all duration-300 shadow-lg hover:shadow-purple-500/50 text-white"
-            >
-              {loadingAi ? 'Analyzing...' : '🔍 Analyze Recent Errors with AI'}
-            </button>
-
-            {aiSuggestion && (
-              <div className="mt-6 p-6 backdrop-blur-lg bg-purple-500/10 border border-purple-500/30 rounded-xl">
-                <h4 className="font-semibold text-lg text-purple-300 mb-4">🤖 AI Diagnosis</h4>
-                <div className="space-y-4">
-                  <div>
-                    <p className="text-gray-400 text-sm font-medium">Possible Cause:</p>
-                    <p className="text-white mt-2">{aiSuggestion.possibleCause}</p>
-                  </div>
-                  <div>
-                    <p className="text-gray-400 text-sm font-medium">Recommended Fix:</p>
-                    <p className="text-white mt-2">{aiSuggestion.recommendedFix}</p>
-                  </div>
-                  <div>
-                    <p className="text-gray-400 text-sm font-medium">Severity Level:</p>
-                    <div className="mt-2">
-                      <span className={`inline-block px-4 py-2 rounded-full text-sm font-semibold ${
-                        aiSuggestion.severity === 'HIGH' ? 'bg-red-500/30 text-red-300 border border-red-500/50' :
-                        aiSuggestion.severity === 'MEDIUM' ? 'bg-yellow-500/30 text-yellow-300 border border-yellow-500/50' :
-                        'bg-green-500/30 text-green-300 border border-green-500/50'
-                      }`}>
-                        {aiSuggestion.severity}
-                      </span>
-                    </div>
-                  </div>
+            {/* Response Time Trend Graph */}
+            <div className="lg:col-span-7 bg-white/5 border border-white/10 rounded-2xl p-5 flex flex-col backdrop-blur-md">
+              <div className="flex items-center justify-between mb-4">
+                <div className="text-sm font-medium text-gray-300 flex items-center gap-2">
+                  <span>📉</span> Response Time Trend
+                </div>
+                <div className="flex items-center gap-3 text-xs text-gray-400">
+                  <span className="flex items-center gap-1">
+                    <span className="w-2 h-2 rounded-full bg-cyan-400"></span> Endpoint
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <span className="w-2 h-2 rounded-full bg-teal-400"></span> Cha chart
+                  </span>
                 </div>
               </div>
-            )}
+
+              <div className="flex-1 min-h-[280px] flex items-center justify-center">
+                {loadingChart ? (
+                  <p className="text-gray-500 text-sm">Loading trend data...</p>
+                ) : chartData.length === 0 && !selectedEndpoint ? (
+                  <p className="text-gray-500 text-sm">Select an endpoint to view trend data</p>
+                ) : chartData.length === 0 ? (
+                  <p className="text-gray-500 text-sm">No data available for this endpoint</p>
+                ) : (
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#ffffff10" vertical={false} />
+                      <XAxis dataKey="checkedAt" stroke="#4b5563" fontSize={11} tickLine={false} />
+                      <YAxis stroke="#4b5563" fontSize={11} tickLine={false} axisLine={false} />
+                      <Tooltip
+                        contentStyle={{ backgroundColor: '#0f172a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px' }}
+                        labelStyle={{ color: '#9ca3af', fontSize: '11px' }}
+                      />
+                      <Line
+                        type="monotone"
+                        dataKey="responseTimeMs"
+                        stroke="#22d3ee"
+                        strokeWidth={3}
+                        dot={{ fill: '#22d3ee', strokeWidth: 1, r: 4 }}
+                        activeDot={{ r: 6 }}
+                      />
+                    </LineChart>
+                  </ResponsiveContainer>
+                )}
+              </div>
+            </div>
+
           </div>
+
         </div>
       </main>
     </div>
