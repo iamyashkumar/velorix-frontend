@@ -95,29 +95,43 @@ export default function Analytics() {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 md:flex">
 
-      {/* Mobile Top Navbar */}
+      {/* Mobile Top Navbar - Fused Theme Toggle right next to Velorix */}
       <div className="w-full flex items-center justify-between p-4 bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700 md:hidden sticky top-0 z-40">
-        <div className="flex items-center space-x-3">
+        <div className="flex items-center space-x-4">
           <button
             onClick={() => setSidebarOpen(true)}
             className="p-1.5 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 transition"
           >
             <FiMenu size={24} className="text-gray-800 dark:text-white" />
           </button>
-          <span className="text-lg font-bold text-gray-800 dark:text-white">Velorix</span>
+
+          {/* Brand & Theme Switcher together */}
+          <div className="flex items-center gap-3">
+            <span className="text-xl font-bold text-gray-800 dark:text-white tracking-tight">Velorix</span>
+
+            <button
+              onClick={() => setDarkMode(!darkMode)}
+              className={`relative inline-flex h-5 w-10 shrink-0 cursor-pointer rounded-full p-0.5 border transition-colors duration-200 ease-in-out focus:outline-none ${
+                darkMode ? 'bg-cyan-950/50 border-cyan-500/30' : 'bg-amber-50 border-amber-300'
+              }`}
+            >
+              <span
+                className={`pointer-events-none flex items-center justify-center h-3.5 w-3.5 transform rounded-full bg-white shadow-sm transition duration-200 ease-in-out ${
+                  darkMode ? 'translate-x-4 bg-cyan-400' : 'translate-x-0 bg-amber-400'
+                }`}
+              >
+                {darkMode ? '🌙' : '☀️'}
+              </span>
+            </button>
+          </div>
         </div>
-        <button
-          onClick={() => setDarkMode(!darkMode)}
-          className="p-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition"
-        >
-          {darkMode ? <FiSun size={22} className="text-yellow-400" /> : <FiMoon size={22} />}
-        </button>
       </div>
 
       {sidebarOpen && (
         <div className="fixed inset-0 z-50 bg-black bg-opacity-50 md:hidden" onClick={() => setSidebarOpen(false)} />
       )}
 
+      {/* Desktop Sidebar */}
       <Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} darkMode={darkMode} setDarkMode={setDarkMode} />
 
       {/* Main Content */}
