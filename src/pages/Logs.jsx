@@ -1,195 +1,128 @@
-import { useEffect, useState } from 'react';
-import api from '../services/api';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FiMenu, FiMoon, FiSun } from 'react-icons/fi';
+import axios from 'axios';
 import toast from 'react-hot-toast';
-import Sidebar from '../components/Sidebar';
-import useDarkMode from '../hooks/useDarkMode';
-import { LogEntrySkeleton } from '../components/LoadingSkeleton';
+import { useAuth } from '../context/ThemeContext';
 
-export default function Logs() {
-  const [logs, setLogs] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [darkMode, setDarkMode] = useDarkMode();
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [level, setLevel] = useState('');
-  const [keyword, setKeyword] = useState('');
-  const [page, setPage] = useState(0);
-  const [totalPages, setTotalPages] = useState(0);
+const API_BASE = 'https://velorix-backend-vg5i.onrender.com';
+
+export default function Login() {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+  const { login } = useAuth();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (!token) {
-      navigate('/login');
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    if (!email || !password) {
+      toast.error('Please fill in all fields');
       return;
     }
-    fetchLogs();
-  }, [level, page]);
 
-  const fetchLogs = async () => {
     setLoading(true);
     try {
-      const params = { page, size: 20 };
-      if (level) params.level = level;
-      if (keyword) params.keyword = keyword;
-      const response = await api.get('/api/logs', { params });
-      setLogs(response.data.content || []);
-      setTotalPages(response.data.totalPages || 1);
-    } catch (err) {
-      toast.error('Failed to fetch logs');
+      const response = await axios.post(`${API_BASE}/api/auth/login`, {
+        email,
+        password
+      });
+
+      const { token, user } = response.data;
+      login(user || { email }, token);
+
+      toast.success('Login successful!');
+      navigate('/dashboard');
+    } catch (error) {
+      console.error('Login failed:', error);
+      toast.error(error.response?.data?.message || 'Login failed');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleSearch = () => {
-    setPage(0);
-    fetchLogs();
-  };
-
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 md:flex">
-
-      {/* Mobile Top Navbar */}
-      <div className="w-full flex items-center justify-between p-4 bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700 md:hidden sticky top-0 z-40">
-        <div className="flex items-center space-x-3">
-          <button
-            onClick={() => setSidebarOpen(true)}
-            className="p-1.5 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 transition"
-            aria-label="Menu"
-          >
-            <FiMenu size={24} className="text-gray-800 dark:text-white" />
-          </button>
-          <span className="text-lg font-bold text-gray-800 dark:text-white">Velorix</span>
-        </div>
-        <button
-          onClick={() => setDarkMode(!darkMode)}
-          className="p-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition"
-          aria-label="Toggle Dark Mode"
-        >
-          {darkMode ? <FiSun size={22} className="text-yellow-400" /> : <FiMoon size={22} />}
-        </button>
+    <div className="min-h-screen bg-gradient-to-br from-teal-900 via-cyan-900 to-blue-900 flex items-center justify-center p-4">
+      {/* Background Shapes */}
+      <div className="fixed top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
+        <div className="absolute top-0 right-0 w-96 h-96 bg-cyan-500 rounded-full mix-blend-multiply filter blur-3xl opacity-10"></div>
+        <div className="absolute bottom-0 left-1/3 w-96 h-96 bg-blue-500 rounded-full mix-blend-multiply filter blur-3xl opacity-10"></div>
       </div>
 
-      {sidebarOpen && (
-        <div
-          className="fixed inset-0 z-50 bg-black bg-opacity-50 md:hidden"
-          onClick={() => setSidebarOpen(false)}
-        />
-      )}
+      <div className="relative w-full max-w-md">
+        <div className="bg-cyan-500/15 backdrop-blur-md border-2 border-cyan-400/50 rounded-3xl p-8 shadow-2xl">
 
-      <Sidebar
-        sidebarOpen={sidebarOpen}
-        setSidebarOpen={setSidebarOpen}
-        darkMode={darkMode}
-        setDarkMode={setDarkMode}
-      />
-
-      {/* Main content */}
-      <main className="flex-1 overflow-x-hidden">
-        <div className="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
-          {/* Header text */}
-          <div className="mb-8">
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Log Viewer</h1>
-            <p className="text-gray-600 dark:text-gray-400">Track and filter system health logs in real-time.</p>
+          {/* Logo */}
+          <div className="text-center mb-8">
+            <h1 className="text-4xl font-bold bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">
+              Velorix
+            </h1>
+            <p className="text-cyan-300/70 text-sm mt-2 tracking-wider">API MONITOR</p>
           </div>
 
-          {/* Filter Card */}
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-100 dark:border-gray-700 mb-8">
-            <div className="flex flex-col md:flex-row gap-4">
-              <select
-                value={level}
-                onChange={(e) => { setLevel(e.target.value); setPage(0); }}
-                className="p-2 border rounded-lg dark:bg-gray-700 dark:text-white dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="">All Levels</option>
-                <option value="INFO">INFO</option>
-                <option value="WARN">WARN</option>
-                <option value="ERROR">ERROR</option>
-              </select>
+          {/* Form */}
+          <form onSubmit={handleLogin} className="space-y-5">
+            {/* Email */}
+            <div>
+              <label className="block text-cyan-300 text-sm font-semibold mb-2">Email Address</label>
               <input
-                type="text"
-                placeholder="Search by message..."
-                value={keyword}
-                onChange={(e) => setKeyword(e.target.value)}
-                onKeyPress={(e) => {
-                  if (e.key === 'Enter') handleSearch();
-                }}
-                className="flex-1 p-2 border rounded-lg dark:bg-gray-700 dark:text-white dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="test@example.com"
+                className="w-full px-4 py-3 bg-cyan-900/40 border border-cyan-400/40 rounded-xl focus:outline-none focus:ring-2 focus:ring-cyan-400 text-white placeholder-cyan-400/50 transition-all"
+                disabled={loading}
               />
-              <button
-                onClick={handleSearch}
-                className="bg-blue-600 text-white px-5 py-2 rounded-lg hover:bg-blue-700 transition font-medium whitespace-nowrap"
-              >
-                Search
-              </button>
             </div>
+
+            {/* Password */}
+            <div>
+              <label className="block text-cyan-300 text-sm font-semibold mb-2">Password</label>
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••"
+                className="w-full px-4 py-3 bg-cyan-900/40 border border-cyan-400/40 rounded-xl focus:outline-none focus:ring-2 focus:ring-cyan-400 text-white placeholder-cyan-400/50 transition-all"
+                disabled={loading}
+              />
+            </div>
+
+            {/* Login Button */}
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full py-3 bg-gradient-to-r from-cyan-500 to-cyan-600 hover:from-cyan-600 hover:to-cyan-700 rounded-xl font-bold text-white disabled:opacity-50 transition-all shadow-lg mt-6"
+            >
+              {loading ? 'Signing In...' : 'Sign In'}
+            </button>
+          </form>
+
+          {/* Divider */}
+          <div className="flex items-center my-6">
+            <div className="flex-1 h-px bg-cyan-400/20"></div>
+            <span className="px-3 text-cyan-400/60 text-sm">or</span>
+            <div className="flex-1 h-px bg-cyan-400/20"></div>
           </div>
 
-          {/* Logs List */}
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden mb-8 p-6">
-            {loading ? (
-              <div className="space-y-4">
-                {[...Array(5)].map((_, i) => (
-                  <LogEntrySkeleton key={i} />
-                ))}
-              </div>
-            ) : logs.length === 0 ? (
-              <p className="text-gray-500 dark:text-gray-400 text-center py-4">No logs found.</p>
-            ) : (
-              <div className="space-y-4">
-                {logs.map((log) => (
-                  <div
-                    key={log.id}
-                    className="p-4 border border-gray-100 dark:border-gray-700 rounded-xl bg-gray-50/50 dark:bg-gray-800/50"
-                  >
-                    <div className="flex justify-between items-start">
-                      <span
-                        className={`px-2.5 py-0.5 rounded-full text-xs font-semibold ${
-                          log.level === 'ERROR'
-                            ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
-                            : log.level === 'WARN'
-                            ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
-                            : 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-                        }`}
-                      >
-                        {log.level}
-                      </span>
-                      <span className="text-xs text-gray-400 dark:text-gray-500">
-                        {new Date(log.timestamp).toLocaleString()}
-                      </span>
-                    </div>
-                    <p className="mt-2 text-gray-800 dark:text-gray-200 font-mono text-sm">{log.message}</p>
-                    <p className="text-xs text-gray-400 dark:text-gray-500 mt-2">Source: {log.source || 'N/A'}</p>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
+          {/* Register Link */}
+          <p className="text-center text-cyan-300/70">
+            Don't have an account?{' '}
+            <button
+              onClick={() => navigate('/register')}
+              className="text-cyan-400 hover:text-cyan-300 font-semibold transition-colors"
+            >
+              Register here
+            </button>
+          </p>
 
-          {/* Pagination */}
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-4 flex justify-between items-center">
-            <button
-              disabled={page === 0}
-              onClick={() => setPage(p => p - 1)}
-              className="px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-lg disabled:opacity-40 hover:bg-gray-200 dark:hover:bg-gray-600 transition text-sm font-medium"
-            >
-              Previous
-            </button>
-            <span className="text-sm text-gray-600 dark:text-gray-400 font-medium">
-              Page {page + 1} of {totalPages}
-            </span>
-            <button
-              disabled={page + 1 >= totalPages}
-              onClick={() => setPage(p => p + 1)}
-              className="px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-lg disabled:opacity-40 hover:bg-gray-200 dark:hover:bg-gray-600 transition text-sm font-medium"
-            >
-              Next
-            </button>
+          {/* Demo Credentials */}
+          <div className="mt-6 p-4 bg-cyan-500/10 border border-cyan-400/30 rounded-xl">
+            <p className="text-cyan-300 text-xs font-semibold mb-2">Demo Credentials:</p>
+            <p className="text-cyan-400 text-xs">Email: test@example.com</p>
+            <p className="text-cyan-400 text-xs">Password: password123</p>
           </div>
         </div>
-      </main>
+      </div>
     </div>
   );
 }

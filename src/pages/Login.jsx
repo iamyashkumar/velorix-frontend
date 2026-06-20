@@ -1,149 +1,127 @@
 import { useState } from 'react';
-import api from '../services/api';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import toast from 'react-hot-toast';
-import { motion } from 'framer-motion';
-import useDarkMode from '../hooks/useDarkMode';
+
+const API_BASE = 'https://velorix-backend-vg5i.onrender.com';
 
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  useDarkMode();
 
-  const handleSubmit = async (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
+    if (!email || !password) {
+      toast.error('Please fill in all fields');
+      return;
+    }
+
+    setLoading(true);
     try {
-      const response = await api.post('/auth/login', { email, password });
-      localStorage.setItem('token', response.data.token);
-      localStorage.setItem('userId', response.data.userId);
-      localStorage.setItem('name', response.data.name);
-      toast.success('Login successful');
+      const response = await axios.post(`${API_BASE}/api/auth/login`, {
+        email,
+        password
+      });
+
+      const { token } = response.data;
+      localStorage.setItem('authToken', token);
+      localStorage.setItem('token', token);
+
+      toast.success('Login successful!');
       navigate('/dashboard');
-    } catch (err) {
-      toast.error('Invalid credentials');
+    } catch (error) {
+      console.error('Login failed:', error);
+      toast.error(error.response?.data?.message || 'Login failed');
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#0f172a] bg-gradient-to-br from-[#0f172a] via-[#1e1b4b] to-[#0f172a] relative overflow-hidden px-4">
+    <div className="min-h-screen bg-gradient-to-br from-teal-900 via-cyan-900 to-blue-900 flex items-center justify-center p-4">
+      {/* Background Shapes */}
+      <div className="fixed top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
+        <div className="absolute top-0 right-0 w-96 h-96 bg-cyan-500 rounded-full mix-blend-multiply filter blur-3xl opacity-10"></div>
+        <div className="absolute bottom-0 left-1/3 w-96 h-96 bg-blue-500 rounded-full mix-blend-multiply filter blur-3xl opacity-10"></div>
+      </div>
 
-      {/* Aesthetic Animated Background Orbs */}
-      <motion.div
-        animate={{
-          scale: [1, 1.2, 1],
-          x: [0, 30, 0],
-          y: [0, -40, 0],
-        }}
-        transition={{
-          duration: 8,
-          repeat: Infinity,
-          ease: "easeInOut"
-        }}
-        className="absolute top-1/4 left-1/4 w-72 h-72 bg-blue-500/10 rounded-full blur-3xl pointer-events-none"
-      />
-      <motion.div
-        animate={{
-          scale: [1, 1.3, 1],
-          x: [0, -50, 0],
-          y: [0, 50, 0],
-        }}
-        transition={{
-          duration: 10,
-          repeat: Infinity,
-          ease: "easeInOut",
-          delay: 1
-        }}
-        className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl pointer-events-none"
-      />
+      <div className="relative w-full max-w-md">
+        <div className="bg-cyan-500/15 backdrop-blur-md border-2 border-cyan-400/50 rounded-3xl p-8 shadow-2xl">
 
-      {/* Main Login Card with smooth slide-up and fade-in entry */}
-      <motion.div
-        initial={{ opacity: 0, y: 40 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, ease: "easeOut" }}
-        className="bg-white/80 dark:bg-gray-900/40 backdrop-blur-xl p-8 rounded-2xl shadow-2xl border border-gray-100/50 dark:border-gray-800/50 w-full max-w-md z-10"
-      >
-        <motion.div
-          initial={{ scale: 0.95 }}
-          animate={{ scale: 1 }}
-          transition={{ delay: 0.2, duration: 0.4 }}
-        >
-          <h2 className="text-3xl font-extrabold mb-2 text-center bg-gradient-to-r from-blue-600 to-indigo-500 bg-clip-text text-transparent dark:from-blue-400 dark:to-purple-400">
-            Velorix
-          </h2>
-          <p className="text-sm text-center text-gray-500 dark:text-gray-400 mb-8">
-            Welcome back! Please login to your account.
-          </p>
-        </motion.div>
+          {/* Logo */}
+          <div className="text-center mb-8">
+            <h1 className="text-4xl font-bold bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">
+              Velorix
+            </h1>
+            <p className="text-cyan-300/70 text-sm mt-2 tracking-wider">API MONITOR</p>
+          </div>
 
-        <form onSubmit={handleSubmit} className="space-y-5">
-          <motion.div
-            initial={{ opacity: 0, x: -10 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.3 }}
-          >
-            <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 uppercase tracking-wider">
-              Email Address
-            </label>
-            <input
-              type="email"
-              placeholder="name@company.com"
-              className="w-full p-3 border rounded-xl dark:bg-gray-900/60 dark:text-white border-gray-200 dark:border-gray-700/80 focus:outline-none focus:ring-2 focus:ring-blue-500/50 dark:focus:ring-blue-400/30 transition-all font-medium"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
-          </motion.div>
+          {/* Form */}
+          <form onSubmit={handleLogin} className="space-y-5">
+            {/* Email */}
+            <div>
+              <label className="block text-cyan-300 text-sm font-semibold mb-2">Email Address</label>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="test@example.com"
+                className="w-full px-4 py-3 bg-cyan-900/40 border border-cyan-400/40 rounded-xl focus:outline-none focus:ring-2 focus:ring-cyan-400 text-white placeholder-cyan-400/50 transition-all"
+                disabled={loading}
+              />
+            </div>
 
-          <motion.div
-            initial={{ opacity: 0, x: -10 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.4 }}
-          >
-            <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 uppercase tracking-wider">
-              Password
-            </label>
-            <input
-              type="password"
-              placeholder="••••••••"
-              className="w-full p-3 border rounded-xl dark:bg-gray-900/60 dark:text-white border-gray-200 dark:border-gray-700/80 focus:outline-none focus:ring-2 focus:ring-blue-500/50 dark:focus:ring-blue-400/30 transition-all font-medium"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-          </motion.div>
+            {/* Password */}
+            <div>
+              <label className="block text-cyan-300 text-sm font-semibold mb-2">Password</label>
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••"
+                className="w-full px-4 py-3 bg-cyan-900/40 border border-cyan-400/40 rounded-xl focus:outline-none focus:ring-2 focus:ring-cyan-400 text-white placeholder-cyan-400/50 transition-all"
+                disabled={loading}
+              />
+            </div>
 
-          {/* Interactive Button with micro-interactions */}
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5 }}
-            whileHover={{ scale: 1.01 }}
-            whileTap={{ scale: 0.99 }}
-            className="pt-2"
-          >
+            {/* Login Button */}
             <button
               type="submit"
-              className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white py-3 rounded-xl shadow-lg shadow-blue-500/20 font-semibold transition-all"
+              disabled={loading}
+              className="w-full py-3 bg-gradient-to-r from-cyan-500 to-cyan-600 hover:from-cyan-600 hover:to-cyan-700 rounded-xl font-bold text-white disabled:opacity-50 transition-all shadow-lg mt-6"
             >
-              Sign In
+              {loading ? 'Signing In...' : 'Sign In'}
             </button>
-          </motion.div>
-        </form>
+          </form>
 
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.6 }}
-          className="mt-6 text-center text-sm text-gray-600 dark:text-gray-400"
-        >
-          Don't have an account?{' '}
-          <Link to="/register" className="text-blue-600 dark:text-blue-400 hover:underline font-medium">
-            Register
-          </Link>
-        </motion.p>
-      </motion.div>
+          {/* Divider */}
+          <div className="flex items-center my-6">
+            <div className="flex-1 h-px bg-cyan-400/20"></div>
+            <span className="px-3 text-cyan-400/60 text-sm">or</span>
+            <div className="flex-1 h-px bg-cyan-400/20"></div>
+          </div>
+
+          {/* Register Link */}
+          <p className="text-center text-cyan-300/70">
+            Don't have an account?{' '}
+            <button
+              onClick={() => navigate('/register')}
+              className="text-cyan-400 hover:text-cyan-300 font-semibold transition-colors"
+            >
+              Register here
+            </button>
+          </p>
+
+          {/* Demo Credentials */}
+          <div className="mt-6 p-4 bg-cyan-500/10 border border-cyan-400/30 rounded-xl">
+            <p className="text-cyan-300 text-xs font-semibold mb-2">Demo Credentials:</p>
+            <p className="text-cyan-400 text-xs">Email: test@example.com</p>
+            <p className="text-cyan-400 text-xs">Password: password123</p>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
