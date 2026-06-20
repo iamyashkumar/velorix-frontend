@@ -238,12 +238,23 @@ export default function Dashboard() {
             <span className={darkMode ? 'text-gray-300' : 'text-gray-700 font-medium'}>User Profile</span>
           </div>
 
-          <div className={`flex items-center justify-between px-3 py-2 rounded-xl border ${darkMode ? 'bg-white/5 border-white/10' : 'bg-gray-100 border-gray-200'}`}>
-            <span className="text-xs font-medium text-gray-400"> Light/Dark</span>
-            <label className="relative inline-flex items-center cursor-pointer">
-              <input type="checkbox" checked={darkMode} onChange={() => setDarkMode(!darkMode)} className="sr-only peer" />
-              <div className="w-9 h-5 bg-gray-400 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-cyan-500"></div>
-            </label>
+          {/* Theme Toggle Button - Enhanced with Icons */}
+          <div className={`flex items-center justify-between px-4 py-3 rounded-xl border transition-all ${darkMode ? 'bg-white/5 border-white/10' : 'bg-gray-100 border-gray-200 shadow-sm'}`}>
+            <span className="text-xs font-semibold uppercase tracking-wider text-gray-400">Theme Mode</span>
+            <button
+              onClick={() => setDarkMode(!darkMode)}
+              className={`relative inline-flex h-7 w-14 shrink-0 cursor-pointer rounded-full p-0.5 border-2 transition-colors duration-200 ease-in-out focus:outline-none ${
+                darkMode ? 'bg-cyan-950 border-cyan-500/50' : 'bg-amber-100 border-amber-400'
+              }`}
+            >
+              <span
+                className={`pointer-events-none flex items-center justify-center h-5 w-5 transform rounded-full bg-white shadow-md ring-0 transition duration-200 ease-in-out ${
+                  darkMode ? 'translate-x-7 bg-cyan-400' : 'translate-x-0 bg-amber-400'
+                }`}
+              >
+                {darkMode ? '🌙' : '☀️'}
+              </span>
+            </button>
           </div>
 
           <button
@@ -257,7 +268,7 @@ export default function Dashboard() {
         </div>
       </aside>
 
-      {/* Main Content Area - Responsive padding left to keep space clear */}
+      {/* Main Content Area */}
       <main className="min-h-screen p-8 pl-72 w-full box-border">
         <div className="w-full max-w-[1400px] mx-auto">
 
@@ -319,13 +330,12 @@ export default function Dashboard() {
                     : 'bg-indigo-50 border-indigo-200 text-indigo-700 hover:bg-indigo-100'
                 }`}
               >
-                 Analyze Recent Errors with AI
+                🧠 Analyze Recent Errors with AI
               </button>
             </div>
 
             {/* Right Stats Cards Grid */}
             <div className="lg:col-span-7 grid grid-cols-1 sm:grid-cols-2 gap-4 w-full">
-              {/* Total APIs */}
               <div className="bg-gradient-to-br from-blue-600 to-blue-500/80 p-5 rounded-2xl flex flex-col justify-between shadow-xl text-white min-h-[120px]">
                 <div className="flex justify-between items-center text-white/80">
                   <span className="text-sm font-medium">Total APIs</span>
@@ -335,7 +345,6 @@ export default function Dashboard() {
                 <div className="text-xs text-white/60">Count: {stats.total}</div>
               </div>
 
-              {/* UP */}
               <div className="bg-gradient-to-br from-emerald-600 to-emerald-500/80 p-5 rounded-2xl flex flex-col justify-between shadow-xl text-white min-h-[120px]">
                 <div className="flex justify-between items-center text-white/80">
                   <span className="text-sm font-medium">↑ UP</span>
@@ -345,7 +354,6 @@ export default function Dashboard() {
                 <div className="text-xs text-white/60">Active: {stats.up}</div>
               </div>
 
-              {/* DOWN */}
               <div className="bg-gradient-to-br from-rose-600 to-rose-500/80 p-5 rounded-2xl flex flex-col justify-between shadow-xl text-white min-h-[120px]">
                 <div className="flex justify-between items-center text-white/80">
                   <span className="text-sm font-medium">↓ DOWN</span>
@@ -355,7 +363,6 @@ export default function Dashboard() {
                 <div className="text-xs text-white/60">Inactive: {stats.down}</div>
               </div>
 
-              {/* Avg Response */}
               <div className="bg-gradient-to-br from-amber-600 to-amber-500/80 p-5 rounded-2xl flex flex-col justify-between shadow-xl text-white min-h-[120px]">
                 <div className="flex justify-between items-center text-white/80">
                   <span className="text-sm font-medium">Avg Response</span>
@@ -371,7 +378,7 @@ export default function Dashboard() {
           {/* Bottom Section: Monitored Endpoints & Graph Trend Fused Grid */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 w-full items-start">
 
-            {/* Left: Monitored Endpoints List (5 Columns Wide) */}
+            {/* Left: Monitored Endpoints List */}
             <div className={`lg:col-span-5 border rounded-2xl p-5 backdrop-blur-md w-full h-[400px] flex flex-col justify-between ${
               darkMode ? 'bg-white/5 border-white/10' : 'bg-white border-gray-200 shadow-sm'
             }`}>
@@ -431,7 +438,7 @@ export default function Dashboard() {
               </div>
             </div>
 
-            {/* Right: Response Time Trend Graph (7 Columns Wide) */}
+            {/* Right: Response Time Trend Graph */}
             <div className={`lg:col-span-7 border rounded-2xl p-5 h-[400px] flex flex-col justify-between backdrop-blur-md w-full ${
               darkMode ? 'bg-white/5 border-white/10' : 'bg-white border-gray-200 shadow-sm'
             }`}>
@@ -444,7 +451,7 @@ export default function Dashboard() {
                     <span className="w-2 h-2 rounded-full bg-cyan-400"></span> Endpoint
                   </span>
                   <span className="flex items-center gap-1">
-                    <span className="w-2 h-2 rounded-full bg-teal-400"></span> Cha chart
+                    <span className="w-2 h-2 rounded-full bg-teal-400"></span> Trend Curve
                   </span>
                 </div>
               </div>
