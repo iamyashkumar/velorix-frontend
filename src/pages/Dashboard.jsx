@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 import {
-  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
+  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
 } from 'recharts';
 
 const API_BASE = 'https://velorix-backend-vg5i.onrender.com';
@@ -173,25 +173,30 @@ export default function Dashboard() {
 
   const handleAiAnalysis = () => {
     toast.success('Analyzing recent errors with AI...');
-    // यहाँ आप अपनी AI API कॉल जोड़ सकते हैं
   };
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#07161b] flex items-center justify-center">
+      <div className={`min-h-screen flex items-center justify-center ${darkMode ? 'bg-[#07161b] text-white' : 'bg-gray-100 text-gray-900'}`}>
         <div className="text-center">
           <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-cyan-500 mx-auto mb-4"></div>
-          <p className="text-gray-300 text-lg">Loading Dashboard...</p>
+          <p className="text-lg font-medium">Loading Dashboard...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#091a22] text-white flex font-sans antialiased bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-teal-950/40 via-[#091a22] to-[#051016]">
+    <div className={`min-h-screen flex font-sans antialiased transition-colors duration-300 ${
+      darkMode
+        ? 'bg-[#091a22] text-white bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-teal-950/40 via-[#091a22] to-[#051016]'
+        : 'bg-gray-50 text-gray-900'
+    }`}>
 
-      {/* Sidebar */}
-      <aside className="w-64 bg-white/5 border-r border-white/10 p-6 flex flex-col justify-between backdrop-blur-md">
+      {/* Sidebar - FIXED Position */}
+      <aside className={`fixed top-0 left-0 w-64 h-screen p-6 flex flex-col justify-between border-r backdrop-blur-md z-50 ${
+        darkMode ? 'bg-white/5 border-white/10' : 'bg-white border-gray-200 shadow-xl'
+      }`}>
         <div>
           <div className="mb-8">
             <h1 className="text-4xl font-bold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-400">
@@ -202,50 +207,58 @@ export default function Dashboard() {
           <nav className="space-y-2">
             <button
               onClick={() => navigate('/dashboard')}
-              className="w-full px-4 py-3 bg-white/10 border border-white/10 rounded-xl text-left flex items-center gap-3 font-medium transition-all"
+              className={`w-full px-4 py-3 border rounded-xl text-left flex items-center gap-3 font-medium transition-all ${
+                darkMode ? 'bg-white/10 border-white/10 text-white' : 'bg-cyan-50 border-cyan-100 text-cyan-700'
+              }`}
             >
               <span className="text-lg">📊</span> Dashboard
             </button>
             <button
               onClick={() => navigate('/analytics')}
-              className="w-full px-4 py-3 hover:bg-white/5 text-gray-400 hover:text-white rounded-xl text-left flex items-center gap-3 font-medium transition-all"
+              className={`w-full px-4 py-3 rounded-xl text-left flex items-center gap-3 font-medium transition-all ${
+                darkMode ? 'hover:bg-white/5 text-gray-400 hover:text-white' : 'hover:bg-gray-100 text-gray-600 hover:text-gray-900'
+              }`}
             >
               <span className="text-lg">📈</span> Analytics
             </button>
             <button
               onClick={() => navigate('/logs')}
-              className="w-full px-4 py-3 hover:bg-white/5 text-gray-400 hover:text-white rounded-xl text-left flex items-center gap-3 font-medium transition-all"
+              className={`w-full px-4 py-3 rounded-xl text-left flex items-center gap-3 font-medium transition-all ${
+                darkMode ? 'hover:bg-white/5 text-gray-400 hover:text-white' : 'hover:bg-gray-100 text-gray-600 hover:text-gray-900'
+              }`}
             >
               <span className="text-lg">📋</span> Logs
             </button>
           </nav>
         </div>
 
-        <div className="space-y-4 pt-4 border-t border-white/10">
+        <div className={`space-y-4 pt-4 border-t ${darkMode ? 'border-white/10' : 'border-gray-200'}`}>
           <div className="flex items-center gap-3 px-2 text-sm text-gray-400">
-            <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center text-white">👤</div>
-            <span>User Profile</span>
+            <div className={`w-8 h-8 rounded-full flex items-center justify-center ${darkMode ? 'bg-white/20 text-white' : 'bg-gray-200 text-gray-700'}`}>👤</div>
+            <span className={darkMode ? 'text-gray-300' : 'text-gray-700 font-medium'}>User Profile</span>
           </div>
 
-          <div className="flex items-center justify-between px-2 py-1 bg-white/5 rounded-xl border border-white/10">
-            <span className="text-xs text-gray-400">☀️ / Light/Dark</span>
+          <div className={`flex items-center justify-between px-3 py-2 rounded-xl border ${darkMode ? 'bg-white/5 border-white/10' : 'bg-gray-100 border-gray-200'}`}>
+            <span className="text-xs font-medium text-gray-400">☀️ / Light/Dark</span>
             <label className="relative inline-flex items-center cursor-pointer">
               <input type="checkbox" checked={darkMode} onChange={() => setDarkMode(!darkMode)} className="sr-only peer" />
-              <div className="w-9 h-5 bg-gray-600 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-cyan-500"></div>
+              <div className="w-9 h-5 bg-gray-400 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-cyan-500"></div>
             </label>
           </div>
 
           <button
             onClick={handleLogout}
-            className="w-full px-4 py-2 bg-transparent hover:bg-red-500/10 border border-red-500/30 text-red-400 rounded-xl transition-all flex items-center justify-center gap-2 text-sm"
+            className={`w-full px-4 py-2 bg-transparent border rounded-xl transition-all flex items-center justify-center gap-2 text-sm font-medium ${
+              darkMode ? 'hover:bg-red-500/10 border-red-500/30 text-red-400' : 'hover:bg-red-50 border-red-200 text-red-600'
+            }`}
           >
             🚪 Logout
           </button>
         </div>
       </aside>
 
-      {/* Main Content Area */}
-      <main className="flex-1 p-8 overflow-y-auto">
+      {/* Main Content Area - Shifted left margin to accommodate Fixed Sidebar */}
+      <main className="flex-1 min-h-screen p-8 ml-64 overflow-y-auto">
         <div className="max-w-7xl mx-auto">
 
           {/* Dashboard Title */}
@@ -259,9 +272,10 @@ export default function Dashboard() {
 
             {/* Left Column: Form + AI Button */}
             <div className="lg:col-span-5 flex flex-col gap-4">
-              {/* Add New Endpoint Form */}
-              <div className="bg-gradient-to-b from-white/10 to-white/5 border border-cyan-500/40 rounded-2xl p-5 shadow-2xl backdrop-blur-md">
-                <div className="text-cyan-400 font-semibold mb-4 flex items-center gap-2">
+              <div className={`border rounded-2xl p-5 shadow-2xl backdrop-blur-md transition-all ${
+                darkMode ? 'bg-gradient-to-b from-white/10 to-white/5 border-cyan-500/40' : 'bg-white border-cyan-200'
+              }`}>
+                <div className="text-cyan-500 font-semibold mb-4 flex items-center gap-2">
                   <span>+</span> Add New Endpoint
                 </div>
                 <div className="space-y-3">
@@ -270,7 +284,9 @@ export default function Dashboard() {
                     placeholder="Endpoint Name (e.g., Google API)"
                     value={newName}
                     onChange={(e) => setNewName(e.target.value)}
-                    className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-xl focus:outline-none focus:border-cyan-400 text-sm text-white placeholder-gray-500 transition-all"
+                    className={`w-full px-4 py-2.5 border rounded-xl focus:outline-none focus:border-cyan-400 text-sm transition-all ${
+                      darkMode ? 'bg-white/5 border-white/10 text-white placeholder-gray-500' : 'bg-gray-50 border-gray-200 text-gray-900 placeholder-gray-400'
+                    }`}
                     disabled={addingEndpoint}
                   />
                   <input
@@ -279,7 +295,9 @@ export default function Dashboard() {
                     value={newUrl}
                     onChange={(e) => setNewUrl(e.target.value)}
                     onKeyPress={(e) => e.key === 'Enter' && addEndpoint()}
-                    className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-xl focus:outline-none focus:border-cyan-400 text-sm text-white placeholder-gray-500 transition-all"
+                    className={`w-full px-4 py-2.5 border rounded-xl focus:outline-none focus:border-cyan-400 text-sm transition-all ${
+                      darkMode ? 'bg-white/5 border-white/10 text-white placeholder-gray-500' : 'bg-gray-50 border-gray-200 text-gray-900 placeholder-gray-400'
+                    }`}
                     disabled={addingEndpoint}
                   />
                   <button
@@ -295,7 +313,11 @@ export default function Dashboard() {
               {/* AI Button */}
               <button
                 onClick={handleAiAnalysis}
-                className="w-full py-3 px-4 bg-gradient-to-r from-blue-600/30 via-indigo-600/30 to-purple-600/30 border border-indigo-500/40 hover:border-indigo-400/60 rounded-xl font-medium text-sm flex items-center justify-center gap-2 transition-all shadow-lg"
+                className={`w-full py-3 px-4 border rounded-xl font-medium text-sm flex items-center justify-center gap-2 transition-all shadow-lg ${
+                  darkMode
+                    ? 'bg-gradient-to-r from-blue-600/30 via-indigo-600/30 to-purple-600/30 border-indigo-500/40 hover:border-indigo-400/60 text-white'
+                    : 'bg-indigo-50 border-indigo-200 text-indigo-700 hover:bg-indigo-100'
+                }`}
               >
                 🧠 Analyze Recent Errors with AI
               </button>
@@ -304,7 +326,7 @@ export default function Dashboard() {
             {/* Right Column: 2x2 Stats Grid */}
             <div className="lg:col-span-7 grid grid-cols-2 gap-4">
               {/* Total APIs */}
-              <div className="bg-gradient-to-br from-blue-600 to-blue-500/80 p-5 rounded-2xl flex flex-col justify-between shadow-xl">
+              <div className="bg-gradient-to-br from-blue-600 to-blue-500/80 p-5 rounded-2xl flex flex-col justify-between shadow-xl text-white">
                 <div className="flex justify-between items-center text-white/80">
                   <span className="text-sm font-medium">Total APIs</span>
                   <span className="text-lg">🎛️</span>
@@ -314,7 +336,7 @@ export default function Dashboard() {
               </div>
 
               {/* UP */}
-              <div className="bg-gradient-to-br from-emerald-600 to-emerald-500/80 p-5 rounded-2xl flex flex-col justify-between shadow-xl">
+              <div className="bg-gradient-to-br from-emerald-600 to-emerald-500/80 p-5 rounded-2xl flex flex-col justify-between shadow-xl text-white">
                 <div className="flex justify-between items-center text-white/80">
                   <span className="text-sm font-medium">↑ UP</span>
                   <span className="text-lg">▲</span>
@@ -324,7 +346,7 @@ export default function Dashboard() {
               </div>
 
               {/* DOWN */}
-              <div className="bg-gradient-to-br from-rose-600 to-rose-500/80 p-5 rounded-2xl flex flex-col justify-between shadow-xl">
+              <div className="bg-gradient-to-br from-rose-600 to-rose-500/80 p-5 rounded-2xl flex flex-col justify-between shadow-xl text-white">
                 <div className="flex justify-between items-center text-white/80">
                   <span className="text-sm font-medium">↓ DOWN</span>
                   <span className="text-lg">▼</span>
@@ -334,7 +356,7 @@ export default function Dashboard() {
               </div>
 
               {/* Avg Response */}
-              <div className="bg-gradient-to-br from-amber-600 to-amber-500/80 p-5 rounded-2xl flex flex-col justify-between shadow-xl">
+              <div className="bg-gradient-to-br from-amber-600 to-amber-500/80 p-5 rounded-2xl flex flex-col justify-between shadow-xl text-white">
                 <div className="flex justify-between items-center text-white/80">
                   <span className="text-sm font-medium">Avg Response</span>
                   <span className="text-lg">📈</span>
@@ -350,13 +372,13 @@ export default function Dashboard() {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
 
             {/* Monitored Endpoints List */}
-            <div className="lg:col-span-5 bg-white/5 border border-white/10 rounded-2xl p-5 backdrop-blur-md">
-              <div className="text-sm font-medium text-gray-300 mb-4 flex items-center gap-2">
+            <div className={`border rounded-2xl p-5 backdrop-blur-md ${darkMode ? 'bg-white/5 border-white/10' : 'bg-white border-gray-200 shadow-sm'}`}>
+              <div className="text-sm font-medium mb-4 flex items-center gap-2 text-gray-400">
                 <span>📍</span> Monitored Endpoints
               </div>
 
               {endpoints.length === 0 ? (
-                <p className="text-gray-500 text-center py-6 text-sm">No endpoints yet.</p>
+                <p className="text-gray-400 text-center py-6 text-sm">No endpoints yet.</p>
               ) : (
                 <div className="space-y-2 max-h-[360px] overflow-y-auto pr-1">
                   {endpoints.map((ep) => {
@@ -368,12 +390,12 @@ export default function Dashboard() {
                         onClick={() => handleEndpointClick(ep)}
                         className={`p-3 rounded-xl border transition-all cursor-pointer flex items-center justify-between ${
                           selectedEndpoint && (selectedEndpoint._id || selectedEndpoint.id) === epId
-                            ? 'bg-white/15 border-cyan-500/50'
-                            : 'bg-white/5 border-white/5 hover:bg-white/10'
+                            ? (darkMode ? 'bg-white/15 border-cyan-500/50' : 'bg-cyan-50 border-cyan-300')
+                            : (darkMode ? 'bg-white/5 border-white/5 hover:bg-white/10' : 'bg-gray-50 border-gray-100 hover:bg-gray-100')
                         }`}
                       >
                         <div className="truncate flex-1 pr-2">
-                          <p className="text-sm font-medium text-gray-200 truncate">{ep.name || ep.url}</p>
+                          <p className={`text-sm font-medium truncate ${darkMode ? 'text-gray-200' : 'text-gray-800'}`}>{ep.name || ep.url}</p>
                           <p className="text-xs text-gray-400 mt-0.5 truncate">{ep.url}</p>
                           <p className="text-[11px] text-gray-500 mt-1">
                             Latest response time: {latestHealth[epId] ? `${latestHealth[epId]}ms` : '30ms'}
@@ -382,7 +404,7 @@ export default function Dashboard() {
 
                         <div className="flex items-center gap-2">
                           <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold ${
-                            isUp ? 'bg-green-500/20 text-green-400 border border-green-500/30' : 'bg-red-500/20 text-red-400 border border-red-500/30'
+                            isUp ? 'bg-green-500/20 text-green-500 border border-green-500/30' : 'bg-red-500/20 text-red-500 border border-red-500/30'
                           }`}>
                             {isUp ? '● UP' : '● DOWN'}
                           </span>
@@ -391,7 +413,9 @@ export default function Dashboard() {
                               e.stopPropagation();
                               deleteEndpoint(epId);
                             }}
-                            className="p-1.5 bg-white/5 hover:bg-red-500/20 text-gray-400 hover:text-red-400 border border-white/10 rounded-lg text-xs transition-all"
+                            className={`p-1.5 border rounded-lg text-xs transition-all ${
+                              darkMode ? 'bg-white/5 hover:bg-red-500/20 text-gray-400 hover:text-red-400 border-white/10' : 'bg-white hover:bg-red-50 text-gray-500 hover:text-red-600 border-gray-200'
+                            }`}
                           >
                             🗑️ Delete
                           </button>
@@ -404,9 +428,9 @@ export default function Dashboard() {
             </div>
 
             {/* Response Time Trend Graph */}
-            <div className="lg:col-span-7 bg-white/5 border border-white/10 rounded-2xl p-5 flex flex-col backdrop-blur-md">
+            <div className={`border rounded-2xl p-5 flex flex-col backdrop-blur-md ${darkMode ? 'bg-white/5 border-white/10' : 'bg-white border-gray-200 shadow-sm'}`}>
               <div className="flex items-center justify-between mb-4">
-                <div className="text-sm font-medium text-gray-300 flex items-center gap-2">
+                <div className="text-sm font-medium text-gray-400 flex items-center gap-2">
                   <span>📉</span> Response Time Trend
                 </div>
                 <div className="flex items-center gap-3 text-xs text-gray-400">
@@ -421,20 +445,24 @@ export default function Dashboard() {
 
               <div className="flex-1 min-h-[280px] flex items-center justify-center">
                 {loadingChart ? (
-                  <p className="text-gray-500 text-sm">Loading trend data...</p>
+                  <p className="text-gray-400 text-sm">Loading trend data...</p>
                 ) : chartData.length === 0 && !selectedEndpoint ? (
-                  <p className="text-gray-500 text-sm">Select an endpoint to view trend data</p>
+                  <p className="text-gray-400 text-sm">Select an endpoint to view trend data</p>
                 ) : chartData.length === 0 ? (
-                  <p className="text-gray-500 text-sm">No data available for this endpoint</p>
+                  <p className="text-gray-400 text-sm">No data available for this endpoint</p>
                 ) : (
                   <ResponsiveContainer width="100%" height="100%">
                     <LineChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#ffffff10" vertical={false} />
-                      <XAxis dataKey="checkedAt" stroke="#4b5563" fontSize={11} tickLine={false} />
-                      <YAxis stroke="#4b5563" fontSize={11} tickLine={false} axisLine={false} />
+                      <CartesianGrid strokeDasharray="3 3" stroke={darkMode ? '#ffffff10' : '#e5e7eb'} vertical={false} />
+                      <XAxis dataKey="checkedAt" stroke="#9ca3af" fontSize={11} tickLine={false} />
+                      <YAxis stroke="#9ca3af" fontSize={11} tickLine={false} axisLine={false} />
                       <Tooltip
-                        contentStyle={{ backgroundColor: '#0f172a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px' }}
-                        labelStyle={{ color: '#9ca3af', fontSize: '11px' }}
+                        contentStyle={{
+                          backgroundColor: darkMode ? '#0f172a' : '#ffffff',
+                          border: darkMode ? '1px solid rgba(255,255,255,0.1)' : '1px solid #e5e7eb',
+                          borderRadius: '12px',
+                          color: darkMode ? '#ffffff' : '#000000'
+                        }}
                       />
                       <Line
                         type="monotone"
