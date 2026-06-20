@@ -18,25 +18,27 @@ export default function Sidebar({ sidebarOpen, setSidebarOpen, darkMode, setDark
 
   return (
     <aside
-      className={`fixed top-0 left-0 z-50 h-full w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 shadow-lg flex flex-col transition-transform duration-300 ${
+      className={`fixed top-0 left-0 z-50 h-full w-64 bg-[#111c24] border-r border-[#1e2d38] flex flex-col transition-transform duration-300 ${
         sidebarOpen ? 'translate-x-0' : '-translate-x-full'
       } md:translate-x-0 md:sticky md:h-screen`}
     >
       {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
+      <div className="flex items-center justify-between p-5 border-b border-[#1e2d38]">
         <div className="flex items-center space-x-3">
           <div className="text-2xl">🚀</div>
-          <h2 className="text-xl font-bold text-gray-800 dark:text-white">Velorix</h2>
+          <h2 className="text-xl font-bold text-white tracking-wide">Velorix</h2>
+
+          {/* Theme Toggle Button Matched precisely with image_be1f0d.png */}
           <button
             onClick={() => setDarkMode(!darkMode)}
-            className="hidden md:block p-1.5 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition"
+            className="p-1.5 rounded-lg text-amber-400 hover:text-amber-300 transition-colors ml-1"
           >
-            {darkMode ? <FiSun size={18} className="text-yellow-400" /> : <FiMoon size={18} />}
+            {darkMode ? <FiSun size={18} /> : <FiMoon size={18} className="text-gray-400" />}
           </button>
         </div>
         <button
           onClick={() => setSidebarOpen(false)}
-          className="md:hidden text-gray-800 dark:text-white"
+          className="md:hidden text-white hover:text-gray-300"
         >
           <FiX size={24} />
         </button>
@@ -51,13 +53,13 @@ export default function Sidebar({ sidebarOpen, setSidebarOpen, darkMode, setDark
             navigate('/dashboard');
             closeOnMobile();
           }}
-          className={`flex items-center w-full px-4 py-3 rounded-lg font-medium transition ${
+          className={`flex items-center w-full px-4 py-3 rounded-xl font-semibold text-sm transition-all duration-200 ${
             isActive('/dashboard')
-              ? 'bg-blue-600 text-white shadow-md'
-              : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+              ? 'bg-[#2563eb] text-white shadow-lg shadow-blue-600/10'
+              : 'text-gray-400 hover:bg-[#162530] hover:text-gray-200'
           }`}
         >
-          <FiActivity className="mr-3" size={20} />
+          <FiActivity className="mr-3 text-current" size={20} />
           <span>Dashboard</span>
         </button>
 
@@ -67,13 +69,13 @@ export default function Sidebar({ sidebarOpen, setSidebarOpen, darkMode, setDark
             navigate('/analytics');
             closeOnMobile();
           }}
-          className={`flex items-center w-full px-4 py-3 rounded-lg font-medium transition ${
+          className={`flex items-center w-full px-4 py-3 rounded-xl font-semibold text-sm transition-all duration-200 ${
             isActive('/analytics')
-              ? 'bg-blue-600 text-white shadow-md'
-              : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+              ? 'bg-[#2563eb] text-white shadow-lg shadow-blue-600/10'
+              : 'text-gray-400 hover:bg-[#162530] hover:text-gray-200'
           }`}
         >
-          <FiBarChart2 className="mr-3" size={20} />
+          <FiBarChart2 className="mr-3 text-current" size={20} />
           <span>Analytics</span>
         </button>
 
@@ -83,24 +85,24 @@ export default function Sidebar({ sidebarOpen, setSidebarOpen, darkMode, setDark
             navigate('/logs');
             closeOnMobile();
           }}
-          className={`flex items-center w-full px-4 py-3 rounded-lg font-medium transition ${
+          className={`flex items-center w-full px-4 py-3 rounded-xl font-semibold text-sm transition-all duration-200 ${
             isActive('/logs')
-              ? 'bg-blue-600 text-white shadow-md'
-              : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+              ? 'bg-[#2563eb] text-white shadow-lg shadow-blue-600/10'
+              : 'text-gray-400 hover:bg-[#162530] hover:text-gray-200'
           }`}
         >
-          <FiList className="mr-3" size={20} />
+          <FiList className="mr-3 text-current" size={20} />
           <span>Log Viewer</span>
         </button>
       </nav>
 
       {/* Logout Button */}
-      <div className="p-4 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 mt-auto">
+      <div className="p-4 border-t border-[#1e2d38] bg-[#111c24] mt-auto">
         <button
           onClick={handleLogout}
-          className="flex items-center w-full px-4 py-3 rounded-lg font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition"
+          className="flex items-center w-full px-4 py-3 rounded-xl font-semibold text-sm text-rose-400/90 hover:text-rose-400 hover:bg-rose-500/5 transition-colors duration-200"
         >
-          <FiLogOut className="mr-3" size={20} />
+          <FiLogOut className="mr-3 rotate-180" size={18} />
           <span>Logout</span>
         </button>
       </div>
