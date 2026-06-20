@@ -83,54 +83,54 @@ export default function Analytics() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-slate-50 dark:bg-slate-950">
+      <div className="flex items-center justify-center min-h-screen bg-[#071317]">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-500 mx-auto mb-4"></div>
-          <p className="text-slate-600 dark:text-slate-400 font-medium">Loading analytics...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-400 mx-auto mb-4"></div>
+          <p className="text-cyan-400 font-medium">Loading analytics...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 md:flex transition-colors duration-300">
+    <div className="min-h-screen bg-gray-50 dark:bg-[#071317] text-gray-900 dark:text-gray-100 md:flex transition-colors duration-300">
 
-      {/* Mobile Top Navbar - Dashboard Theme Matching */}
-      <div className="w-full flex items-center justify-between p-4 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200/50 dark:border-slate-800/50 md:hidden sticky top-0 z-40">
+      {/* Mobile Top Navbar - Exact Theme Match */}
+      <div className="w-full flex items-center justify-between p-4 bg-white dark:bg-[#0c1e24] border-b border-gray-200 dark:border-cyan-950 md:hidden sticky top-0 z-40">
         <div className="flex items-center space-x-3">
           <button
             onClick={() => setSidebarOpen(true)}
-            className="p-1.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800/60 transition text-slate-700 dark:text-slate-300"
+            className="p-1.5 rounded-xl hover:bg-gray-100 dark:hover:bg-[#122b33] transition text-gray-700 dark:text-cyan-400"
           >
             <FiMenu size={24} />
           </button>
-          <span className="text-lg font-bold tracking-tight text-slate-900 dark:text-white">Velorix</span>
+          <span className="text-lg font-bold tracking-tight text-cyan-600 dark:text-cyan-400">Velorix</span>
         </div>
         <button
           onClick={() => setDarkMode(!darkMode)}
-          className="p-2 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/60 transition"
+          className="p-2 rounded-xl text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-[#122b33] transition"
         >
           {darkMode ? <FiSun size={22} className="text-amber-400" /> : <FiMoon size={22} />}
         </button>
       </div>
 
       {sidebarOpen && (
-        <div className="fixed inset-0 z-50 bg-slate-950/40 backdrop-blur-sm md:hidden" onClick={() => setSidebarOpen(false)} />
+        <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm md:hidden" onClick={() => setSidebarOpen(false)} />
       )}
 
       <Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} darkMode={darkMode} setDarkMode={setDarkMode} />
 
       {/* Main Content */}
-      <main className="flex-1 overflow-x-hidden">
+      <main className="flex-1 overflow-x-hidden bg-gray-50 dark:bg-[#071317]">
         <div className="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
 
           {/* Header */}
           <div className="mb-8">
-            <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">📊 Analytics Dashboard</h1>
-            <p className="text-slate-500 dark:text-slate-400 mt-2">Monitor endpoint performance, trends, and uptime</p>
+            <h1 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white">Dashboard</h1>
+            <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">Analyze and manage your API endpoints</p>
           </div>
 
-          {/* Days Filter - Upgraded Style */}
+          {/* Days Filter */}
           <div className="mb-6 flex gap-2">
             {[7, 14, 30].map((d) => (
               <button
@@ -138,8 +138,8 @@ export default function Analytics() {
                 onClick={() => setDays(d)}
                 className={`px-4 py-2 rounded-xl font-semibold text-sm transition-all duration-200 ${
                   days === d
-                    ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/20 dark:shadow-indigo-500/10'
-                    : 'bg-white/80 dark:bg-slate-900/60 text-slate-600 dark:text-slate-400 border border-slate-200/60 dark:border-slate-800/60 hover:bg-slate-100 dark:hover:bg-slate-800'
+                    ? 'bg-cyan-500 text-black shadow-lg shadow-cyan-500/20'
+                    : 'bg-white dark:bg-[#11252d] text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-cyan-950 hover:bg-gray-100 dark:hover:bg-[#16313b]'
                 }`}
               >
                 Last {d} Days
@@ -147,66 +147,54 @@ export default function Analytics() {
             ))}
           </div>
 
-          {/* Summary Stats - Premium Neon Color Palette */}
+          {/* Summary Stats - Image Colors Matched Precisely */}
           {summary && (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-              {/* Total Endpoints */}
-              <div className="bg-white/80 dark:bg-slate-900/40 backdrop-blur-md rounded-2xl border border-slate-200/60 dark:border-slate-800/60 p-6 shadow-sm">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-slate-500 dark:text-slate-400 text-xs font-semibold uppercase tracking-wider">Total Endpoints</p>
-                    <p className="text-3xl font-bold text-slate-900 dark:text-white mt-2 tracking-tight">{summary.totalEndpoints}</p>
-                  </div>
-                  <span className="text-2xl p-3 rounded-xl bg-slate-100 dark:bg-slate-800/60 text-slate-600 dark:text-slate-300">🌐</span>
-                </div>
+              {/* Total Endpoints - Royal Blue */}
+              <div className="bg-[#2b6cb0] dark:bg-[#2563eb] rounded-2xl p-6 text-white shadow-md relative overflow-hidden">
+                <p className="text-white/80 text-xs font-semibold uppercase tracking-wider">Total APIs</p>
+                <p className="text-3xl font-bold mt-2 tracking-tight">Total APIs</p>
+                <p className="text-sm text-white/70 mt-1">Count: {summary.totalEndpoints}</p>
+                <span className="absolute bottom-4 right-4 text-xl opacity-20">🌐</span>
               </div>
 
-              {/* Uptime - Emerald Green Accent */}
-              <div className="bg-white/80 dark:bg-slate-900/40 backdrop-blur-md rounded-2xl border border-slate-200/60 dark:border-slate-800/60 p-6 shadow-sm">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-slate-500 dark:text-slate-400 text-xs font-semibold uppercase tracking-wider">Uptime</p>
-                    <p className="text-3xl font-bold text-emerald-600 dark:text-emerald-400 mt-2 tracking-tight">{summary.uptimePercentage}%</p>
-                  </div>
-                  <span className="text-2xl p-3 rounded-xl bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">📈</span>
-                </div>
+              {/* Uptime - Emerald Green */}
+              <div className="bg-[#2f855a] dark:bg-[#10b981] rounded-2xl p-6 text-white shadow-md relative overflow-hidden">
+                <p className="text-white/80 text-xs font-semibold uppercase tracking-wider">↑ UP</p>
+                <p className="text-3xl font-bold mt-2 tracking-tight">UP</p>
+                <p className="text-sm text-white/70 mt-1">Uptime: {summary.uptimePercentage}%</p>
+                <span className="absolute bottom-4 right-4 text-xl opacity-20">▲</span>
               </div>
 
-              {/* Avg Response - Indigo Accent */}
-              <div className="bg-white/80 dark:bg-slate-900/40 backdrop-blur-md rounded-2xl border border-slate-200/60 dark:border-slate-800/60 p-6 shadow-sm">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-slate-500 dark:text-slate-400 text-xs font-semibold uppercase tracking-wider">Avg Response</p>
-                    <p className="text-3xl font-bold text-indigo-600 dark:text-indigo-400 mt-2 tracking-tight">{summary.averageResponseTime}ms</p>
-                  </div>
-                  <span className="text-2xl p-3 rounded-xl bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400">⚡</span>
-                </div>
+              {/* Avg Response - Orange / Gold */}
+              <div className="bg-[#c05621] dark:bg-[#d97706] rounded-2xl p-6 text-white shadow-md relative overflow-hidden">
+                <p className="text-white/80 text-xs font-semibold uppercase tracking-wider">Avg Response</p>
+                <p className="text-3xl font-bold mt-2 tracking-tight">Avg Response</p>
+                <p className="text-sm text-white/70 mt-1">{summary.averageResponseTime}ms</p>
+                <span className="absolute bottom-4 right-4 text-xl opacity-20">⚡</span>
               </div>
 
-              {/* SLA Status - Amber/Orange Accent */}
-              <div className="bg-white/80 dark:bg-slate-900/40 backdrop-blur-md rounded-2xl border border-slate-200/60 dark:border-slate-800/60 p-6 shadow-sm">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-slate-500 dark:text-slate-400 text-xs font-semibold uppercase tracking-wider">SLA Status</p>
-                    <p className="text-3xl font-bold text-amber-600 dark:text-amber-400 mt-2 tracking-tight">{summary.slaStatus}</p>
-                  </div>
-                  <span className="text-2xl p-3 rounded-xl bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400">✨</span>
-                </div>
+              {/* SLA Status - Rose / Pinkish Red */}
+              <div className="bg-[#c53030] dark:bg-[#e11d48] rounded-2xl p-6 text-white shadow-md relative overflow-hidden">
+                <p className="text-white/80 text-xs font-semibold uppercase tracking-wider">↓ STATUS</p>
+                <p className="text-3xl font-bold mt-2 tracking-tight">{summary.slaStatus}</p>
+                <p className="text-sm text-white/70 mt-1">SLA Healthy</p>
+                <span className="absolute bottom-4 right-4 text-xl opacity-20">✨</span>
               </div>
             </div>
           )}
 
-          {/* Endpoint Selector - Glass Dropdown */}
+          {/* Endpoint Selector - Dark Custom Background */}
           {endpoints.length > 0 && (
-            <div className="bg-white/80 dark:bg-slate-900/40 backdrop-blur-md rounded-2xl border border-slate-200/60 dark:border-slate-800/60 p-6 mb-8 shadow-sm">
-              <label className="text-slate-900 dark:text-white font-semibold text-sm mb-3 block">Select Endpoint</label>
+            <div className="bg-white dark:bg-[#0c1e24] border border-gray-200 dark:border-cyan-950 rounded-2xl p-6 mb-8 shadow-sm">
+              <label className="text-gray-900 dark:text-cyan-400 font-semibold text-sm mb-3 block">Select Endpoint</label>
               <select
                 value={selectedEndpointId || ''}
                 onChange={(e) => setSelectedEndpointId(e.target.value)}
-                className="w-full p-3 border border-slate-200 dark:border-slate-800 rounded-xl bg-white/50 dark:bg-slate-950/50 backdrop-blur-md dark:text-white text-slate-900 font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500/40 transition"
+                className="w-full p-3 border border-gray-200 dark:border-cyan-900/50 rounded-xl bg-white dark:bg-[#11252d] dark:text-white text-gray-900 font-medium focus:outline-none focus:ring-2 focus:ring-cyan-500/40 transition"
               >
                 {endpoints.map((ep) => (
-                  <option key={ep.id} value={ep.id} className="dark:bg-slate-900 text-slate-900 dark:text-white">
+                  <option key={ep.id} value={ep.id} className="dark:bg-[#0c1e24] text-gray-950 dark:text-white">
                     {ep.name} — {ep.url}
                   </option>
                 ))}
@@ -214,116 +202,79 @@ export default function Analytics() {
             </div>
           )}
 
-          {/* Endpoint Detailed Analytics */}
+          {/* Endpoint Detailed Analytics - Dark Panel style matching "Monitored Endpoints" */}
           {endpointAnalytics && (
-            <div className="bg-white/80 dark:bg-slate-900/40 backdrop-blur-md rounded-2xl border border-slate-200/60 dark:border-slate-800/60 p-6 mb-8 shadow-sm">
-              <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-6 tracking-tight">
+            <div className="bg-white dark:bg-[#0c1e24] border border-gray-200 dark:border-cyan-950 rounded-2xl p-6 mb-8 shadow-sm">
+              <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-6 tracking-tight">
                 📊 {endpointAnalytics.endpointName} — Detailed Analytics
               </h2>
 
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div className="bg-slate-50/50 dark:bg-slate-900/60 p-4 rounded-xl border border-slate-200/40 dark:border-slate-800/40">
-                  <p className="text-slate-500 dark:text-slate-400 text-xs font-medium">Uptime</p>
-                  <p className="text-xl font-bold text-emerald-600 dark:text-emerald-400 mt-1">{endpointAnalytics.uptimePercentage}%</p>
+                <div className="bg-gray-50 dark:bg-[#11252d] p-4 rounded-xl border border-gray-200 dark:border-cyan-950/40">
+                  <p className="text-gray-500 dark:text-gray-400 text-xs font-medium">Uptime</p>
+                  <p className="text-xl font-bold text-emerald-500 mt-1">{endpointAnalytics.uptimePercentage}%</p>
                 </div>
-                <div className="bg-slate-50/50 dark:bg-slate-900/60 p-4 rounded-xl border border-slate-200/40 dark:border-slate-800/40">
-                  <p className="text-slate-500 dark:text-slate-400 text-xs font-medium">Avg Response</p>
-                  <p className="text-xl font-bold text-indigo-600 dark:text-indigo-400 mt-1">{endpointAnalytics.averageResponseTime}ms</p>
+                <div className="bg-gray-50 dark:bg-[#11252d] p-4 rounded-xl border border-gray-200 dark:border-cyan-950/40">
+                  <p className="text-gray-500 dark:text-gray-400 text-xs font-medium">Avg Response</p>
+                  <p className="text-xl font-bold text-cyan-400 mt-1">{endpointAnalytics.averageResponseTime}ms</p>
                 </div>
-                <div className="bg-slate-50/50 dark:bg-slate-900/60 p-4 rounded-xl border border-slate-200/40 dark:border-slate-800/40">
-                  <p className="text-slate-500 dark:text-slate-400 text-xs font-medium">Total Checks</p>
-                  <p className="text-xl font-bold text-purple-600 dark:text-purple-400 mt-1">{endpointAnalytics.totalChecks}</p>
+                <div className="bg-gray-50 dark:bg-[#11252d] p-4 rounded-xl border border-gray-200 dark:border-cyan-950/40">
+                  <p className="text-gray-500 dark:text-gray-400 text-xs font-medium">Total Checks</p>
+                  <p className="text-xl font-bold text-blue-400 mt-1">{endpointAnalytics.totalChecks}</p>
                 </div>
-                <div className="bg-slate-50/50 dark:bg-slate-900/60 p-4 rounded-xl border border-slate-200/40 dark:border-slate-800/40">
-                  <p className="text-slate-500 dark:text-slate-400 text-xs font-medium">Failure Rate</p>
-                  <p className="text-xl font-bold text-rose-600 dark:text-rose-400 mt-1">{endpointAnalytics.failureRate}%</p>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4 mt-4">
-                <div className="bg-slate-50/50 dark:bg-slate-900/60 p-4 rounded-xl border border-slate-200/40 dark:border-slate-800/40">
-                  <p className="text-slate-500 dark:text-slate-400 text-xs font-medium">Max Response Time</p>
-                  <p className="text-lg font-bold text-slate-800 dark:text-slate-200 mt-1">{endpointAnalytics.maxResponseTime}ms</p>
-                </div>
-                <div className="bg-slate-50/50 dark:bg-slate-900/60 p-4 rounded-xl border border-slate-200/40 dark:border-slate-800/40">
-                  <p className="text-slate-500 dark:text-slate-400 text-xs font-medium">Min Response Time</p>
-                  <p className="text-lg font-bold text-slate-800 dark:text-slate-200 mt-1">{endpointAnalytics.minResponseTime}ms</p>
+                <div className="bg-gray-50 dark:bg-[#11252d] p-4 rounded-xl border border-gray-200 dark:border-cyan-950/40">
+                  <p className="text-gray-500 dark:text-gray-400 text-xs font-medium">Failure Rate</p>
+                  <p className="text-xl font-bold text-rose-500 mt-1">{endpointAnalytics.failureRate}%</p>
                 </div>
               </div>
             </div>
           )}
 
-          {/* Uptime Trend Chart */}
-          {trendData.length > 0 && (
-            <div className="bg-white/80 dark:bg-slate-900/40 backdrop-blur-md rounded-2xl border border-slate-200/60 dark:border-slate-800/60 p-6 mb-8 shadow-sm">
-              <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-6 tracking-tight">📈 Uptime Trend</h3>
-              <ResponsiveContainer width="100%" height={300}>
-                <LineChart data={trendData} margin={{ top: 5, right: 30, left: 0, bottom: 5 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke={darkMode ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.05)"} />
-                  <XAxis
-                    dataKey="date"
-                    stroke="#64748b"
-                    style={{ fontSize: '12px' }}
-                  />
-                  <YAxis
-                    stroke="#64748b"
-                    label={{ value: 'Uptime %', angle: -90, position: 'insideLeft', style: { fill: '#64748b', fontSize: '13px' } }}
-                  />
-                  <Tooltip
-                    contentStyle={{ backgroundColor: darkMode ? '#0f172a' : '#ffffff', border: darkMode ? '1px solid rgba(255,255,255,0.1)' : '1px solid rgba(0,0,0,0.05)', borderRadius: '12px', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)' }}
-                    labelStyle={{ color: darkMode ? '#fff' : '#000', fontWeight: 'bold' }}
-                  />
-                  <Legend />
-                  <Line
-                    type="monotone"
-                    dataKey="uptime"
-                    name="Uptime %"
-                    stroke="#10b981"
-                    strokeWidth={2.5}
-                    dot={{ fill: '#10b981', r: 4 }}
-                    activeDot={{ r: 6 }}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
-          )}
+          {/* Charts Area - Styled precisely like "Response Time Trend" container */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Uptime Trend Chart */}
+            {trendData.length > 0 && (
+              <div className="bg-white dark:bg-[#0c1e24] border border-gray-200 dark:border-cyan-950 rounded-2xl p-6 shadow-sm">
+                <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-6 tracking-tight">📈 Uptime Trend</h3>
+                <ResponsiveContainer width="100%" height={260}>
+                  <LineChart data={trendData}>
+                    <CartesianGrid strokeDasharray="3 3" stroke={darkMode ? "rgba(14, 116, 144, 0.1)" : "rgba(0,0,0,0.05)"} />
+                    <XAxis dataKey="date" stroke="#475569" style={{ fontSize: '12px' }} />
+                    <YAxis stroke="#475569" style={{ fontSize: '12px' }} />
+                    <Tooltip
+                      contentStyle={{ backgroundColor: darkMode ? '#0c1e24' : '#ffffff', border: darkMode ? '1px solid #164e63' : '1px solid #e2e8f0', borderRadius: '12px' }}
+                      labelStyle={{ color: darkMode ? '#fff' : '#000' }}
+                    />
+                    <Line type="monotone" dataKey="uptime" name="Uptime %" stroke="#10b981" strokeWidth={2.5} dot={{ fill: '#10b981' }} />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            )}
 
-          {/* Response Time Trend Chart */}
-          {trendData.length > 0 && (
-            <div className="bg-white/80 dark:bg-slate-900/40 backdrop-blur-md rounded-2xl border border-slate-200/60 dark:border-slate-800/60 p-6 shadow-sm">
-              <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-6 tracking-tight">⚡ Response Time Trend</h3>
-              <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={trendData} margin={{ top: 5, right: 30, left: 0, bottom: 5 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke={darkMode ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.05)"} />
-                  <XAxis
-                    dataKey="date"
-                    stroke="#64748b"
-                    style={{ fontSize: '12px' }}
-                  />
-                  <YAxis
-                    stroke="#64748b"
-                    label={{ value: 'Response Time (ms)', angle: -90, position: 'insideLeft', style: { fill: '#64748b', fontSize: '13px' } }}
-                  />
-                  <Tooltip
-                    contentStyle={{ backgroundColor: darkMode ? '#0f172a' : '#ffffff', border: darkMode ? '1px solid rgba(255,255,255,0.1)' : '1px solid rgba(0,0,0,0.05)', borderRadius: '12px', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)' }}
-                    labelStyle={{ color: darkMode ? '#fff' : '#000', fontWeight: 'bold' }}
-                  />
-                  <Legend />
-                  <Bar
-                    dataKey="avgResponseTime"
-                    name="Avg Response (ms)"
-                    fill="#6366f1"
-                    radius={[6, 6, 0, 0]}
-                  />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          )}
+            {/* Response Time Trend Chart */}
+            {trendData.length > 0 && (
+              <div className="bg-white dark:bg-[#0c1e24] border border-gray-200 dark:border-cyan-950 rounded-2xl p-6 shadow-sm">
+                <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-6 tracking-tight">⚡ Response Time Trend</h3>
+                <ResponsiveContainer width="100%" height={260}>
+                  <BarChart data={trendData}>
+                    <CartesianGrid strokeDasharray="3 3" stroke={darkMode ? "rgba(14, 116, 144, 0.1)" : "rgba(0,0,0,0.05)"} />
+                    <XAxis dataKey="date" stroke="#475569" style={{ fontSize: '12px' }} />
+                    <YAxis stroke="#475569" style={{ fontSize: '12px' }} />
+                    <Tooltip
+                      contentStyle={{ backgroundColor: darkMode ? '#0c1e24' : '#ffffff', border: darkMode ? '1px solid #164e63' : '1px solid #e2e8f0', borderRadius: '12px' }}
+                      labelStyle={{ color: darkMode ? '#fff' : '#000' }}
+                    />
+                    <Bar dataKey="avgResponseTime" name="Avg Response (ms)" fill="#06b6d4" radius={[4, 4, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            )}
+          </div>
 
           {/* Empty State */}
           {endpoints.length === 0 && (
-            <div className="bg-white/80 dark:bg-slate-900/40 backdrop-blur-md rounded-2xl border border-slate-200/60 dark:border-slate-800/60 p-12 text-center shadow-sm">
-              <p className="text-slate-500 dark:text-slate-400 text-base">
+            <div className="bg-white dark:bg-[#0c1e24] border border-gray-200 dark:border-cyan-950 rounded-2xl p-12 text-center shadow-sm">
+              <p className="text-gray-500 dark:text-gray-400">
                 No endpoints added yet. Add an endpoint from the Dashboard to see analytics.
               </p>
             </div>
