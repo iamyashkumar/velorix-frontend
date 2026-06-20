@@ -198,10 +198,27 @@ export default function Dashboard() {
         darkMode ? 'bg-white/5 border-white/10' : 'bg-white border-gray-200 shadow-xl'
       }`}>
         <div>
-          <div className="mb-8">
+          {/* Top Brand Area: Velorix + Theme Toggle Next to each other */}
+          <div className="flex items-center justify-between mb-8">
             <h1 className="text-4xl font-bold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-400">
               Velorix
             </h1>
+
+            {/* Minimalistic Theme Toggle Button placed right next to Velorix */}
+            <button
+              onClick={() => setDarkMode(!darkMode)}
+              className={`relative inline-flex h-6 w-12 shrink-0 cursor-pointer rounded-full p-0.5 border transition-colors duration-200 ease-in-out focus:outline-none ${
+                darkMode ? 'bg-cyan-950/50 border-cyan-500/30' : 'bg-amber-50 border-amber-300'
+              }`}
+            >
+              <span
+                className={`pointer-events-none flex items-center justify-center h-4 w-4 transform rounded-full bg-white shadow-sm ring-0 transition duration-200 ease-in-out ${
+                  darkMode ? 'translate-x-5 bg-cyan-400' : 'translate-x-0 bg-amber-400'
+                }`}
+              >
+                {darkMode ? '🌙' : '☀️'}
+              </span>
+            </button>
           </div>
 
           <nav className="space-y-2">
@@ -232,29 +249,11 @@ export default function Dashboard() {
           </nav>
         </div>
 
+        {/* Bottom Area: Only Profile and Logout */}
         <div className={`space-y-4 pt-4 border-t ${darkMode ? 'border-white/10' : 'border-gray-200'}`}>
           <div className="flex items-center gap-3 px-2 text-sm text-gray-400">
             <div className={`w-8 h-8 rounded-full flex items-center justify-center ${darkMode ? 'bg-white/20 text-white' : 'bg-gray-200 text-gray-700'}`}>👤</div>
             <span className={darkMode ? 'text-gray-300' : 'text-gray-700 font-medium'}>User Profile</span>
-          </div>
-
-          {/* Theme Toggle Button - Enhanced with Icons */}
-          <div className={`flex items-center justify-between px-4 py-3 rounded-xl border transition-all ${darkMode ? 'bg-white/5 border-white/10' : 'bg-gray-100 border-gray-200 shadow-sm'}`}>
-            <span className="text-xs font-semibold uppercase tracking-wider text-gray-400">Theme Mode</span>
-            <button
-              onClick={() => setDarkMode(!darkMode)}
-              className={`relative inline-flex h-7 w-14 shrink-0 cursor-pointer rounded-full p-0.5 border-2 transition-colors duration-200 ease-in-out focus:outline-none ${
-                darkMode ? 'bg-cyan-950 border-cyan-500/50' : 'bg-amber-100 border-amber-400'
-              }`}
-            >
-              <span
-                className={`pointer-events-none flex items-center justify-center h-5 w-5 transform rounded-full bg-white shadow-md ring-0 transition duration-200 ease-in-out ${
-                  darkMode ? 'translate-x-7 bg-cyan-400' : 'translate-x-0 bg-amber-400'
-                }`}
-              >
-                {darkMode ? '🌙' : '☀️'}
-              </span>
-            </button>
           </div>
 
           <button
@@ -330,7 +329,7 @@ export default function Dashboard() {
                     : 'bg-indigo-50 border-indigo-200 text-indigo-700 hover:bg-indigo-100'
                 }`}
               >
-                🧠 Analyze Recent Errors with AI
+                 Analyze Recent Errors with AI
               </button>
             </div>
 
