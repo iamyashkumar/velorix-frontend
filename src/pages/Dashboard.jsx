@@ -318,10 +318,10 @@ export default function Dashboard() {
             {/* Stats Cards */}
             <div className="lg:col-span-2 grid grid-cols-2 gap-4">
               {[
-                { label: 'Total APIs', value: stats.total, color: 'from-blue-600 to-blue-500', icon: '📊', textColor: 'text-blue-400' },
-                { label: 'UP', value: stats.up, color: 'from-green-600 to-green-500', icon: '✅', textColor: 'text-green-400' },
-                { label: 'DOWN', value: stats.down, color: 'from-red-600 to-red-500', icon: '❌', textColor: 'text-red-400' },
-                { label: 'Avg Response', value: `${stats.avgResponseTime}ms`, color: 'from-orange-600 to-orange-500', icon: '⏱️', textColor: 'text-orange-400' }
+                { label: 'Total APIs', value: stats.total, color: 'from-blue-600 to-blue-500', icon: '📊' },
+                { label: 'UP', value: stats.up, color: 'from-green-600 to-green-500', icon: '✅' },
+                { label: 'DOWN', value: stats.down, color: 'from-red-600 to-red-500', icon: '❌' },
+                { label: 'Avg Response', value: `${stats.avgResponseTime}ms`, color: 'from-orange-600 to-orange-500', icon: '⏱️' }
               ].map((stat, i) => (
                 <div
                   key={i}

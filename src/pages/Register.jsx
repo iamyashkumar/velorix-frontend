@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import toast from 'react-hot-toast';
+import { useAuth } from '../context/ThemeContext';
 
 const API_BASE = 'https://velorix-backend-vg5i.onrender.com';
 
@@ -11,6 +12,7 @@ export default function Register() {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const { login } = useAuth();
   const navigate = useNavigate();
 
   const handleRegister = async (e) => {
@@ -33,9 +35,8 @@ export default function Register() {
         password
       });
 
-      const { token } = response.data;
-      localStorage.setItem('authToken', token);
-      localStorage.setItem('token', token);
+      const { token, user } = response.data;
+      login(user || { name, email }, token);
 
       toast.success('Registration successful!');
       navigate('/dashboard');
