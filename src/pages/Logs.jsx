@@ -78,29 +78,20 @@ export default function Logs() {
       {/* Sidebar */}
       <aside className="relative w-64 bg-teal-800/40 backdrop-blur-md border-r border-cyan-400/20 p-6 flex flex-col rounded-tr-3xl">
         <div className="mb-8">
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent cursor-pointer" onClick={() => navigate('/')}>
             Velorix
           </h1>
           <p className="text-cyan-300/70 text-xs mt-2 tracking-wider">API MONITOR</p>
         </div>
 
         <nav className="flex-1 space-y-3">
-          <button
-            onClick={() => navigate('/dashboard')}
-            className="w-full px-4 py-3 bg-cyan-500/10 hover:bg-cyan-500/30 border border-cyan-400/20 rounded-xl transition-all text-left flex items-center gap-3 text-cyan-300 hover:text-cyan-100"
-          >
+          <button onClick={() => navigate('/dashboard')} className="w-full px-4 py-3 bg-cyan-500/10 hover:bg-cyan-500/30 border border-cyan-400/20 rounded-xl transition-all text-left flex items-center gap-3 text-cyan-300 hover:text-cyan-100">
             <span>📊</span> <span className="font-semibold">Dashboard</span>
           </button>
-          <button
-            onClick={() => navigate('/analytics')}
-            className="w-full px-4 py-3 bg-cyan-500/10 hover:bg-cyan-500/30 border border-cyan-400/20 rounded-xl transition-all text-left flex items-center gap-3 text-cyan-300 hover:text-cyan-100"
-          >
+          <button onClick={() => navigate('/analytics')} className="w-full px-4 py-3 bg-cyan-500/10 hover:bg-cyan-500/30 border border-cyan-400/20 rounded-xl transition-all text-left flex items-center gap-3 text-cyan-300 hover:text-cyan-100">
             <span>📈</span> <span className="font-semibold">Analytics</span>
           </button>
-          <button
-            onClick={() => navigate('/logs')}
-            className="w-full px-4 py-3 bg-cyan-500/30 border border-cyan-400/40 rounded-xl text-left flex items-center gap-3 text-cyan-100"
-          >
+          <button onClick={() => navigate('/logs')} className="w-full px-4 py-3 bg-cyan-500/30 border border-cyan-400/40 rounded-xl text-left flex items-center gap-3 text-cyan-100">
             <span>📋</span> <span className="font-semibold">Logs</span>
           </button>
         </nav>
@@ -108,66 +99,59 @@ export default function Logs() {
         <div className="space-y-3 pt-6 border-t border-cyan-400/20">
           <div className="flex items-center justify-between p-3 bg-cyan-500/10 rounded-xl border border-cyan-400/20">
             <span className="flex items-center gap-2 text-cyan-300">
-              <span>{darkMode ? '🌙' : '☀️'}</span>
-              <span className="text-sm font-semibold">Theme</span>
+              <span>{darkMode ? '🌙' : '☀️'}</span> <span className="text-sm font-semibold">Theme</span>
             </span>
-            <button
-              onClick={toggleDarkMode}
-              className="relative inline-flex h-6 w-11 items-center rounded-full bg-cyan-600/30 border border-cyan-400/30 transition-all"
-            >
-              <span className={`inline-block h-4 w-4 transform bg-cyan-300 rounded-full transition ${darkMode ? 'translate-x-6' : 'translate-x-1'}`}></span>
+            <button onClick={toggleDarkMode} className="relative inline-flex h-6 w-11 items-center rounded-full bg-cyan-600/30 border border-cyan-400/30 transition-all">
+              <span className={`inline-block h-4 w-4 transform rounded-full bg-cyan-400 transition-all ${darkMode ? 'translate-x-6' : 'translate-x-1'}`} />
             </button>
           </div>
-          <button
-            onClick={handleLogout}
-            className="w-full px-4 py-3 bg-red-500/30 hover:bg-red-500/50 border border-red-400/30 text-red-200 rounded-xl transition-all flex items-center justify-center gap-2 font-semibold"
-          >
+          <button onClick={handleLogout} className="w-full px-4 py-3 bg-red-500/20 hover:bg-red-500/40 border border-red-500/30 rounded-xl transition-all text-left flex items-center gap-3 text-red-300 font-semibold">
             <span>🚪</span> Logout
           </button>
         </div>
       </aside>
 
-      {/* Main Content */}
-      <main className="relative flex-1 p-8 overflow-auto">
-        <div className="max-w-7xl mx-auto">
-          <h2 className="text-4xl font-bold text-cyan-300 mb-8">Logs</h2>
-
-          {/* Search */}
-          <div className="mb-8">
+      {/* Main Logs Table Area */}
+      <main className="flex-1 p-8 relative overflow-y-auto z-10">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+          <div>
+            <h2 className="text-3xl font-bold">System Health Logs</h2>
+            <p className="text-cyan-300/70 text-sm mt-1">Live audit logs of monitored endpoint status transactions</p>
+          </div>
+          <div>
             <input
               type="text"
-              placeholder="Search by endpoint name or URL..."
+              placeholder="Search by name or URL..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full px-4 py-3 bg-cyan-900/40 border-2 border-cyan-400/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-cyan-400 text-white placeholder-cyan-400/50 transition-all"
+              className="px-4 py-2 bg-cyan-950/60 border border-cyan-400/40 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-cyan-400 w-64 text-sm"
             />
           </div>
+        </div>
 
-          {/* Logs Table */}
-          <div className="bg-cyan-500/15 backdrop-blur-md border-2 border-cyan-400/50 rounded-2xl p-6 overflow-x-auto">
-            {filteredLogs.length === 0 ? (
-              <p className="text-cyan-400/60 text-center py-8">No logs found</p>
-            ) : (
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-cyan-400/30">
-                    <th className="text-left py-3 px-4 text-cyan-300 font-semibold">Endpoint</th>
-                    <th className="text-left py-3 px-4 text-cyan-300 font-semibold">URL</th>
-                    <th className="text-left py-3 px-4 text-cyan-300 font-semibold">Status</th>
-                    <th className="text-left py-3 px-4 text-cyan-300 font-semibold">Response Time</th>
-                    <th className="text-left py-3 px-4 text-cyan-300 font-semibold">Timestamp</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredLogs.map((log, i) => (
+        <div className="bg-cyan-500/10 backdrop-blur-md border border-cyan-400/30 rounded-2xl overflow-hidden shadow-xl">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="bg-cyan-950/40 border-b border-cyan-400/30">
+                  <th className="py-3 px-4 text-cyan-300 font-semibold">Endpoint Name</th>
+                  <th className="py-3 px-4 text-cyan-300 font-semibold">Target URL</th>
+                  <th className="py-3 px-4 text-cyan-300 font-semibold">Status Code</th>
+                  <th className="py-3 px-4 text-cyan-300 font-semibold">Latency</th>
+                  <th className="py-3 px-4 text-cyan-300 font-semibold">Timestamp</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredLogs.length > 0 ? (
+                  filteredLogs.map((log, i) => (
                     <tr key={i} className="border-b border-cyan-400/10 hover:bg-cyan-500/10 transition-colors">
-                      <td className="py-3 px-4 text-cyan-300">{log.endpointName || 'N/A'}</td>
+                      <td className="py-3 px-4 text-cyan-200 font-medium">{log.endpointName || 'N/A'}</td>
                       <td className="py-3 px-4 text-cyan-400/70 text-xs break-all">{log.endpointUrl || 'N/A'}</td>
                       <td className="py-3 px-4">
                         <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
                           log.statusCode >= 200 && log.statusCode < 300
-                            ? 'bg-green-500/30 text-green-300 border border-green-400/30'
-                            : 'bg-red-500/30 text-red-300 border border-red-400/30'
+                            ? 'bg-green-500/20 text-green-300 border border-green-400/30'
+                            : 'bg-red-500/20 text-red-300 border border-red-400/30'
                         }`}>
                           {log.statusCode || 'N/A'}
                         </span>
@@ -175,10 +159,14 @@ export default function Logs() {
                       <td className="py-3 px-4 text-cyan-300 font-semibold">{log.responseTimeMs || 0}ms</td>
                       <td className="py-3 px-4 text-cyan-400/70 text-xs">{new Date(log.checkedAt).toLocaleString()}</td>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            )}
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="5" className="text-center py-8 text-cyan-400/50">No logs match your criteria.</td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
           </div>
         </div>
       </main>

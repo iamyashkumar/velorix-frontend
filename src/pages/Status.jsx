@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 const API_BASE = 'https://velorix-backend-vg5i.onrender.com';
@@ -6,6 +7,7 @@ const API_BASE = 'https://velorix-backend-vg5i.onrender.com';
 export default function StatusPage() {
   const [endpoints, setEndpoints] = useState([]);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchEndpoints();
@@ -44,60 +46,66 @@ export default function StatusPage() {
       </div>
 
       {/* Content */}
-      <div className="relative max-w-6xl mx-auto p-8">
-
+      <div className="relative max-w-6xl mx-auto p-8 z-10">
         {/* Header */}
         <div className="text-center mb-12">
-          <h1 className="text-5xl font-bold bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent mb-4">
-            Velorix Status
+          <h1 className="text-5xl font-bold bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent cursor-pointer inline-block" onClick={() => navigate('/')}>
+            Velorix
           </h1>
-          <p className="text-cyan-300/70 text-lg">Real-time API Status Page</p>
+          <p className="text-cyan-300/70 text-lg mt-3">Live Public Service Status Monitor</p>
+          <button
+            onClick={fetchEndpoints}
+            className="mt-4 px-4 py-2 bg-cyan-500/20 hover:bg-cyan-500/40 border border-cyan-400/30 rounded-xl text-xs text-cyan-300 font-semibold transition-all"
+          >
+            🔄 Refresh Status
+          </button>
         </div>
 
-        {/* Overall Status */}
-        <div className="mb-12 bg-cyan-500/15 backdrop-blur-md border-2 border-cyan-400/50 rounded-3xl p-8 text-center">
-          <div className="flex items-center justify-center gap-4 mb-4">
-            <div className="w-4 h-4 bg-green-500 rounded-full animate-pulse"></div>
-            <h2 className="text-3xl font-bold text-cyan-300">All Systems Operational</h2>
-          </div>
-          <p className="text-cyan-400/70">Last updated: {new Date().toLocaleString()}</p>
-        </div>
-
-        {/* Endpoints Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-          {endpoints.map((endpoint) => (
-            <div
-              key={endpoint._id || endpoint.id}
-              className="bg-cyan-500/15 backdrop-blur-md border-2 border-cyan-400/50 rounded-2xl p-6 hover:bg-cyan-500/25 transition-all"
-            >
-              <div className="flex items-start justify-between mb-4">
-                <div>
-                  <h3 className="text-xl font-bold text-cyan-300">{endpoint.name || endpoint.url}</h3>
-                  <p className="text-cyan-400/60 text-sm mt-1 break-all">{endpoint.url}</p>
+        {/* Public Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {endpoints.length > 0 ? (
+            endpoints.map((endpoint, i) => (
+              <div
+                key={i}
+                className="bg-cyan-500/15 backdrop-blur-md border-2 border-cyan-400/30 rounded-2xl p-6 hover:bg-cyan-500/25 transition-all"
+              >
+                <div className="flex items-start justify-between mb-4">
+                  <div>
+                    <h3 className="text-xl font-bold text-cyan-300 truncate max-w-[180px]">{endpoint.name || 'API Endpoint'}</h3>
+                    <p className="text-cyan-400/60 text-sm mt-1 break-all">{endpoint.url}</p>
+                  </div>
+                  <div className={`w-4 h-4 rounded-full ${endpoint.active || endpoint.status === 'UP' ? 'bg-green-500 animate-pulse' : 'bg-red-500'}`}></div>
                 </div>
-                <div className={`w-4 h-4 rounded-full ${endpoint.active ? 'bg-green-500 animate-pulse' : 'bg-red-500'}`}></div>
-              </div>
 
-              <div className="flex items-center justify-between">
-                <span className={`px-4 py-2 rounded-full text-sm font-bold ${
-                  endpoint.active
-                    ? 'bg-green-500/30 text-green-300 border border-green-400/30'
-                    : 'bg-red-500/30 text-red-300 border border-red-400/30'
-                }`}>
-                  {endpoint.active ? '🟢 UP' : '🔴 DOWN'}
-                </span>
-                <span className="text-cyan-400/70 text-xs">
-                  {endpoint.lastChecked ? new Date(endpoint.lastChecked).toLocaleTimeString() : 'N/A'}
-                </span>
+                <div className="flex items-center justify-between mt-6">
+                  <span className={`px-4 py-2 rounded-full text-xs font-bold ${
+                    endpoint.active || endpoint.status === 'UP'
+                      ? 'bg-green-500/30 text-green-300 border border-green-400/30'
+                      : 'bg-red-500/30 text-red-300 border border-red-400/30'
+                  }`}>
+                    {endpoint.active || endpoint.status === 'UP' ? '🟢 ONLINE' : '🔴 OFFLINE'}
+                  </span>
+                  <span className="text-cyan-400/70 text-xs">
+                    Checked: {endpoint.lastChecked ? new Date(endpoint.lastChecked).toLocaleTimeString() : 'Just now'}
+                  </span>
+                </div>
               </div>
+            ))
+          ) : (
+            <div className="col-span-full text-center py-12 bg-cyan-500/10 border border-cyan-400/20 rounded-2xl">
+              <p className="text-cyan-400/60">No public service endpoints registered on this network node.</p>
             </div>
-          ))}
+          )}
         </div>
 
-        {/* Footer */}
-        <div className="text-center text-cyan-400/60 text-sm">
-          <p>Monitoring {endpoints.length} API endpoints</p>
-          <p className="mt-2">Powered by Velorix</p>
+        {/* Back navigation button */}
+        <div className="text-center mt-12">
+          <button
+            onClick={() => navigate('/')}
+            className="text-cyan-400 hover:text-cyan-300 text-sm font-semibold transition-colors"
+          >
+            ← Back to Homepage
+          </button>
         </div>
       </div>
     </div>

@@ -34,7 +34,7 @@ export default function Login() {
       navigate('/dashboard');
     } catch (error) {
       console.error('Login failed:', error);
-      toast.error(error.response?.data?.message || 'Login failed');
+      toast.error(error.response?.data?.message || 'Login failed! Check credentials');
     } finally {
       setLoading(false);
     }
@@ -50,31 +50,28 @@ export default function Login() {
 
       <div className="relative w-full max-w-md">
         <div className="bg-cyan-500/15 backdrop-blur-md border-2 border-cyan-400/50 rounded-3xl p-8 shadow-2xl">
-
           {/* Logo */}
           <div className="text-center mb-8">
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">
+            <h1 className="text-4xl font-bold bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent cursor-pointer" onClick={() => navigate('/')}>
               Velorix
             </h1>
-            <p className="text-cyan-300/70 text-sm mt-2 tracking-wider">API MONITOR</p>
+            <p className="text-cyan-300/70 text-sm mt-2 tracking-wider">SIGN IN TO ACCOUNT</p>
           </div>
 
           {/* Form */}
-          <form onSubmit={handleLogin} className="space-y-5">
-            {/* Email */}
+          <form onSubmit={handleLogin} className="space-y-4">
             <div>
               <label className="block text-cyan-300 text-sm font-semibold mb-2">Email Address</label>
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="test@example.com"
+                placeholder="you@example.com"
                 className="w-full px-4 py-3 bg-cyan-900/40 border border-cyan-400/40 rounded-xl focus:outline-none focus:ring-2 focus:ring-cyan-400 text-white placeholder-cyan-400/50 transition-all"
                 disabled={loading}
               />
             </div>
 
-            {/* Password */}
             <div>
               <label className="block text-cyan-300 text-sm font-semibold mb-2">Password</label>
               <input
@@ -87,7 +84,6 @@ export default function Login() {
               />
             </div>
 
-            {/* Login Button */}
             <button
               type="submit"
               disabled={loading}
@@ -116,10 +112,9 @@ export default function Login() {
           </p>
 
           {/* Demo Credentials */}
-          <div className="mt-6 p-4 bg-cyan-500/10 border border-cyan-400/30 rounded-xl">
-            <p className="text-cyan-300 text-xs font-semibold mb-2">Demo Credentials:</p>
-            <p className="text-cyan-400 text-xs">Email: test@example.com</p>
-            <p className="text-cyan-400 text-xs">Password: password123</p>
+          <div className="mt-6 p-4 bg-cyan-500/10 border border-cyan-400/30 rounded-xl text-center">
+            <p className="text-xs text-cyan-300 font-medium">✨ Demo Access Credentials:</p>
+            <p className="text-xs text-cyan-400/70 mt-1">Email: admin@velorix.com | Pass: admin123</p>
           </div>
         </div>
       </div>

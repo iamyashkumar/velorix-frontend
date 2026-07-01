@@ -18,7 +18,7 @@ export default function Home() {
       {/* Navigation Bar */}
       <nav className="relative backdrop-blur-md bg-teal-800/30 border-b border-cyan-400/20 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
-          <div className="text-3xl font-bold bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">
+          <div className="text-3xl font-bold bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent cursor-pointer" onClick={() => navigate('/')}>
             Velorix
           </div>
           <div className="flex gap-4 items-center">
@@ -28,6 +28,12 @@ export default function Home() {
               aria-label="Toggle Theme"
             >
               {darkMode ? '☀️' : '🌙'}
+            </button>
+            <button
+              onClick={() => navigate('/status')}
+              className="px-5 py-2 border border-green-400/40 bg-green-500/10 hover:bg-green-500/20 rounded-lg text-green-300 text-sm font-semibold transition-all"
+            >
+              🟢 System Status
             </button>
             {token ? (
               <button
@@ -83,118 +89,15 @@ export default function Home() {
               onClick={() => navigate(token ? '/dashboard' : '/register')}
               className="inline-flex items-center px-8 py-4 border border-transparent text-base font-semibold rounded-xl shadow-xl shadow-cyan-500/20 text-white bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 transition-all transform hover:-translate-y-0.5"
             >
-              🚀 {token ? 'Go to Dashboard' : 'Start Monitoring'}
+              Start Monitoring Free
             </button>
             <button
               onClick={() => navigate('/status')}
-              className="inline-flex items-center px-8 py-4 border-2 border-cyan-400/50 text-base font-semibold rounded-xl text-cyan-300 bg-cyan-500/10 hover:bg-cyan-500/20 transition-all transform hover:-translate-y-0.5"
+              className="inline-flex items-center px-8 py-4 border border-cyan-400/30 text-base font-semibold rounded-xl bg-cyan-500/10 text-cyan-300 hover:bg-cyan-500/20 transition-all"
             >
-              📊 View Status Page
+              Check Live Status
             </button>
           </div>
-        </div>
-      </section>
-
-      {/* Features Section */}
-      <section className="max-w-7xl mx-auto px-4 py-20 sm:px-6 lg:px-8 relative z-10 border-t border-cyan-400/20">
-        <div className="text-center mb-16">
-          <h2 className="text-4xl font-bold tracking-tight text-cyan-300 sm:text-5xl">
-            Powerful Features
-          </h2>
-          <p className="mt-4 text-lg text-cyan-300/70 max-w-2xl mx-auto">
-            Everything you need to monitor and optimize your API infrastructure.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4">
-          {/* Feature Cards */}
-          {[
-            {
-              icon: '📊',
-              title: 'Real-Time Monitoring',
-              description: 'Monitor API health and performance metrics in real-time with instant notifications.'
-            },
-            {
-              icon: '📈',
-              title: 'Advanced Analytics',
-              description: 'Get detailed insights with millisecond-precise latency curves and performance trends.'
-            },
-            {
-              icon: '🔔',
-              title: 'Smart Alerts',
-              description: 'Instant notifications when errors spike or thresholds are exceeded.'
-            },
-            {
-              icon: '🤖',
-              title: 'AI-Powered Analysis',
-              description: 'Let AI analyze errors and suggest fixes automatically with root-cause diagnostics.'
-            },
-            {
-              icon: '📋',
-              title: 'Comprehensive Logs',
-              description: 'View detailed logs of all API requests, responses, and health checks.'
-            },
-            {
-              icon: '⚡',
-              title: 'Performance Tracking',
-              description: 'Track response times and identify performance bottlenecks instantly.'
-            },
-            {
-              icon: '🌍',
-              title: 'Global Monitoring',
-              description: 'Monitor endpoints from multiple regions and get geographic insights.'
-            },
-            {
-              icon: '🔐',
-              title: 'Secure & Reliable',
-              description: 'Enterprise-grade security with encryption and compliance standards.'
-            }
-          ].map((feature, i) => (
-            <div
-              key={i}
-              className="bg-cyan-500/15 backdrop-blur-md border-2 border-cyan-400/50 rounded-2xl p-8 hover:bg-cyan-500/25 transition-all group"
-            >
-              <div className="text-5xl mb-4 group-hover:scale-110 transition-transform">{feature.icon}</div>
-              <h3 className="text-2xl font-bold text-cyan-300 mb-3">{feature.title}</h3>
-              <p className="text-cyan-400/70">{feature.description}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* Stats Section */}
-      <section className="max-w-7xl mx-auto px-4 py-20 sm:px-6 lg:px-8 relative z-10">
-        <div className="grid grid-cols-1 gap-8 md:grid-cols-3 mb-20">
-          {[
-            { label: 'APIs Monitored', value: '10K+' },
-            { label: 'Uptime Guarantee', value: '99.9%' },
-            { label: 'Detection Time', value: '<1m' }
-          ].map((stat, i) => (
-            <div key={i} className="bg-cyan-500/15 backdrop-blur-md border-2 border-cyan-400/50 rounded-2xl p-8 text-center">
-              <div className="text-4xl font-bold bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">
-                {stat.value}
-              </div>
-              <p className="text-cyan-300/70 mt-2">{stat.label}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="max-w-4xl mx-auto px-4 py-20 sm:px-6 lg:px-8 relative z-10">
-        <div className="bg-gradient-to-r from-cyan-500/20 to-blue-500/20 backdrop-blur-md border-2 border-cyan-400/50 rounded-3xl p-12 text-center">
-          <h2 className="text-4xl font-bold mb-6 text-cyan-300">
-            Ready to Monitor Your APIs?
-          </h2>
-          <p className="text-xl text-cyan-300/70 mb-8 max-w-2xl mx-auto">
-            Join thousands of developers who trust Velorix for API monitoring and optimization.
-          </p>
-          <button
-            onClick={() => navigate(token ? '/dashboard' : '/register')}
-            className="px-10 py-4 bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 rounded-xl font-bold text-lg shadow-lg hover:shadow-cyan-500/50 transition-all"
-          >
-            🎯 Start Free Trial
-          </button>
         </div>
       </section>
 
@@ -205,15 +108,12 @@ export default function Home() {
             <div>
               &copy; {new Date().getFullYear()} Velorix. All rights reserved.
             </div>
-            <div className="flex space-x-6 mt-4 sm:mt-0 font-medium text-cyan-400/70 hover:text-cyan-300 transition-colors">
+            <div className="flex space-x-6 mt-4 sm:mt-0 font-medium text-cyan-400/70">
               <a href="#privacy" className="hover:text-cyan-300 transition">
                 Privacy Policy
               </a>
               <a href="#terms" className="hover:text-cyan-300 transition">
                 Terms of Service
-              </a>
-              <a href="#security" className="hover:text-cyan-300 transition">
-                Security
               </a>
             </div>
           </div>

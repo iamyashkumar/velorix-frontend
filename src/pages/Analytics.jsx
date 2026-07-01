@@ -58,7 +58,7 @@ export default function Analytics() {
 
   const handleLogout = () => {
     logout();
-    toast.success('Logged out');
+    toast.success('Logged out successfully');
     navigate('/login');
   };
 
@@ -84,7 +84,7 @@ export default function Analytics() {
       {/* Sidebar */}
       <aside className="relative w-64 bg-teal-800/40 backdrop-blur-md border-r border-cyan-400/20 p-6 flex flex-col rounded-tr-3xl">
         <div className="mb-8">
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent cursor-pointer" onClick={() => navigate('/')}>
             Velorix
           </h1>
           <p className="text-cyan-300/70 text-xs mt-2 tracking-wider">API MONITOR</p>
@@ -114,138 +114,111 @@ export default function Analytics() {
         <div className="space-y-3 pt-6 border-t border-cyan-400/20">
           <div className="flex items-center justify-between p-3 bg-cyan-500/10 rounded-xl border border-cyan-400/20">
             <span className="flex items-center gap-2 text-cyan-300">
-              <span>{darkMode ? '🌙' : '☀️'}</span>
-              <span className="text-sm font-semibold">Theme</span>
+              <span>{darkMode ? '🌙' : '☀️'}</span> <span className="text-sm font-semibold">Theme</span>
             </span>
-            <button
-              onClick={toggleDarkMode}
-              className="relative inline-flex h-6 w-11 items-center rounded-full bg-cyan-600/30 border border-cyan-400/30 transition-all"
-            >
-              <span className={`inline-block h-4 w-4 transform bg-cyan-300 rounded-full transition ${darkMode ? 'translate-x-6' : 'translate-x-1'}`}></span>
+            <button onClick={toggleDarkMode} className="relative inline-flex h-6 w-11 items-center rounded-full bg-cyan-600/30 border border-cyan-400/30 transition-all">
+              <span className={`inline-block h-4 w-4 transform rounded-full bg-cyan-400 transition-all ${darkMode ? 'translate-x-6' : 'translate-x-1'}`} />
             </button>
           </div>
           <button
             onClick={handleLogout}
-            className="w-full px-4 py-3 bg-red-500/30 hover:bg-red-500/50 border border-red-400/30 text-red-200 rounded-xl transition-all flex items-center justify-center gap-2 font-semibold"
+            className="w-full px-4 py-3 bg-red-500/20 hover:bg-red-500/40 border border-red-500/30 rounded-xl transition-all text-left flex items-center gap-3 text-red-300 font-semibold"
           >
             <span>🚪</span> Logout
           </button>
         </div>
       </aside>
 
-      {/* Main Content */}
-      <main className="relative flex-1 p-8 overflow-auto">
-        <div className="max-w-7xl mx-auto">
-          <h2 className="text-4xl font-bold text-cyan-300 mb-8">Analytics Dashboard</h2>
+      {/* Main Content Area */}
+      <main className="flex-1 p-8 relative overflow-y-auto z-10">
+        <div className="flex justify-between items-center mb-8">
+          <div>
+            <h2 className="text-3xl font-bold text-white">Analytics Summary</h2>
+            <p className="text-cyan-300/70 text-sm mt-1">Detailed performance metrics across all endpoints</p>
+          </div>
+        </div>
 
-          {/* Summary Stats */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-            {[
-              { label: 'Total Requests', value: analyticsData.totalRequests || 0, color: 'from-blue-600 to-blue-500', icon: '📊' },
-              { label: 'Avg Response', value: `${analyticsData.avgResponseTime || 0}ms`, color: 'from-cyan-600 to-cyan-500', icon: '⚡' },
-              { label: 'Success Rate', value: `${analyticsData.successRate || 0}%`, color: 'from-green-600 to-green-500', icon: '✅' },
-              { label: 'Error Rate', value: `${analyticsData.errorRate || 0}%`, color: 'from-red-600 to-red-500', icon: '❌' }
-            ].map((stat, i) => (
-              <div key={i} className={`bg-gradient-to-br ${stat.color} rounded-2xl p-6 text-white shadow-lg hover:shadow-xl transition-all`}>
-                <div className="flex justify-between items-start">
-                  <div>
-                    <p className="text-white/80 text-sm font-semibold">{stat.label}</p>
-                    <p className="text-3xl font-bold mt-2">{stat.value}</p>
-                  </div>
-                  <span className="text-4xl">{stat.icon}</span>
-                </div>
-              </div>
-            ))}
+        {/* Metrics Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+          <div className="bg-cyan-500/15 backdrop-blur-md border border-cyan-400/30 rounded-2xl p-6">
+            <p className="text-cyan-400/60 text-sm font-semibold uppercase tracking-wider">Total Hits</p>
+            <h3 className="text-3xl font-bold text-white mt-2">{analyticsData.totalRequests}</h3>
+          </div>
+          <div className="bg-cyan-500/15 backdrop-blur-md border border-cyan-400/30 rounded-2xl p-6">
+            <p className="text-cyan-400/60 text-sm font-semibold uppercase tracking-wider">Avg Latency</p>
+            <h3 className="text-3xl font-bold text-cyan-300 mt-2">{analyticsData.avgResponseTime}ms</h3>
+          </div>
+          <div className="bg-cyan-500/15 backdrop-blur-md border border-cyan-400/30 rounded-2xl p-6">
+            <p className="text-cyan-400/60 text-sm font-semibold uppercase tracking-wider">Success Rate</p>
+            <h3 className="text-3xl font-bold text-green-400 mt-2">{analyticsData.successRate}%</h3>
+          </div>
+          <div className="bg-cyan-500/15 backdrop-blur-md border border-cyan-400/30 rounded-2xl p-6">
+            <p className="text-cyan-400/60 text-sm font-semibold uppercase tracking-wider">Error Rate</p>
+            <h3 className="text-3xl font-bold text-red-400 mt-2">{analyticsData.errorRate}%</h3>
+          </div>
+        </div>
+
+        {/* Charts Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+          {/* Requests Over Time */}
+          <div className="bg-cyan-500/15 backdrop-blur-md border-2 border-cyan-400/50 rounded-2xl p-6">
+            <h3 className="text-xl font-bold text-cyan-300 mb-4">Traffic Trend</h3>
+            {analyticsData.requestsOverTime && analyticsData.requestsOverTime.length > 0 ? (
+              <ResponsiveContainer width="100%" h={300}>
+                <LineChart data={analyticsData.requestsOverTime}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#0891b2" opacity={0.2} />
+                  <XAxis dataKey="time" stroke="#22d3ee" />
+                  <YAxis stroke="#22d3ee" />
+                  <Tooltip contentStyle={{ backgroundColor: '#0e7490', border: 'none', borderRadius: '12px', color: '#fff' }} />
+                  <Legend />
+                  <Line type="monotone" dataKey="requests" stroke="#06b6d4" strokeWidth={3} activeDot={{ r: 8 }} />
+                </LineChart>
+              </ResponsiveContainer>
+            ) : (
+              <p className="text-center py-8 text-cyan-400/60">No traffic data available</p>
+            )}
           </div>
 
-          {/* Charts Section */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-            {/* Requests Over Time */}
-            <div className="bg-cyan-500/15 backdrop-blur-md border-2 border-cyan-400/50 rounded-2xl p-6">
-              <h3 className="text-xl font-bold text-cyan-300 mb-4 flex items-center gap-2">
-                <span>📈</span> Requests Over Time
-              </h3>
-              {analyticsData.requestsOverTime && analyticsData.requestsOverTime.length > 0 ? (
-                <ResponsiveContainer width="100%" height={300}>
-                  <LineChart data={analyticsData.requestsOverTime}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#06b6d420" />
-                    <XAxis dataKey="date" stroke="#06b6d4" />
-                    <YAxis stroke="#06b6d4" />
-                    <Tooltip contentStyle={{ backgroundColor: '#0d4f5f', border: '1px solid #06b6d4', borderRadius: '8px' }} />
-                    <Legend />
-                    <Line type="monotone" dataKey="count" stroke="#06b6d4" strokeWidth={2} />
-                  </LineChart>
-                </ResponsiveContainer>
-              ) : (
-                <p className="text-center py-8 text-cyan-400/60">No data available</p>
-              )}
-            </div>
-
-            {/* Status Distribution */}
-            <div className="bg-cyan-500/15 backdrop-blur-md border-2 border-cyan-400/50 rounded-2xl p-6">
-              <h3 className="text-xl font-bold text-cyan-300 mb-4 flex items-center gap-2">
-                <span>🎯</span> Status Distribution
-              </h3>
-              {analyticsData.statusDistribution && analyticsData.statusDistribution.length > 0 ? (
-                <ResponsiveContainer width="100%" height={300}>
-                  <PieChart>
-                    <Pie data={analyticsData.statusDistribution} cx="50%" cy="50%" labelLine={false} label={{ fill: '#06b6d4' }} outerRadius={80} fill="#06b6d4" dataKey="value">
-                      <Cell fill="#06b6d4" />
-                      <Cell fill="#10b981" />
-                      <Cell fill="#ef4444" />
-                    </Pie>
-                    <Tooltip />
-                  </PieChart>
-                </ResponsiveContainer>
-              ) : (
-                <p className="text-center py-8 text-cyan-400/60">No data available</p>
-              )}
-            </div>
-          </div>
-
-          {/* Response Time by Endpoint */}
-          <div className="bg-cyan-500/15 backdrop-blur-md border-2 border-cyan-400/50 rounded-2xl p-6 mb-8">
-            <h3 className="text-xl font-bold text-cyan-300 mb-4 flex items-center gap-2">
-              <span>⏱️</span> Response Time by Endpoint
-            </h3>
-            {analyticsData.responseTimeByEndpoint && analyticsData.responseTimeByEndpoint.length > 0 ? (
-              <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={analyticsData.responseTimeByEndpoint}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#06b6d420" />
-                  <XAxis dataKey="endpoint" stroke="#06b6d4" />
-                  <YAxis stroke="#06b6d4" />
-                  <Tooltip contentStyle={{ backgroundColor: '#0d4f5f', border: '1px solid #06b6d4', borderRadius: '8px' }} />
-                  <Bar dataKey="avgTime" fill="#06b6d4" />
+          {/* Status Distribution */}
+          <div className="bg-cyan-500/15 backdrop-blur-md border-2 border-cyan-400/50 rounded-2xl p-6">
+            <h3 className="text-xl font-bold text-cyan-300 mb-4">Status Distribution</h3>
+            {analyticsData.statusDistribution && analyticsData.statusDistribution.length > 0 ? (
+              <ResponsiveContainer width="100%" h={300}>
+                <BarChart data={analyticsData.statusDistribution}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#0891b2" opacity={0.2} />
+                  <XAxis dataKey="status" stroke="#22d3ee" />
+                  <YAxis stroke="#22d3ee" />
+                  <Tooltip contentStyle={{ backgroundColor: '#0e7490', border: 'none', borderRadius: '12px', color: '#fff' }} />
+                  <Bar dataKey="count" fill="#06b6d4" />
                 </BarChart>
               </ResponsiveContainer>
             ) : (
               <p className="text-center py-8 text-cyan-400/60">No data available</p>
             )}
           </div>
-
-          {/* Top Endpoints */}
-          {analyticsData.topEndpoints && analyticsData.topEndpoints.length > 0 && (
-            <div className="bg-cyan-500/15 backdrop-blur-md border-2 border-cyan-400/50 rounded-2xl p-6">
-              <h3 className="text-xl font-bold text-cyan-300 mb-4 flex items-center gap-2">
-                <span>🏆</span> Top Endpoints
-              </h3>
-              <div className="space-y-3">
-                {analyticsData.topEndpoints.map((ep, i) => (
-                  <div key={i} className="bg-cyan-900/40 border border-cyan-400/30 rounded-xl p-4 flex justify-between items-center">
-                    <div>
-                      <p className="font-semibold text-cyan-300">{ep.name || ep.url}</p>
-                      <p className="text-cyan-400/60 text-sm">{ep.url}</p>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-cyan-300 font-bold">{ep.requests || 0} requests</p>
-                      <p className="text-cyan-400/60 text-sm">{ep.avgResponseTime || 0}ms avg</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
         </div>
+
+        {/* Top Endpoints */}
+        {analyticsData.topEndpoints && analyticsData.topEndpoints.length > 0 && (
+          <div className="bg-cyan-500/15 backdrop-blur-md border-2 border-cyan-400/50 rounded-2xl p-6">
+            <h3 className="text-xl font-bold text-cyan-300 mb-4 flex items-center gap-2">
+              <span>🏆</span> Top Endpoints
+            </h3>
+            <div className="space-y-3">
+              {analyticsData.topEndpoints.map((ep, i) => (
+                <div key={i} className="bg-cyan-900/40 border border-cyan-400/30 rounded-xl p-4 flex justify-between items-center">
+                  <div>
+                    <p className="font-semibold text-cyan-300">{ep.name || ep.url}</p>
+                    <p className="text-cyan-400/60 text-sm">{ep.url}</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-cyan-300 font-bold">{ep.requests || 0} requests</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </main>
     </div>
   );

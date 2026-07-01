@@ -58,10 +58,9 @@ export default function Register() {
 
       <div className="relative w-full max-w-md">
         <div className="bg-cyan-500/15 backdrop-blur-md border-2 border-cyan-400/50 rounded-3xl p-8 shadow-2xl">
-
           {/* Logo */}
           <div className="text-center mb-8">
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">
+            <h1 className="text-4xl font-bold bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent cursor-pointer" onClick={() => navigate('/')}>
               Velorix
             </h1>
             <p className="text-cyan-300/70 text-sm mt-2 tracking-wider">CREATE ACCOUNT</p>
@@ -69,7 +68,6 @@ export default function Register() {
 
           {/* Form */}
           <form onSubmit={handleRegister} className="space-y-4">
-            {/* Name */}
             <div>
               <label className="block text-cyan-300 text-sm font-semibold mb-2">Full Name</label>
               <input
@@ -82,7 +80,6 @@ export default function Register() {
               />
             </div>
 
-            {/* Email */}
             <div>
               <label className="block text-cyan-300 text-sm font-semibold mb-2">Email Address</label>
               <input
@@ -95,7 +92,6 @@ export default function Register() {
               />
             </div>
 
-            {/* Password */}
             <div>
               <label className="block text-cyan-300 text-sm font-semibold mb-2">Password</label>
               <input
@@ -108,7 +104,6 @@ export default function Register() {
               />
             </div>
 
-            {/* Confirm Password */}
             <div>
               <label className="block text-cyan-300 text-sm font-semibold mb-2">Confirm Password</label>
               <input
@@ -121,7 +116,6 @@ export default function Register() {
               />
             </div>
 
-            {/* Register Button */}
             <button
               type="submit"
               disabled={loading}
@@ -145,7 +139,7 @@ export default function Register() {
               onClick={() => navigate('/login')}
               className="text-cyan-400 hover:text-cyan-300 font-semibold transition-colors"
             >
-              Sign in here
+              Sign In
             </button>
           </p>
         </div>

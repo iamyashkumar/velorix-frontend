@@ -3,9 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 import { useTheme, useAuth } from '../context/ThemeContext';
-import {
-  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
-} from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 const API_BASE = 'https://velorix-backend-vg5i.onrender.com';
 
@@ -160,6 +158,10 @@ export default function Dashboard() {
       await axios.delete(`${API_BASE}/api/endpoints/${id}`, getAuthHeader());
       toast.success('Endpoint deleted!');
       setEndpoints(endpoints.filter(e => (e._id || e.id) !== id));
+      if (selectedEndpoint && (selectedEndpoint._id === id || selectedEndpoint.id === id)) {
+        setSelectedEndpoint(null);
+        setChartData([]);
+      }
     } catch (error) {
       console.error('Error deleting endpoint:', error);
       toast.error('Failed to delete endpoint');
@@ -217,247 +219,194 @@ export default function Dashboard() {
       {/* Sidebar */}
       <aside className="relative w-64 bg-teal-800/40 backdrop-blur-md border-r border-cyan-400/20 p-6 flex flex-col rounded-tr-3xl">
         <div className="mb-8">
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent cursor-pointer" onClick={() => navigate('/')}>
             Velorix
           </h1>
           <p className="text-cyan-300/70 text-xs mt-2 tracking-wider">API MONITOR</p>
         </div>
 
         <nav className="flex-1 space-y-3">
-          <button
-            onClick={() => navigate('/dashboard')}
-            className="w-full px-4 py-3 bg-cyan-500/20 hover:bg-cyan-500/40 border border-cyan-400/30 rounded-xl transition-all text-left flex items-center gap-3 text-cyan-300 hover:text-cyan-100"
-          >
-            <span className="text-xl">📊</span>
-            <span className="font-semibold">Dashboard</span>
+          <button onClick={() => navigate('/dashboard')} className="w-full px-4 py-3 bg-cyan-500/30 border border-cyan-400/40 rounded-xl text-left flex items-center gap-3 text-cyan-100">
+            <span className="text-xl">📊</span> <span className="font-semibold">Dashboard</span>
           </button>
-          <button
-            onClick={() => navigate('/analytics')}
-            className="w-full px-4 py-3 bg-cyan-500/10 hover:bg-cyan-500/30 border border-cyan-400/20 rounded-xl transition-all text-left flex items-center gap-3 text-cyan-300 hover:text-cyan-100"
-          >
-            <span className="text-xl">📈</span>
-            <span className="font-semibold">Analytics</span>
+          <button onClick={() => navigate('/analytics')} className="w-full px-4 py-3 bg-cyan-500/10 hover:bg-cyan-500/30 border border-cyan-400/20 rounded-xl transition-all text-left flex items-center gap-3 text-cyan-300 hover:text-cyan-100">
+            <span className="text-xl">📈</span> <span className="font-semibold">Analytics</span>
           </button>
-          <button
-            onClick={() => navigate('/logs')}
-            className="w-full px-4 py-3 bg-cyan-500/10 hover:bg-cyan-500/30 border border-cyan-400/20 rounded-xl transition-all text-left flex items-center gap-3 text-cyan-300 hover:text-cyan-100"
-          >
-            <span className="text-xl">📋</span>
-            <span className="font-semibold">Logs</span>
+          <button onClick={() => navigate('/logs')} className="w-full px-4 py-3 bg-cyan-500/10 hover:bg-cyan-500/30 border border-cyan-400/20 rounded-xl transition-all text-left flex items-center gap-3 text-cyan-300 hover:text-cyan-100">
+            <span className="text-xl">📋</span> <span className="font-semibold">Logs</span>
           </button>
         </nav>
 
         <div className="space-y-3 pt-6 border-t border-cyan-400/20">
           <div className="flex items-center justify-between p-3 bg-cyan-500/10 rounded-xl border border-cyan-400/20">
             <span className="flex items-center gap-2 text-cyan-300">
-              <span>{darkMode ? '🌙' : '☀️'}</span>
-              <span className="text-sm font-semibold">Theme</span>
+              <span>{darkMode ? '🌙' : '☀️'}</span> <span className="text-sm font-semibold">Theme</span>
             </span>
-            <button
-              onClick={toggleDarkMode}
-              className="relative inline-flex h-6 w-11 items-center rounded-full bg-cyan-600/30 border border-cyan-400/30 transition-all"
-            >
-              <span className={`inline-block h-4 w-4 transform bg-cyan-300 rounded-full transition ${darkMode ? 'translate-x-6' : 'translate-x-1'}`}></span>
+            <button onClick={toggleDarkMode} className="relative inline-flex h-6 w-11 items-center rounded-full bg-cyan-600/30 border border-cyan-400/30 transition-all">
+              <span className={`inline-block h-4 w-4 transform rounded-full bg-cyan-400 transition-all ${darkMode ? 'translate-x-6' : 'translate-x-1'}`} />
             </button>
           </div>
-          <button
-            onClick={handleLogout}
-            className="w-full px-4 py-3 bg-red-500/30 hover:bg-red-500/50 border border-red-400/30 text-red-200 rounded-xl transition-all flex items-center justify-center gap-2 font-semibold"
-          >
+          <button onClick={handleLogout} className="w-full px-4 py-3 bg-red-500/20 hover:bg-red-500/40 border border-red-500/30 rounded-xl transition-all text-left flex items-center gap-3 text-red-300 font-semibold">
             <span>🚪</span> Logout
           </button>
         </div>
       </aside>
 
-      {/* Main Content */}
-      <main className="relative flex-1 p-8 overflow-auto">
-        <div className="max-w-7xl mx-auto">
-
-          {/* Header */}
-          <div className="mb-8">
-            <h2 className="text-4xl font-bold text-cyan-300">Dashboard</h2>
-            <p className="text-cyan-400/60 mt-2">Monitor and manage your API endpoints</p>
+      {/* Main Content Area */}
+      <main className="flex-1 p-8 relative overflow-y-auto z-10">
+        {/* Top Cards/Stats */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+          <div className="bg-cyan-500/15 backdrop-blur-md border border-cyan-400/30 rounded-2xl p-6">
+            <p className="text-cyan-400/60 text-sm font-semibold uppercase">Total Endpoints</p>
+            <h3 className="text-4xl font-bold mt-2">{stats.total}</h3>
           </div>
+          <div className="bg-green-500/15 backdrop-blur-md border border-green-500/30 rounded-2xl p-6">
+            <p className="text-green-400/60 text-sm font-semibold uppercase">Endpoints UP</p>
+            <h3 className="text-4xl font-bold mt-2 text-green-400">{stats.up}</h3>
+          </div>
+          <div className="bg-red-500/15 backdrop-blur-md border border-red-500/30 rounded-2xl p-6">
+            <p className="text-red-400/60 text-sm font-semibold uppercase">Endpoints DOWN</p>
+            <h3 className="text-4xl font-bold mt-2 text-red-400">{stats.down}</h3>
+          </div>
+          <div className="bg-purple-500/15 backdrop-blur-md border border-purple-400/30 rounded-2xl p-6">
+            <p className="text-purple-400/60 text-sm font-semibold uppercase">Avg Latency</p>
+            <h3 className="text-4xl font-bold mt-2 text-purple-400">{stats.avgResponseTime}ms</h3>
+          </div>
+        </div>
 
-          {/* Top Section: Add Endpoint + Stats */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-
-            {/* Add Endpoint */}
-            <div className="lg:col-span-1 bg-cyan-500/15 backdrop-blur-md border-2 border-cyan-400/50 rounded-2xl p-6 hover:bg-cyan-500/25 transition-all">
-              <h3 className="text-xl font-bold text-cyan-300 mb-4 flex items-center gap-2">
-                <span>➕</span> Add New Endpoint
-              </h3>
-              <div className="space-y-3">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Endpoint Configuration & List */}
+          <div className="lg:col-span-1 space-y-6">
+            <div className="bg-cyan-500/15 backdrop-blur-md border-2 border-cyan-400/50 rounded-2xl p-6">
+              <h3 className="text-xl font-bold mb-4">Add New Endpoint</h3>
+              <div className="space-y-4">
                 <input
                   type="text"
-                  placeholder="Name"
+                  placeholder="Endpoint Name"
                   value={newName}
                   onChange={(e) => setNewName(e.target.value)}
-                  className="w-full px-4 py-3 bg-cyan-900/40 border border-cyan-400/40 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-400 text-white placeholder-cyan-400/50 transition-all"
-                  disabled={addingEndpoint}
+                  className="w-full px-4 py-3 bg-cyan-900/40 border border-cyan-400/40 rounded-xl focus:outline-none focus:ring-2 focus:ring-cyan-400 text-white"
                 />
                 <input
                   type="url"
-                  placeholder="https://example.com"
+                  placeholder="https://api.example.com/health"
                   value={newUrl}
                   onChange={(e) => setNewUrl(e.target.value)}
-                  onKeyPress={(e) => e.key === 'Enter' && addEndpoint()}
-                  className="w-full px-4 py-3 bg-cyan-900/40 border border-cyan-400/40 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-400 text-white placeholder-cyan-400/50 transition-all"
-                  disabled={addingEndpoint}
+                  className="w-full px-4 py-3 bg-cyan-900/40 border border-cyan-400/40 rounded-xl focus:outline-none focus:ring-2 focus:ring-cyan-400 text-white"
                 />
                 <button
                   onClick={addEndpoint}
                   disabled={addingEndpoint}
-                  className="w-full px-6 py-3 bg-gradient-to-r from-cyan-500 to-cyan-600 hover:from-cyan-600 hover:to-cyan-700 rounded-lg font-bold disabled:opacity-50 transition-all shadow-lg"
+                  className="w-full py-3 bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 rounded-xl font-bold transition-all shadow-lg"
                 >
-                  {addingEndpoint ? 'Adding...' : 'Add'}
+                  {addingEndpoint ? 'Adding...' : 'Add Endpoint'}
                 </button>
               </div>
             </div>
 
-            {/* Stats Cards */}
-            <div className="lg:col-span-2 grid grid-cols-2 gap-4">
-              {[
-                { label: 'Total APIs', value: stats.total, color: 'from-blue-600 to-blue-500', icon: '📊' },
-                { label: 'UP', value: stats.up, color: 'from-green-600 to-green-500', icon: '✅' },
-                { label: 'DOWN', value: stats.down, color: 'from-red-600 to-red-500', icon: '❌' },
-                { label: 'Avg Response', value: `${stats.avgResponseTime}ms`, color: 'from-orange-600 to-orange-500', icon: '⏱️' }
-              ].map((stat, i) => (
-                <div
-                  key={i}
-                  className={`bg-gradient-to-br ${stat.color} rounded-2xl p-6 text-white shadow-lg hover:shadow-xl transition-all`}
-                >
-                  <div className="flex justify-between items-start">
+            {/* AI diagnosis trigger */}
+            <div className="bg-cyan-500/15 backdrop-blur-md border border-cyan-400/30 rounded-2xl p-6">
+              <button
+                onClick={analyzeErrors}
+                disabled={loadingAi}
+                className="w-full py-4 bg-purple-600 hover:bg-purple-700 text-white rounded-xl font-bold shadow-lg transition-all flex items-center justify-center gap-2"
+              >
+                {loadingAi ? 'Analyzing System...' : '🤖 Smart AI Analysis'}
+              </button>
+
+              {aiSuggestion && (
+                <div className="mt-6 p-6 bg-purple-500/20 border-2 border-purple-400/40 rounded-xl">
+                  <h4 className="font-bold text-purple-300 mb-4">🤖 AI Diagnosis</h4>
+                  <div className="space-y-4">
                     <div>
-                      <p className="text-white/80 text-sm font-semibold">{stat.label}</p>
-                      <p className="text-3xl font-bold mt-2">{stat.value}</p>
+                      <p className="text-purple-300/70 text-sm font-semibold">Possible Cause:</p>
+                      <p className="text-white mt-2">{aiSuggestion.possibleCause}</p>
                     </div>
-                    <span className="text-4xl">{stat.icon}</span>
+                    <div>
+                      <p className="text-purple-300/70 text-sm font-semibold">Recommended Fix:</p>
+                      <p className="text-white mt-2">{aiSuggestion.recommendedFix}</p>
+                    </div>
+                    <div>
+                      <p className="text-purple-300/70 text-sm font-semibold">Severity:</p>
+                      <span className={`inline-block mt-2 px-4 py-2 rounded-full text-sm font-bold border ${
+                        aiSuggestion.severity === 'HIGH' ? 'bg-red-500/30 text-red-300 border-red-400/50' :
+                        aiSuggestion.severity === 'MEDIUM' ? 'bg-yellow-500/30 text-yellow-300 border-yellow-400/50' :
+                        'bg-green-500/30 text-green-300 border-green-400/50'
+                      }`}>
+                        {aiSuggestion.severity}
+                      </span>
+                    </div>
                   </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Bottom Section: Endpoints + Chart */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-
-            {/* Endpoints List */}
-            <div className="lg:col-span-1 bg-cyan-500/15 backdrop-blur-md border-2 border-cyan-400/50 rounded-2xl p-6 hover:bg-cyan-500/25 transition-all max-h-96 overflow-y-auto">
-              <h3 className="text-xl font-bold text-cyan-300 mb-4 flex items-center gap-2">
-                <span>📍</span> Monitored Endpoints
-              </h3>
-
-              {endpoints.length === 0 ? (
-                <p className="text-cyan-400/60 text-center py-8">No endpoints yet</p>
-              ) : (
-                <div className="space-y-3">
-                  {endpoints.map((ep) => (
-                    <div
-                      key={ep._id || ep.id}
-                      className="bg-cyan-900/40 border border-cyan-400/30 rounded-xl p-4 cursor-pointer hover:bg-cyan-900/60 hover:border-cyan-400/50 transition-all group"
-                      onClick={() => handleEndpointClick(ep)}
-                    >
-                      <div className="flex justify-between items-start mb-2">
-                        <p className="font-semibold text-cyan-300 group-hover:text-cyan-100">{ep.name || ep.url}</p>
-                        <span className={`px-3 py-1 rounded-full text-xs font-bold ${
-                          (ep.active || ep.status === 'UP')
-                            ? 'bg-green-500/30 text-green-300 border border-green-400/30'
-                            : 'bg-red-500/30 text-red-300 border border-red-400/30'
-                        }`}>
-                          {(ep.active || ep.status === 'UP') ? '🟢 UP' : '🔴 DOWN'}
-                        </span>
-                      </div>
-                      <p className="text-cyan-400/60 text-xs break-all">{ep.url}</p>
-                      <div className="flex justify-between items-center mt-3">
-                        <p className="text-xs text-cyan-400/70">
-                          Latest: {latestHealth[ep._id || ep.id] ? `${latestHealth[ep._id || ep.id]}ms` : '—'}
-                        </p>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            deleteEndpoint(ep._id || ep.id);
-                          }}
-                          className="px-2 py-1 bg-red-500/30 hover:bg-red-500/50 border border-red-400/30 text-red-300 text-xs rounded transition-all"
-                        >
-                          Delete
-                        </button>
-                      </div>
-                    </div>
-                  ))}
                 </div>
               )}
             </div>
-
-            {/* Chart */}
-            {selectedEndpoint && (
-              <div className="lg:col-span-2 bg-cyan-500/15 backdrop-blur-md border-2 border-cyan-400/50 rounded-2xl p-6 hover:bg-cyan-500/25 transition-all">
-                <h3 className="text-xl font-bold text-cyan-300 mb-4 flex items-center gap-2">
-                  <span>📈</span> Response Time Trend
-                </h3>
-                {loadingChart ? (
-                  <p className="text-center py-8 text-cyan-400/60">Loading...</p>
-                ) : chartData.length === 0 ? (
-                  <p className="text-center py-8 text-cyan-400/60">No data yet</p>
-                ) : (
-                  <ResponsiveContainer width="100%" height={300}>
-                    <LineChart data={chartData}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#06b6d420" />
-                      <XAxis dataKey="checkedAt" stroke="#06b6d4" />
-                      <YAxis stroke="#06b6d4" />
-                      <Tooltip contentStyle={{ backgroundColor: '#0d4f5f', border: '1px solid #06b6d4', borderRadius: '8px' }} />
-                      <Legend />
-                      <Line
-                        type="monotone"
-                        dataKey="responseTimeMs"
-                        name="Response (ms)"
-                        stroke="#06b6d4"
-                        strokeWidth={3}
-                        dot={{ fill: '#06b6d4', r: 5 }}
-                      />
-                    </LineChart>
-                  </ResponsiveContainer>
-                )}
-              </div>
-            )}
           </div>
 
-          {/* AI Analysis */}
-          <div className="mt-8 bg-cyan-500/15 backdrop-blur-md border-2 border-cyan-400/50 rounded-2xl p-6 hover:bg-cyan-500/25 transition-all">
-            <h3 className="text-xl font-bold text-cyan-300 mb-4 flex items-center gap-2">
-              <span>🤖</span> AI Error Analysis
-            </h3>
-            <button
-              onClick={analyzeErrors}
-              disabled={loadingAi}
-              className="px-8 py-3 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 rounded-lg font-bold disabled:opacity-50 transition-all shadow-lg text-white"
-            >
-              {loadingAi ? 'Analyzing...' : '🔍 Analyze Recent Errors with AI'}
-            </button>
+          {/* Endpoints Monitors List & Graph details */}
+          <div className="lg:col-span-2 space-y-6">
+            <div className="bg-cyan-500/15 backdrop-blur-md border border-cyan-400/30 rounded-2xl p-6">
+              <h3 className="text-xl font-bold mb-4">Monitored Endpoints</h3>
+              <div className="space-y-3">
+                {endpoints.map((ep) => {
+                  const id = ep._id || ep.id;
+                  const isSelected = selectedEndpoint && (selectedEndpoint._id === id || selectedEndpoint.id === id);
+                  return (
+                    <div
+                      key={id}
+                      onClick={() => handleEndpointClick(ep)}
+                      className={`p-4 border rounded-xl flex justify-between items-center cursor-pointer transition-all ${
+                        isSelected ? 'bg-cyan-500/30 border-cyan-400' : 'bg-cyan-900/20 border-cyan-400/20 hover:bg-cyan-500/10'
+                      }`}
+                    >
+                      <div>
+                        <h4 className="font-bold text-cyan-200">{ep.name}</h4>
+                        <p className="text-sm text-cyan-400/60 break-all">{ep.url}</p>
+                        <p className="text-xs text-purple-300 font-semibold mt-1">
+                          Latency: {latestHealth[id] ? `${latestHealth[id]}ms` : 'Fetching...'}
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-4">
+                        <span className={`px-3 py-1 rounded-full text-xs font-bold ${
+                          ep.active || ep.status === 'UP' ? 'bg-green-500/20 text-green-300 border border-green-500/30' : 'bg-red-500/20 text-red-300 border border-red-500/30'
+                        }`}>
+                          {ep.active || ep.status === 'UP' ? 'UP' : 'DOWN'}
+                        </span>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            deleteEndpoint(id);
+                          }}
+                          className="p-2 bg-red-500/20 hover:bg-red-500/40 text-red-300 rounded-lg transition-all"
+                        >
+                          🗑️
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
 
-            {aiSuggestion && (
-              <div className="mt-6 p-6 bg-purple-500/20 border-2 border-purple-400/40 rounded-xl">
-                <h4 className="font-bold text-purple-300 mb-4">🤖 AI Diagnosis</h4>
-                <div className="space-y-4">
-                  <div>
-                    <p className="text-purple-300/70 text-sm font-semibold">Possible Cause:</p>
-                    <p className="text-white mt-2">{aiSuggestion.possibleCause}</p>
-                  </div>
-                  <div>
-                    <p className="text-purple-300/70 text-sm font-semibold">Recommended Fix:</p>
-                    <p className="text-white mt-2">{aiSuggestion.recommendedFix}</p>
-                  </div>
-                  <div>
-                    <p className="text-purple-300/70 text-sm font-semibold">Severity:</p>
-                    <span className={`inline-block mt-2 px-4 py-2 rounded-full text-sm font-bold border ${
-                      aiSuggestion.severity === 'HIGH' ? 'bg-red-500/30 text-red-300 border-red-400/50' :
-                      aiSuggestion.severity === 'MEDIUM' ? 'bg-yellow-500/30 text-yellow-300 border-yellow-400/50' :
-                      'bg-green-500/30 text-green-300 border-green-400/50'
-                    }`}>
-                      {aiSuggestion.severity}
-                    </span>
-                  </div>
-                </div>
+            {/* Performance Chart details */}
+            {selectedEndpoint && (
+              <div className="bg-cyan-500/15 backdrop-blur-md border-2 border-cyan-400/50 rounded-2xl p-6">
+                <h3 className="text-xl font-bold text-cyan-300 mb-2">Performance History</h3>
+                <p className="text-sm text-cyan-400/60 mb-4">{selectedEndpoint.name} ({selectedEndpoint.url})</p>
+                {loadingChart ? (
+                  <p className="text-center py-8 text-cyan-300">Loading metrics chart...</p>
+                ) : chartData.length > 0 ? (
+                  <ResponsiveContainer width="100%" h={250}>
+                    <LineChart data={chartData}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#0891b2" opacity={0.2} />
+                      <XAxis dataKey="checkedAt" stroke="#22d3ee" />
+                      <YAxis stroke="#22d3ee" />
+                      <Tooltip contentStyle={{ backgroundColor: '#0e7490', border: 'none', borderRadius: '12px' }} />
+                      <Line type="monotone" dataKey="responseTimeMs" stroke="#a855f7" strokeWidth={3} />
+                    </LineChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <p className="text-center py-8 text-cyan-400/60">No recent history logs for this endpoint.</p>
+                )}
               </div>
             )}
           </div>
